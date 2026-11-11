@@ -1,0 +1,16 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Segurança da cadeia de suprimentos: só instala versões publicadas há
+# pelo menos 3 dias (mitiga pacotes comprometidos recém-publicados).
+minimumReleaseAge: 4320
+
+# Scripts de instalação só rodam para pacotes explicitamente aprovados.
+allowBuilds:
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+
+# Versões exatas ao adicionar dependências.
+savePrefix: ''
