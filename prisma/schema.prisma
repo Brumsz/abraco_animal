@@ -1,0 +1,678 @@
+// =====================================================================
+//  Abraço Animal — Schema Prisma (Etapa 1)
+// ---------------------------------------------------------------------
+//  Convenções:
+//   - PK interna Int (autoincrement) usada apenas em FKs/joins.
+//   - publicId UUID é o único identificador exposto na API (DTOs).
+//   - Todas as datas em timestamptz (UTC).
+//   - Soft delete via removidoEm onde indicado.
+//   - Índice único parcial de Adocao (PENDENTE) é criado por SQL manual:
+//     prisma/migrations/_manual/adocao_pendente_unica.sql
+//   - Blocos marcados "EXTRA" não constam da seção 3 da spec; foram
+//     aprovados na revisão da Etapa 1 (ver docs/etapa-1/decisoes-e-conflitos.md).
+// =====================================================================
+
+// Prisma 7: a URL de conexão fica em prisma.config.ts (Migrate) e no
+// adapter @prisma/adapter-pg passado ao PrismaClient (runtime).
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────── ENUMS ───────────────────────────────
+
+enum Role {
+  USUARIO
+  VOLUNTARIO
+  ADMIN
+}
+
+enum TipoAnimal {
+  EQUINO
+  CANINO
+  BOVINO
+  OUTRO
+}
+
+enum Sexo {
+  MACHO
+  FEMEA
+}
+
+enum Porte {
+  PEQUENO
+  MEDIO
+  GRANDE
+  MUITO_GRANDE
+}
+
+enum StatusAnimal {
+  DISPONIVEL
+  EM_TRATAMENTO
+  ADOTADO
+  INDISPONIVEL
+}
+
+enum StatusAdocao {
+  PENDENTE
+  APROVADA
+  RECUSADA
+}
+
+enum TipoMoradia {
+  CASA_COM_QUINTAL
+  CASA_SEM_QUINTAL
+  APARTAMENTO
+  CHACARA
+  FAZENDA
+}
+
+enum StatusDoacaoAnimal {
+  PENDENTE
+  APROVADA
+  RECUSADA
+  RECEBIDA
+}
+
+enum StatusDoacaoFinanceira {
+  PENDENTE
+  CONFIRMADA
+  EXPIRADA
+}
+
+enum StatusConversa {
+  ABERTA
+  ENCERRADA
+}
+
+enum SecaoPerfilOng {
+  SOBRE_NOS
+  FUNDACAO
+  FUNDADORES
+}
+
+// EXTRA — notificações (sino da Home + push), incluídas no 1º lançamento
+enum TipoNotificacao {
+  ADOCAO_APROVADA
+  ADOCAO_RECUSADA
+  ADOCAO_ANIMAL_ADOTADO // recusa automática: o animal foi adotado por outra pessoa
+  DOACAO_ANIMAL_ATUALIZADA
+  DOACAO_FINANCEIRA_CONFIRMADA
+  VOLUNTARIADO_ATUALIZADO
+  CHAT_NOVA_MENSAGEM
+  GERAL
+}
+
+// EXTRA — candidatura de voluntariado (seção 4, VOLUNTARIAR)
+enum StatusVoluntario {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
+enum AreaInteresse {
+  CUIDADO_ANIMAIS
+  EVENTOS
+  REDES_SOCIAIS
+  TRANSPORTE
+  CAPTACAO_RECURSOS
+  OUTROS
+}
+
+enum DiaSemana {
+  DOMINGO
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+}
+
+enum Turno {
+  MANHA
+  TARDE
+  NOITE
+}
+
+// ───────────────────────────── USUÁRIOS ──────────────────────────────
+
+model Usuario {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  nome      String
+  email     String @unique
+  senhaHash String // Argon2id — nunca retornado pela API
+  telefone  String
+
+  // CPF: AES-256-GCM em repouso + blind index (HMAC-SHA256) para unicidade/busca
+  cpfCifrado Bytes
+  cpfIv      Bytes
+  cpfTag     Bytes
+  cpfHash    String @unique
+
+  // Data de nascimento: AES-256-GCM em repouso
+  dataNascCifrada Bytes
+  dataNascIv      Bytes
+  dataNascTag     Bytes
+
+  // Endereço (preenchido via ViaCEP no app)
+  cep         String
+  logradouro  String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  uf          String  @db.Char(2)
+
+  fotoUrl String?
+  capaUrl String?
+
+  role                 Role      @default(USUARIO)
+  ativo                Boolean   @default(true)
+  aceitouTermosEm      DateTime  @db.Timestamptz(3)
+  consentimentoDadosEm DateTime  @db.Timestamptz(3)
+  criadoEm             DateTime  @default(now()) @db.Timestamptz(3)
+  atualizadoEm         DateTime  @updatedAt @db.Timestamptz(3)
+  removidoEm           DateTime? @db.Timestamptz(3)
+
+  adocoes                  Adocao[]           @relation("AdocaoSolicitante")
+  adocoesAnalisadas        Adocao[]           @relation("AdocaoAnalisadaPor")
+  doacoesAnimais           DoacaoAnimal[]     @relation("DoacaoAnimalDoador")
+  doacoesAnimaisAnalisadas DoacaoAnimal[]     @relation("DoacaoAnimalAnalisadaPor")
+  doacoesFinanceiras       DoacaoFinanceira[]
+  apadrinhamentos          Apadrinhamento[]
+  voluntario               Voluntario?        @relation("VoluntarioUsuario")
+  voluntariosAnalisados    Voluntario[]       @relation("VoluntarioAnalisadoPor")
+  conversas                Conversa[]         @relation("ConversaUsuario")
+  conversasAtendidas       Conversa[]         @relation("ConversaAdmin")
+  mensagens                Mensagem[]
+  curtidas                 Curtida[]
+  recuperacoesSenha        RecuperacaoSenha[]
+  auditLogs                AuditLog[]
+  sessoes                  Sessao[]
+  notificacoes             Notificacao[]
+  dispositivosPush         DispositivoPush[]
+
+  @@index([role, ativo])
+  @@map("usuarios")
+}
+
+// EXTRA — necessário para a seção 6 (refresh vinculado a sid/deviceId)
+model Sessao {
+  id         Int       @id @default(autoincrement())
+  sid        String    @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  usuarioId  Int
+  deviceId   String
+  criadaEm   DateTime  @default(now()) @db.Timestamptz(3)
+  ultimoUso  DateTime  @default(now()) @db.Timestamptz(3)
+  revogadaEm DateTime? @db.Timestamptz(3)
+
+  usuario       Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+
+  @@index([usuarioId])
+  @@map("sessoes")
+}
+
+// EXTRA — rotação a cada uso; reuso de token revogado → revoga a família
+model RefreshToken {
+  id               Int       @id @default(autoincrement())
+  tokenHash        String    @unique // SHA-256 do token de 256 bits
+  sessaoId         Int
+  familiaId        String    @db.Uuid
+  substituidoPorId Int?      @unique
+  expiraEm         DateTime  @db.Timestamptz(3)
+  usadoEm          DateTime? @db.Timestamptz(3)
+  revogadoEm       DateTime? @db.Timestamptz(3)
+  criadoEm         DateTime  @default(now()) @db.Timestamptz(3)
+
+  sessao         Sessao        @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
+  substituidoPor RefreshToken? @relation("Rotacao", fields: [substituidoPorId], references: [id])
+  substitui      RefreshToken? @relation("Rotacao")
+
+  @@index([familiaId])
+  @@map("refresh_tokens")
+}
+
+model RecuperacaoSenha {
+  id         Int       @id @default(autoincrement())
+  usuarioId  Int
+  codigoHash String // SHA-256 do código de 6 dígitos — nunca o código
+  tentativas Int       @default(0)
+  expiraEm   DateTime  @db.Timestamptz(3)
+  usadoEm    DateTime? @db.Timestamptz(3)
+  criadoEm   DateTime  @default(now()) @db.Timestamptz(3)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, criadoEm])
+  @@map("recuperacoes_senha")
+}
+
+// ────────────────────────────── ANIMAIS ──────────────────────────────
+
+model Animal {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  nome            String
+  tipo            TipoAnimal
+  raca            String
+  idadeAprox      Int // em meses
+  sexo            Sexo
+  porte           Porte
+  descricao       String       @db.Text
+  historiaResgate String       @db.Text
+  vacinado        Boolean      @default(false)
+  castrado        Boolean      @default(false)
+  status          StatusAnimal @default(DISPONIVEL)
+
+  criadoEm     DateTime  @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime  @updatedAt @db.Timestamptz(3)
+  removidoEm   DateTime? @db.Timestamptz(3)
+
+  fotos           AnimalFoto[]
+  adocoes         Adocao[]
+  apadrinhamentos Apadrinhamento[]
+  doacaoOrigem    DoacaoAnimal?    @relation("DoacaoAnimalGerado")
+
+  @@index([status, tipo, porte, sexo])
+  @@index([criadoEm, id]) // paginação por cursor
+  @@map("animais")
+}
+
+model AnimalFoto {
+  id       Int      @id @default(autoincrement())
+  publicId String   @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  animalId Int
+  url      String // chave do objeto no S3; servida por URL assinada (1h)
+  ordem    Int
+  criadoEm DateTime @default(now()) @db.Timestamptz(3)
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  @@unique([animalId, ordem])
+  @@map("animal_fotos")
+}
+
+// ────────────────────────────── ADOÇÕES ──────────────────────────────
+
+model Adocao {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId Int? // nulo após anonimização LGPD
+  animalId  Int
+  status    StatusAdocao @default(PENDENTE)
+
+  // Triagem
+  motivo               String      @db.Text
+  tipoMoradia          TipoMoradia
+  possuiEspacoAdequado Boolean
+  outrosAnimais        String?     @db.Text
+  termoAceitoEm        DateTime    @db.Timestamptz(3)
+
+  // Análise do admin
+  analisadoPorId   Int?
+  analisadoEm      DateTime? @db.Timestamptz(3)
+  motivoRecusa     String?   @db.Text
+  // EXTRA — true quando recusada automaticamente porque o animal foi adotado
+  // por outra pessoa (o app mostra mensagem específica + notificação)
+  recusaAutomatica Boolean   @default(false)
+
+  criadoEm     DateTime  @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime  @updatedAt @db.Timestamptz(3)
+  removidoEm   DateTime? @db.Timestamptz(3)
+
+  usuario      Usuario? @relation("AdocaoSolicitante", fields: [usuarioId], references: [id], onDelete: SetNull)
+  animal       Animal   @relation(fields: [animalId], references: [id])
+  analisadoPor Usuario? @relation("AdocaoAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+
+  // Índice único parcial (usuarioId, animalId) WHERE status = 'PENDENTE' AND removidoEm IS NULL
+  // → criado via SQL manual (Prisma não suporta índices parciais no schema).
+  @@index([usuarioId, criadoEm])
+  @@index([status, criadoEm])
+  @@index([animalId])
+  @@map("adocoes")
+}
+
+// ───────────────────── DOAÇÃO DE ANIMAL PARA A ONG ───────────────────
+
+model DoacaoAnimal {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId        Int?
+  nomeAnimal       String
+  tipo             TipoAnimal
+  raca             String
+  idadeAprox       Int // em meses
+  sexo             Sexo
+  porte            Porte
+  descricao        String             @db.Text
+  motivoDoacao     String             @db.Text
+  enderecoRetirada String             @db.Text
+  status           StatusDoacaoAnimal @default(PENDENTE)
+
+  analisadoPorId Int?
+  analisadoEm    DateTime? @db.Timestamptz(3)
+  motivoRecusa   String?   @db.Text
+
+  // Animal criado automaticamente ao marcar RECEBIDA (garante idempotência)
+  animalCriadoId Int? @unique
+
+  criadoEm     DateTime @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime @updatedAt @db.Timestamptz(3)
+
+  usuario      Usuario?           @relation("DoacaoAnimalDoador", fields: [usuarioId], references: [id], onDelete: SetNull)
+  analisadoPor Usuario?           @relation("DoacaoAnimalAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+  animalCriado Animal?            @relation("DoacaoAnimalGerado", fields: [animalCriadoId], references: [id])
+  fotos        DoacaoAnimalFoto[]
+
+  @@index([usuarioId, criadoEm])
+  @@index([status, criadoEm])
+  @@map("doacoes_animais")
+}
+
+model DoacaoAnimalFoto {
+  id       Int      @id @default(autoincrement())
+  publicId String   @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doacaoId Int
+  url      String
+  ordem    Int
+  criadoEm DateTime @default(now()) @db.Timestamptz(3)
+
+  doacao DoacaoAnimal @relation(fields: [doacaoId], references: [id], onDelete: Cascade)
+
+  @@unique([doacaoId, ordem])
+  @@map("doacao_animal_fotos")
+}
+
+// ───────────────────── DOAÇÃO FINANCEIRA (PIX) ───────────────────────
+
+model DoacaoFinanceira {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId   Int? // permite doação sem cadastro
+  nomeDoador  String? // doações sem cadastro
+  emailDoador String? // envio de comprovante
+  anonima     Boolean @default(false) // EXTRA — toggle "Doe sem identificação"
+
+  valor  Decimal                @db.Decimal(10, 2)
+  status StatusDoacaoFinanceira @default(PENDENTE)
+
+  pixCopiaCola   String  @db.Text
+  pixQrCodeUrl   String? @db.Text // opcional: o app gera o QR localmente a partir de pixCopiaCola
+  pspTxId        String  @unique // id da cobrança no Asaas
+  idempotencyKey String  @unique
+
+  expiresAt    DateTime  @db.Timestamptz(3)
+  paidAt       DateTime? @db.Timestamptz(3)
+  criadoEm     DateTime  @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime  @updatedAt @db.Timestamptz(3)
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([usuarioId, criadoEm])
+  @@index([status, expiresAt])
+  @@map("doacoes_financeiras")
+}
+
+// EXTRA — idempotência de webhooks do PSP (evento processado uma única vez)
+model WebhookEvento {
+  id         Int      @id @default(autoincrement())
+  provedor   String // "ASAAS"
+  eventoId   String
+  tipo       String
+  recebidoEm DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([provedor, eventoId])
+  @@map("webhook_eventos")
+}
+
+// ─────────────────────────── APADRINHAMENTO ──────────────────────────
+
+model Apadrinhamento {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId        Int
+  animalId         Int
+  ativo            Boolean  @default(true)
+  mensagemPadrinho String?  @db.Text
+  criadoEm         DateTime @default(now()) @db.Timestamptz(3)
+  atualizadoEm     DateTime @updatedAt @db.Timestamptz(3)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  animal  Animal  @relation(fields: [animalId], references: [id])
+
+  @@unique([usuarioId, animalId])
+  @@index([animalId, ativo])
+  @@map("apadrinhamentos")
+}
+
+// ──────────────────────────── VOLUNTARIADO ───────────────────────────
+
+model Voluntario {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId Int     @unique
+  cargo     String?
+
+  // EXTRA — campos do formulário de candidatura (seção 4)
+  status              StatusVoluntario @default(PENDENTE)
+  areasInteresse      AreaInteresse[]
+  areaInteresseOutros String?
+  disponibilidadeDias DiaSemana[]
+  turnos              Turno[]
+  motivacao           String           @db.Text
+  habilidades         String?          @db.Text
+  analisadoPorId      Int?
+  analisadoEm         DateTime?        @db.Timestamptz(3)
+  motivoRecusa        String?          @db.Text
+
+  criadoEm     DateTime @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime @updatedAt @db.Timestamptz(3)
+
+  usuario      Usuario  @relation("VoluntarioUsuario", fields: [usuarioId], references: [id], onDelete: Cascade)
+  analisadoPor Usuario? @relation("VoluntarioAnalisadoPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([status, criadoEm])
+  @@map("voluntarios")
+}
+
+// ──────────────────────────────── CHAT ───────────────────────────────
+
+model Conversa {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId    Int
+  adminId      Int?
+  status       StatusConversa @default(ABERTA)
+  assunto      String?
+  criadoEm     DateTime       @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime       @updatedAt @db.Timestamptz(3)
+
+  usuario   Usuario    @relation("ConversaUsuario", fields: [usuarioId], references: [id], onDelete: Cascade)
+  admin     Usuario?   @relation("ConversaAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+  mensagens Mensagem[]
+
+  @@index([status, atualizadoEm])
+  @@index([usuarioId])
+  @@map("conversas")
+}
+
+model Mensagem {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  conversaId Int
+  autorId    Int
+  conteudo   String    @db.Text
+  lida       Boolean   @default(false)
+  lidaEm     DateTime? @db.Timestamptz(3)
+  criadoEm   DateTime  @default(now()) @db.Timestamptz(3)
+
+  conversa Conversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  autor    Usuario  @relation(fields: [autorId], references: [id], onDelete: Cascade)
+
+  @@index([conversaId, criadoEm])
+  @@map("mensagens")
+}
+
+// ─────────────────────────────── FEED ────────────────────────────────
+
+model Post {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  legenda      String   @db.Text
+  publicado    Boolean  @default(false)
+  criadoEm     DateTime @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime @updatedAt @db.Timestamptz(3)
+
+  imagens  PostImagem[]
+  curtidas Curtida[]
+
+  @@index([publicado, criadoEm])
+  @@map("posts")
+}
+
+model PostImagem {
+  id       Int      @id @default(autoincrement())
+  publicId String   @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  postId   Int
+  url      String
+  ordem    Int
+  criadoEm DateTime @default(now()) @db.Timestamptz(3)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, ordem])
+  @@map("post_imagens")
+}
+
+model Curtida {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  usuarioId Int
+  criadoEm  DateTime @default(now()) @db.Timestamptz(3)
+
+  post    Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, usuarioId])
+  @@map("curtidas")
+}
+
+// ────────────────────────── CONTEÚDO / INSTITUCIONAL ─────────────────
+
+model Noticia {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  slug         String   @unique
+  titulo       String
+  resumo       String
+  conteudo     String   @db.Text // Markdown sanitizado
+  imagem       String?
+  publicado    Boolean  @default(false)
+  criadoEm     DateTime @default(now()) @db.Timestamptz(3)
+  atualizadoEm DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([publicado, criadoEm])
+  @@map("noticias")
+}
+
+model PerfilOng {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  secao        SecaoPerfilOng @unique
+  titulo       String
+  conteudo     String         @db.Text
+  publicado    Boolean        @default(true)
+  atualizadoEm DateTime       @updatedAt @db.Timestamptz(3)
+
+  @@map("perfil_ong")
+}
+
+model Faq {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  pergunta     String
+  resposta     String   @db.Text
+  ordem        Int
+  publicado    Boolean  @default(true)
+  atualizadoEm DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([publicado, ordem])
+  @@map("faqs")
+}
+
+// ───────────────────────── NOTIFICAÇÕES (EXTRA) ──────────────────────
+
+// EXTRA — sino de notificações do header da Home
+model Notificacao {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  usuarioId  Int
+  tipo       TipoNotificacao
+  titulo     String
+  corpo      String
+  entidadeId String?         @db.Uuid // publicId do recurso (adoção, doação…); o app monta a rota pelo tipo
+  lidaEm     DateTime?       @db.Timestamptz(3)
+  criadoEm   DateTime        @default(now()) @db.Timestamptz(3)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, criadoEm])
+  @@index([usuarioId, lidaEm])
+  @@map("notificacoes")
+}
+
+// EXTRA — tokens Expo Push por dispositivo
+model DispositivoPush {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  deviceId  String
+  expoToken String   @unique
+  criadoEm  DateTime @default(now()) @db.Timestamptz(3)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, deviceId])
+  @@map("dispositivos_push")
+}
+
+// ───────────────────────────── AUDITORIA ─────────────────────────────
+
+model AuditLog {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  adminId    Int
+  acao       String // ex.: ADOCAO_APROVADA, ANIMAL_STATUS_ALTERADO
+  entidade   String // ex.: Adocao, Animal
+  entidadeId String // publicId da entidade afetada
+  detalhe    Json? // nunca contém CPF, senha, token ou e-mail completo
+  criadoEm   DateTime @default(now()) @db.Timestamptz(3)
+
+  admin Usuario @relation(fields: [adminId], references: [id])
+
+  @@index([adminId, criadoEm])
+  @@index([entidade, entidadeId])
+  @@index([criadoEm])
+  @@map("audit_logs")
+}

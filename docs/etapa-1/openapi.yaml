@@ -1,0 +1,2219 @@
+openapi: 3.1.0
+info:
+  title: Abraço Animal API
+  version: 0.1.0-esboco
+  description: |
+    Esboço do contrato da API da ONG Abraço Animal (Etapa 1).
+    - Todos os `id` são UUID (publicId). IDs internos nunca são expostos.
+    - Erros seguem RFC 9457 (`application/problem+json`).
+    - Payloads de entrada são estritos: campos desconhecidos → 400.
+    - Rotas `/admin/*` exigem role ADMIN (validada no use case).
+    - Será gerado automaticamente a partir dos schemas Zod (fastify-type-provider-zod) na implementação;
+      este arquivo é o contrato de referência para aprovação.
+servers:
+  - url: http://localhost:3333/v1
+    description: Desenvolvimento
+  - url: https://api-staging.abracoanimal.org.br/v1
+    description: Staging
+  - url: https://api.abracoanimal.org.br/v1
+    description: Produção
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: health
+    description: Health checks
+  - name: auth
+    description: Cadastro, login, tokens e recuperação de senha
+  - name: me
+    description: Dados e atividades do usuário autenticado
+  - name: animais
+    description: Animais da ONG
+  - name: adocoes
+    description: Solicitações de adoção
+  - name: doacoes-animais
+    description: Doação de animais para a ONG
+  - name: doacoes-financeiras
+    description: Doações via Pix (Asaas)
+  - name: webhooks
+    description: Webhooks de provedores externos
+  - name: apadrinhamentos
+    description: Programa de apadrinhamento
+  - name: voluntariado
+    description: Candidaturas de voluntariado
+  - name: feed
+    description: Posts da ONG
+  - name: noticias
+    description: Jornal Abraço Animal
+  - name: institucional
+    description: Sobre a ONG e FAQ
+  - name: chat
+    description: Chat com a ONG
+  - name: notificacoes
+    description: Notificações in-app e push
+  - name: admin
+    description: Painel administrativo (role ADMIN)
+
+paths:
+  # ───────────────────────────── HEALTH ─────────────────────────────
+  /health/live:
+    get:
+      tags: [health]
+      operationId: healthLive
+      security: []
+      servers: [{ url: / }]
+      summary: Processo vivo
+      responses:
+        '200': { $ref: '#/components/responses/HealthOk' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /health/ready:
+    get:
+      tags: [health]
+      operationId: healthReady
+      security: []
+      servers: [{ url: / }]
+      summary: Dependências (Postgres, Redis, S3) prontas
+      responses:
+        '200': { $ref: '#/components/responses/HealthOk' }
+        '503': { $ref: '#/components/responses/Erro' }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  # ────────────────────────────── AUTH ──────────────────────────────
+  /auth/cadastro:
+    post:
+      tags: [auth]
+      operationId: cadastrar
+      security: []
+      summary: Cria conta de USUARIO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CadastroEntrada' }
+      responses:
+        '201':
+          description: Conta criada e sessão iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessaoSaida' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+        '429': { $ref: '#/components/responses/Erro' }
+  /auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      security: []
+      summary: Login (5 tentativas / 15 min por IP, bloqueio progressivo)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginEntrada' }
+      responses:
+        '200':
+          description: Autenticado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessaoSaida' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '401': { $ref: '#/components/responses/Erro' }
+        '429': { $ref: '#/components/responses/Erro' }
+  /auth/refresh:
+    post:
+      tags: [auth]
+      operationId: refresh
+      security: []
+      summary: Rotaciona o refresh token. Reuso de token já rotacionado revoga toda a família.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshEntrada' }
+      responses:
+        '200':
+          description: Novo par de tokens
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SessaoSaida' }
+        '401': { $ref: '#/components/responses/Erro' }
+  /auth/logout:
+    post:
+      tags: [auth]
+      operationId: logout
+      summary: Revoga a sessão atual (sid e jti no Redis)
+      responses:
+        '204': { description: Sessão encerrada }
+        '401': { $ref: '#/components/responses/Erro' }
+  /auth/recuperar-senha/solicitar:
+    post:
+      tags: [auth]
+      operationId: solicitarRecuperacaoSenha
+      security: []
+      summary: Envia código de 6 dígitos (3 / hora por e-mail). Sempre 202, exista ou não a conta.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '202': { description: 'Se a conta existir, o código foi enviado' }
+        '429': { $ref: '#/components/responses/Erro' }
+  /auth/recuperar-senha/verificar-codigo:
+    post:
+      tags: [auth]
+      operationId: verificarCodigoRecuperacao
+      security: []
+      summary: Valida o código e devolve um token de redefinição de uso único
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, codigo]
+              properties:
+                email: { type: string, format: email }
+                codigo: { type: string, pattern: '^[0-9]{6}$' }
+      responses:
+        '200':
+          description: Código válido
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tokenRedefinicao]
+                properties:
+                  tokenRedefinicao: { type: string }
+        '400': { $ref: '#/components/responses/Erro' }
+        '429': { $ref: '#/components/responses/Erro' }
+  /auth/recuperar-senha/redefinir:
+    post:
+      tags: [auth]
+      operationId: redefinirSenha
+      security: []
+      summary: Define nova senha e revoga todas as sessões do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [tokenRedefinicao, novaSenha]
+              properties:
+                tokenRedefinicao: { type: string }
+                novaSenha: { $ref: '#/components/schemas/Senha' }
+      responses:
+        '204': { description: Senha redefinida }
+        '400': { $ref: '#/components/responses/Erro' }
+
+  # ─────────────────────────────── ME ───────────────────────────────
+  /me:
+    get:
+      tags: [me]
+      operationId: obterPerfil
+      summary: Meu perfil
+      responses:
+        '200':
+          description: Perfil do usuário autenticado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioPerfil' }
+        '401': { $ref: '#/components/responses/Erro' }
+    patch:
+      tags: [me]
+      operationId: editarPerfil
+      summary: Edita meu perfil
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EditarPerfilEntrada' }
+      responses:
+        '200':
+          description: Perfil atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioPerfil' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '401': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [me]
+      operationId: excluirConta
+      summary: Soft delete + anonimização LGPD (adoções mantidas sem vínculo nominativo)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [senha, confirmacao]
+              properties:
+                senha: { type: string }
+                confirmacao: { type: string, const: EXCLUIR }
+      responses:
+        '204': { description: Conta excluída }
+        '401': { $ref: '#/components/responses/Erro' }
+  /me/senha:
+    post:
+      tags: [me]
+      operationId: alterarSenha
+      summary: Altera minha senha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [senhaAtual, novaSenha]
+              properties:
+                senhaAtual: { type: string }
+                novaSenha: { $ref: '#/components/schemas/Senha' }
+      responses:
+        '204': { description: Senha alterada; outras sessões revogadas }
+        '400': { $ref: '#/components/responses/Erro' }
+        '401': { $ref: '#/components/responses/Erro' }
+  /me/foto:
+    post:
+      tags: [me]
+      operationId: enviarFotoPerfil
+      summary: Envia foto de perfil ou capa
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [arquivo, tipo]
+              properties:
+                tipo: { type: string, enum: [PERFIL, CAPA] }
+                arquivo: { type: string, format: binary }
+      responses:
+        '200':
+          description: Foto atualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UsuarioPerfil' }
+        '413': { $ref: '#/components/responses/Erro' }
+        '422': { $ref: '#/components/responses/Erro' }
+  /me/exportacao:
+    get:
+      tags: [me]
+      operationId: exportarDados
+      summary: Exportação LGPD de todos os dados do titular (inclui CPF decifrado apenas aqui)
+      responses:
+        '200':
+          description: Dados do titular
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '429': { $ref: '#/components/responses/Erro' }
+  /me/adocoes:
+    get:
+      tags: [me, adocoes]
+      operationId: listarMinhasAdocoes
+      summary: Minhas adoções
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Minhas adoções
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaAdocoes' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /me/doacoes-animais:
+    get:
+      tags: [me, doacoes-animais]
+      operationId: listarMinhasDoacoesAnimais
+      summary: Minhas doações de animais
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Minhas doações de animais
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDoacoesAnimais' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /me/doacoes-financeiras:
+    get:
+      tags: [me, doacoes-financeiras]
+      operationId: listarMinhasDoacoesFinanceiras
+      summary: Meu histórico de doações Pix
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Histórico Pix
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDoacoesFinanceiras' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /me/apadrinhamentos:
+    get:
+      tags: [me, apadrinhamentos]
+      operationId: listarMeusApadrinhamentos
+      summary: Meus apadrinhamentos
+      responses:
+        '200':
+          description: Animais apadrinhados
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Apadrinhamento' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /me/voluntariado:
+    get:
+      tags: [me, voluntariado]
+      operationId: obterMinhaCandidatura
+      summary: Minha candidatura de voluntariado
+      responses:
+        '200':
+          description: Candidatura de voluntariado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Voluntario' }
+        '404': { $ref: '#/components/responses/Erro' }
+
+  # ───────────────────────────── ANIMAIS ────────────────────────────
+  /animais:
+    get:
+      tags: [animais]
+      operationId: listarAnimais
+      security: [{}, { bearerAuth: [] }]
+      summary: USUARIO/anônimo vê só DISPONIVEL; VOLUNTARIO e ADMIN podem filtrar por status
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 80 } }
+        - { name: tipo, in: query, schema: { $ref: '#/components/schemas/TipoAnimal' } }
+        - { name: porte, in: query, schema: { $ref: '#/components/schemas/Porte' } }
+        - { name: sexo, in: query, schema: { $ref: '#/components/schemas/Sexo' } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/StatusAnimal' } }
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Página de animais
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaAnimais' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /animais/{id}:
+    get:
+      tags: [animais]
+      operationId: obterAnimal
+      summary: Detalhe do animal
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Detalhe do animal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalDetalhe' }
+        '404': { $ref: '#/components/responses/Erro' }
+  /animais/{id}/padrinhos:
+    get:
+      tags: [animais, apadrinhamentos]
+      operationId: listarPadrinhosAnimal
+      summary: Padrinhos do animal
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Padrinhos ativos (nome e avatar apenas)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PadrinhoResumo' }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  # ───────────────────────────── ADOÇÕES ────────────────────────────
+  /adocoes:
+    post:
+      tags: [adocoes]
+      operationId: solicitarAdocao
+      summary: Cria solicitação PENDENTE (10 / hora por usuário)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SolicitarAdocaoEntrada' }
+      responses:
+        '201':
+          description: Solicitação criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Adocao' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '409': { description: Já existe solicitação pendente ou animal indisponível, $ref: '#/components/responses/Erro' }
+        '429': { $ref: '#/components/responses/Erro' }
+  /adocoes/{id}:
+    get:
+      tags: [adocoes]
+      operationId: obterAdocao
+      summary: Apenas o solicitante ou ADMIN. Outro usuário → 403.
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Detalhe com timeline
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Adocao' }
+        '403': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+
+  # ───────────────────────── DOAÇÕES DE ANIMAIS ─────────────────────
+  /doacoes-animais:
+    post:
+      tags: [doacoes-animais]
+      operationId: doarAnimal
+      summary: Oferece um animal à ONG (até 10 fotos, 5MB cada; magic bytes validados)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [dados]
+              properties:
+                dados: { $ref: '#/components/schemas/DoarAnimalEntrada' }
+                fotos:
+                  type: array
+                  maxItems: 10
+                  items: { type: string, format: binary }
+            encoding:
+              dados: { contentType: application/json }
+      responses:
+        '201':
+          description: Doação registrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '413': { $ref: '#/components/responses/Erro' }
+        '422': { $ref: '#/components/responses/Erro' }
+        '429': { $ref: '#/components/responses/Erro' }
+  /doacoes-animais/{id}:
+    get:
+      tags: [doacoes-animais]
+      operationId: obterDoacaoAnimal
+      summary: Detalhe da doação de animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Detalhe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+        '403': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+
+  # ───────────────────────── DOAÇÕES FINANCEIRAS ────────────────────
+  /doacoes-financeiras:
+    post:
+      tags: [doacoes-financeiras]
+      operationId: gerarPix
+      security: [{}, { bearerAuth: [] }]
+      summary: Cria cobrança Pix no Asaas (expira em 15 min)
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GerarPixEntrada' }
+      responses:
+        '201':
+          description: Cobrança criada (ou a mesma, se Idempotency-Key repetida)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoFinanceira' }
+        '400': { $ref: '#/components/responses/Erro' }
+        '429': { $ref: '#/components/responses/Erro' }
+        '502': { $ref: '#/components/responses/Erro' }
+  /doacoes-financeiras/{id}/status:
+    get:
+      tags: [doacoes-financeiras]
+      operationId: consultarStatusPix
+      security: [{}, { bearerAuth: [] }]
+      summary: Botão "Já paguei". Status vem do banco (atualizado pelo webhook) e, se PENDENTE, reconsultado no Asaas.
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Status atual
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, status]
+                properties:
+                  id: { type: string, format: uuid }
+                  status: { $ref: '#/components/schemas/StatusDoacaoFinanceira' }
+                  paidAt: { type: [string, 'null'], format: date-time }
+        '404': { $ref: '#/components/responses/Erro' }
+
+  /webhooks/asaas:
+    post:
+      tags: [webhooks]
+      operationId: webhookAsaas
+      security: [{ asaasWebhookToken: [] }]
+      summary: |
+        Webhook do Asaas. Token comparado em tempo constante; evento deduplicado por id;
+        status da cobrança SEMPRE reconsultado na API do Asaas antes de confirmar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, event]
+              properties:
+                id: { type: string }
+                event: { type: string, examples: [PAYMENT_RECEIVED, PAYMENT_CONFIRMED, PAYMENT_OVERDUE] }
+                payment: { type: object, additionalProperties: true }
+      responses:
+        '200': { description: Recebido (também para eventos duplicados) }
+        '401': { $ref: '#/components/responses/Erro' }
+
+  # ─────────────────────────── APADRINHAMENTOS ──────────────────────
+  /apadrinhamentos:
+    post:
+      tags: [apadrinhamentos]
+      operationId: apadrinhar
+      summary: Somente animais com status DISPONIVEL podem ser apadrinhados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [animalId]
+              properties:
+                animalId: { type: string, format: uuid }
+                mensagemPadrinho: { type: string, maxLength: 500 }
+      responses:
+        '201':
+          description: Apadrinhamento criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Apadrinhamento' }
+        '404': { $ref: '#/components/responses/Erro' }
+        '409': { description: Já é padrinho deste animal, $ref: '#/components/responses/Erro' }
+        '422': { description: Animal não está DISPONIVEL (codigo ANIMAL_NAO_APADRINHAVEL), $ref: '#/components/responses/Erro' }
+  /apadrinhamentos/{id}:
+    delete:
+      tags: [apadrinhamentos]
+      operationId: encerrarApadrinhamento
+      summary: Marca ativo=false (somente o próprio padrinho)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Encerrado }
+        '403': { $ref: '#/components/responses/Erro' }
+        '404': { $ref: '#/components/responses/Erro' }
+
+  # ───────────────────────────── VOLUNTARIADO ───────────────────────
+  /voluntariado/candidaturas:
+    post:
+      tags: [voluntariado]
+      operationId: candidatarVoluntario
+      summary: Envia candidatura de voluntariado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CandidaturaEntrada' }
+      responses:
+        '201':
+          description: Candidatura PENDENTE
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Voluntario' }
+        '409': { $ref: '#/components/responses/Erro' }
+
+  # ─────────────────────────────── FEED ─────────────────────────────
+  /posts:
+    get:
+      tags: [feed]
+      operationId: listarPosts
+      summary: Feed de posts
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Posts publicados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaPosts' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /posts/{id}:
+    get:
+      tags: [feed]
+      operationId: obterPost
+      summary: Detalhe do post
+      security: [{}, { bearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Post
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '404': { $ref: '#/components/responses/Erro' }
+  /posts/{id}/curtida:
+    post:
+      tags: [feed]
+      operationId: curtirPost
+      summary: Curte o post
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Curtido (idempotente) }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [feed]
+      operationId: descurtirPost
+      summary: Remove a curtida
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Curtida removida (idempotente) }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  # ───────────────────────────── NOTÍCIAS ───────────────────────────
+  /noticias:
+    get:
+      tags: [noticias]
+      operationId: listarNoticias
+      summary: Lista notícias
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Notícias publicadas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaNoticias' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /noticias/{slug}:
+    get:
+      tags: [noticias]
+      operationId: obterNoticia
+      summary: Detalhe da notícia
+      security: [{}, { bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9-]+$' } }
+      responses:
+        '200':
+          description: Notícia
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Noticia' }
+        '404': { $ref: '#/components/responses/Erro' }
+
+  # ─────────────────────────── INSTITUCIONAL ────────────────────────
+  /institucional/perfil:
+    get:
+      tags: [institucional]
+      operationId: obterPerfilOng
+      summary: Perfil institucional da ONG
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: Seções publicadas (SOBRE_NOS, FUNDACAO, FUNDADORES)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PerfilOngSecao' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /institucional/faq:
+    get:
+      tags: [institucional]
+      operationId: listarFaq
+      summary: Perguntas frequentes
+      security: [{}, { bearerAuth: [] }]
+      responses:
+        '200':
+          description: FAQ publicado, ordenado
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Faq' }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  # ─────────────────────────────── CHAT ─────────────────────────────
+  /conversas:
+    get:
+      tags: [chat]
+      operationId: listarMinhasConversas
+      summary: Minhas conversas
+      responses:
+        '200':
+          description: Conversas do usuário
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Conversa' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    post:
+      tags: [chat]
+      operationId: abrirConversa
+      summary: Abre conversa com a ONG
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [mensagem]
+              properties:
+                assunto: { type: string, maxLength: 120 }
+                mensagem: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Conversa aberta
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Conversa' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /conversas/{id}/mensagens:
+    get:
+      tags: [chat]
+      operationId: listarMensagens
+      summary: Participante da conversa ou ADMIN
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Mensagens (mais recentes primeiro)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaMensagens' }
+        '403': { $ref: '#/components/responses/Erro' }
+    post:
+      tags: [chat]
+      operationId: enviarMensagem
+      summary: Envia mensagem
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [conteudo]
+              properties:
+                conteudo: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Mensagem enviada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Mensagem' }
+        '403': { $ref: '#/components/responses/Erro' }
+        '409': { description: Conversa encerrada, $ref: '#/components/responses/Erro' }
+  /conversas/{id}/lidas:
+    post:
+      tags: [chat]
+      operationId: marcarMensagensLidas
+      summary: Marca mensagens como lidas
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [ateMensagemId]
+              properties:
+                ateMensagemId: { type: string, format: uuid }
+      responses:
+        '204': { description: Marcadas como lidas }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  # ──────────────────────────── NOTIFICAÇÕES ────────────────────────
+  /notificacoes:
+    get:
+      tags: [notificacoes]
+      operationId: listarNotificacoes
+      summary: Minhas notificações
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Notificações, mais recentes primeiro
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaNotificacoes' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /notificacoes/nao-lidas:
+    get:
+      tags: [notificacoes]
+      operationId: contarNotificacoesNaoLidas
+      summary: Contador do badge do sino
+      responses:
+        '200':
+          description: Total não lido
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [total]
+                properties:
+                  total: { type: integer }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /notificacoes/{id}/lida:
+    post:
+      tags: [notificacoes]
+      operationId: marcarNotificacaoLida
+      summary: Marca notificação como lida
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Marcada como lida (idempotente) }
+        '404': { $ref: '#/components/responses/Erro' }
+  /notificacoes/lidas:
+    post:
+      tags: [notificacoes]
+      operationId: marcarTodasNotificacoesLidas
+      summary: Marca todas as notificações como lidas
+      responses:
+        '204': { description: Todas marcadas como lidas }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /me/dispositivos-push/{deviceId}:
+    delete:
+      tags: [notificacoes]
+      operationId: removerDispositivoPush
+      summary: Chamado no logout para parar de receber push neste aparelho
+      parameters:
+        - { name: deviceId, in: path, required: true, schema: { type: string, maxLength: 128 } }
+      responses:
+        '204': { description: Removido }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /me/dispositivos-push:
+    put:
+      tags: [notificacoes]
+      operationId: registrarDispositivoPush
+      summary: Registra token de push do aparelho
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [deviceId, expoToken]
+              properties:
+                deviceId: { type: string }
+                expoToken: { type: string, pattern: '^ExponentPushToken\[.+\]$' }
+      responses:
+        '204': { description: Registrado }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  # ─────────────────────────────── ADMIN ────────────────────────────
+  /admin/dashboard:
+    get:
+      tags: [admin]
+      operationId: adminDashboard
+      summary: Métricas do painel
+      responses:
+        '200':
+          description: Métricas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Dashboard' }
+        '403': { $ref: '#/components/responses/Erro' }
+
+  /admin/adocoes:
+    get:
+      tags: [admin]
+      operationId: adminListarAdocoes
+      summary: Lista adoções
+      parameters:
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/StatusAdocao' } }
+        - { name: animalId, in: query, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/De'
+        - $ref: '#/components/parameters/Ate'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Adoções
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaAdocoes' }
+        '403': { $ref: '#/components/responses/Erro' }
+  /admin/adocoes/{id}:
+    get:
+      tags: [admin]
+      operationId: adminObterAdocao
+      summary: Detalhe da adoção (admin)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Adoção + dados do solicitante + triagem
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdocaoAdmin' }
+        '403': { $ref: '#/components/responses/Erro' }
+  /admin/adocoes/{id}/aprovar:
+    post:
+      tags: [admin]
+      operationId: adminAprovarAdocao
+      summary: |
+        Em uma transação: adoção → APROVADA, animal → ADOTADO e demais PENDENTE do animal → RECUSADA
+        (recusaAutomatica=true). Notificação + push + e-mail para o adotante (ADOCAO_APROVADA) e para cada
+        recusado (ADOCAO_ANIMAL_ADOTADO). AuditLog. Admin não aprova a própria solicitação.
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Aprovada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Adocao' }
+        '403': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+  /admin/adocoes/{id}/recusar:
+    post:
+      tags: [admin]
+      operationId: adminRecusarAdocao
+      summary: Recusa adoção
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/Recusa' }
+      responses:
+        '200':
+          description: Recusada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Adocao' }
+        '403': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+
+  /admin/doacoes-animais:
+    get:
+      tags: [admin]
+      operationId: adminListarDoacoesAnimais
+      summary: Lista doações de animais
+      parameters:
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/StatusDoacaoAnimal' } }
+        - $ref: '#/components/parameters/De'
+        - $ref: '#/components/parameters/Ate'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Doações de animais
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaDoacoesAnimais' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/doacoes-animais/{id}/aprovar:
+    post:
+      tags: [admin]
+      operationId: adminAprovarDoacaoAnimal
+      summary: Aprova doação de animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Aprovada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/doacoes-animais/{id}/recusar:
+    post:
+      tags: [admin]
+      operationId: adminRecusarDoacaoAnimal
+      summary: Recusa doação de animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/Recusa' }
+      responses:
+        '200':
+          description: Recusada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/doacoes-animais/{id}/receber:
+    post:
+      tags: [admin]
+      operationId: adminReceberDoacaoAnimal
+      summary: APROVADA → RECEBIDA e cria Animal EM_TRATAMENTO (idempotente)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Recebida
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+        '409': { $ref: '#/components/responses/Erro' }
+
+  /admin/animais:
+    post:
+      tags: [admin]
+      operationId: adminCriarAnimal
+      summary: Cadastra animal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnimalEntrada' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalDetalhe' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/animais/{id}:
+    put:
+      tags: [admin]
+      operationId: adminAtualizarAnimal
+      summary: Atualiza animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnimalEntrada' }
+      responses:
+        '200':
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalDetalhe' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [admin]
+      operationId: adminRemoverAnimal
+      summary: Soft delete
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Removido }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/animais/{id}/status:
+    patch:
+      tags: [admin]
+      operationId: adminAlterarStatusAnimal
+      summary: Altera status do animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [status]
+              properties:
+                status: { $ref: '#/components/schemas/StatusAnimal' }
+      responses:
+        '200':
+          description: Status alterado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnimalDetalhe' }
+        '409': { description: Transição inválida, $ref: '#/components/responses/Erro' }
+  /admin/animais/{id}/fotos:
+    post:
+      tags: [admin]
+      operationId: adminEnviarFotosAnimal
+      summary: Envia fotos do animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [fotos]
+              properties:
+                fotos:
+                  type: array
+                  maxItems: 10
+                  items: { type: string, format: binary }
+      responses:
+        '201':
+          description: Fotos adicionadas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Foto' }
+        '413': { $ref: '#/components/responses/Erro' }
+        '422': { $ref: '#/components/responses/Erro' }
+    put:
+      tags: [admin]
+      operationId: adminReordenarFotosAnimal
+      summary: Reordena fotos do animal
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/Reordenar' }
+      responses:
+        '204': { description: Reordenadas }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/animais/{id}/fotos/{fotoId}:
+    delete:
+      tags: [admin]
+      operationId: adminRemoverFotoAnimal
+      summary: Remove foto do animal
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - { name: fotoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Removida }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/noticias:
+    get:
+      tags: [admin]
+      operationId: adminListarNoticias
+      summary: Lista notícias (admin)
+      parameters:
+        - { name: publicado, in: query, schema: { type: boolean } }
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Todas as notícias
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaNoticias' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    post:
+      tags: [admin]
+      operationId: adminCriarNoticia
+      summary: Cria notícia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NoticiaEntrada' }
+      responses:
+        '201':
+          description: Criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Noticia' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/noticias/{id}:
+    put:
+      tags: [admin]
+      operationId: adminAtualizarNoticia
+      summary: Atualiza notícia
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NoticiaEntrada' }
+      responses:
+        '200':
+          description: Atualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Noticia' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [admin]
+      operationId: adminRemoverNoticia
+      summary: Remove notícia
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Removida }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/noticias/{id}/publicacao:
+    put:
+      tags: [admin]
+      operationId: adminPublicarNoticia
+      summary: Publica ou despublica notícia
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/Publicacao' }
+      responses:
+        '204': { description: Publicação alterada }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/posts:
+    post:
+      tags: [admin]
+      operationId: adminCriarPost
+      summary: Cria post
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [legenda, imagens]
+              properties:
+                legenda: { type: string, maxLength: 2200 }
+                imagens:
+                  type: array
+                  minItems: 1
+                  maxItems: 10
+                  items: { type: string, format: binary }
+      responses:
+        '201':
+          description: Criado (não publicado)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/posts/{id}:
+    patch:
+      tags: [admin]
+      operationId: adminEditarPost
+      summary: Edita post
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                legenda: { type: string, maxLength: 2200 }
+      responses:
+        '200':
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [admin]
+      operationId: adminRemoverPost
+      summary: Remove post
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Removido }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/posts/{id}/publicacao:
+    put:
+      tags: [admin]
+      operationId: adminPublicarPost
+      summary: Publica ou despublica post
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/Publicacao' }
+      responses:
+        '204': { description: Publicação alterada }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/perfil-ong/{secao}:
+    put:
+      tags: [admin]
+      operationId: adminEditarPerfilOng
+      summary: Edita seção do perfil da ONG
+      parameters:
+        - { name: secao, in: path, required: true, schema: { $ref: '#/components/schemas/SecaoPerfilOng' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [titulo, conteudo]
+              properties:
+                titulo: { type: string, maxLength: 120 }
+                conteudo: { type: string, maxLength: 20000 }
+                publicado: { type: boolean }
+      responses:
+        '200':
+          description: Seção salva
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PerfilOngSecao' }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/faq:
+    post:
+      tags: [admin]
+      operationId: adminCriarFaq
+      summary: Cria pergunta do FAQ
+      requestBody: { $ref: '#/components/requestBodies/FaqEntrada' }
+      responses:
+        '201':
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Faq' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/faq/ordem:
+    put:
+      tags: [admin]
+      operationId: adminReordenarFaq
+      summary: Reordena o FAQ
+      requestBody: { $ref: '#/components/requestBodies/Reordenar' }
+      responses:
+        '204': { description: Reordenado }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/faq/{id}:
+    put:
+      tags: [admin]
+      operationId: adminAtualizarFaq
+      summary: Atualiza pergunta do FAQ
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/FaqEntrada' }
+      responses:
+        '200':
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Faq' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [admin]
+      operationId: adminRemoverFaq
+      summary: Remove pergunta do FAQ
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Removido }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/usuarios:
+    get:
+      tags: [admin]
+      operationId: adminListarUsuarios
+      summary: Lista usuários
+      parameters:
+        - { name: role, in: query, schema: { $ref: '#/components/schemas/Role' } }
+        - { name: q, in: query, description: Nome ou e-mail, schema: { type: string, maxLength: 80 } }
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Usuários
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaUsuarios' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/usuarios/{id}/ativo:
+    patch:
+      tags: [admin]
+      operationId: adminAtivarUsuario
+      summary: Ativa ou desativa usuário
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [ativo]
+              properties:
+                ativo: { type: boolean }
+      responses:
+        '204': { description: Alterado (desativar revoga todas as sessões) }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/usuarios/{id}/role:
+    patch:
+      tags: [admin]
+      operationId: adminAlterarRole
+      summary: Promove a VOLUNTARIO ou rebaixa a USUARIO (promoção a ADMIN fora do app)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [role]
+              properties:
+                role: { type: string, enum: [USUARIO, VOLUNTARIO] }
+      responses:
+        '204': { description: Alterado }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/voluntarios:
+    get:
+      tags: [admin]
+      operationId: adminListarVoluntarios
+      summary: Lista voluntários e candidaturas
+      parameters:
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/StatusVoluntario' } }
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Candidaturas / voluntários
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaVoluntarios' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/voluntarios/{id}/aprovar:
+    post:
+      tags: [admin]
+      operationId: adminAprovarVoluntario
+      summary: Aprova e promove o usuário a VOLUNTARIO
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                cargo: { type: string, maxLength: 80 }
+      responses:
+        '200':
+          description: Aprovado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Voluntario' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/voluntarios/{id}/recusar:
+    post:
+      tags: [admin]
+      operationId: adminRecusarVoluntario
+      summary: Recusa candidatura
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody: { $ref: '#/components/requestBodies/Recusa' }
+      responses:
+        '200':
+          description: Recusado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Voluntario' }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/conversas:
+    get:
+      tags: [admin]
+      operationId: adminListarConversas
+      summary: Lista conversas
+      parameters:
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/StatusConversa' } }
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Conversas ordenadas por atualizadoEm desc
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaConversas' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/conversas/{id}/assumir:
+    post:
+      tags: [admin]
+      operationId: adminAssumirConversa
+      summary: Assume o atendimento
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Admin atribuído }
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/conversas/{id}/encerrar:
+    post:
+      tags: [admin]
+      operationId: adminEncerrarConversa
+      summary: Encerra a conversa
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '204': { description: Encerrada }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/auditoria:
+    get:
+      tags: [admin]
+      operationId: adminListarAuditoria
+      summary: Log de auditoria
+      parameters:
+        - { name: adminId, in: query, schema: { type: string, format: uuid } }
+        - { name: entidade, in: query, schema: { type: string } }
+        - $ref: '#/components/parameters/De'
+        - $ref: '#/components/parameters/Ate'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Log de auditoria
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaAuditoria' }
+
+        '4XX': { $ref: '#/components/responses/Erro' }
+# ════════════════════════════════════════════════════════════════════
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT (EdDSA/Ed25519, 15 min; claims sub, iat, exp, iss, aud, jti, sid, role)
+    asaasWebhookToken:
+      type: apiKey
+      in: header
+      name: asaas-access-token
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Cursor:
+      name: cursor
+      in: query
+      description: Cursor opaco retornado em `proximoCursor`
+      schema: { type: string }
+    Limite:
+      name: limite
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    De:
+      name: de
+      in: query
+      schema: { type: string, format: date-time }
+    Ate:
+      name: ate
+      in: query
+      schema: { type: string, format: date-time }
+
+  requestBodies:
+    Recusa:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [motivoRecusa]
+            properties:
+              motivoRecusa: { type: string, minLength: 10, maxLength: 1000 }
+    Publicacao:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [publicado]
+            properties:
+              publicado: { type: boolean }
+    Reordenar:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [ids]
+            properties:
+              ids:
+                description: IDs na nova ordem
+                type: array
+                items: { type: string, format: uuid }
+    FaqEntrada:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [pergunta, resposta]
+            properties:
+              pergunta: { type: string, maxLength: 200 }
+              resposta: { type: string, maxLength: 5000 }
+              publicado: { type: boolean }
+
+  responses:
+    Erro:
+      description: Erro (RFC 9457)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    HealthOk:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status: { type: string, const: ok }
+
+  schemas:
+    # ── Enums ──
+    Role: { type: string, enum: [USUARIO, VOLUNTARIO, ADMIN] }
+    TipoAnimal: { type: string, enum: [EQUINO, CANINO, BOVINO, OUTRO] }
+    Sexo: { type: string, enum: [MACHO, FEMEA] }
+    Porte: { type: string, enum: [PEQUENO, MEDIO, GRANDE, MUITO_GRANDE] }
+    StatusAnimal: { type: string, enum: [DISPONIVEL, EM_TRATAMENTO, ADOTADO, INDISPONIVEL] }
+    StatusAdocao: { type: string, enum: [PENDENTE, APROVADA, RECUSADA] }
+    TipoMoradia: { type: string, enum: [CASA_COM_QUINTAL, CASA_SEM_QUINTAL, APARTAMENTO, CHACARA, FAZENDA] }
+    StatusDoacaoAnimal: { type: string, enum: [PENDENTE, APROVADA, RECUSADA, RECEBIDA] }
+    StatusDoacaoFinanceira: { type: string, enum: [PENDENTE, CONFIRMADA, EXPIRADA] }
+    StatusConversa: { type: string, enum: [ABERTA, ENCERRADA] }
+    SecaoPerfilOng: { type: string, enum: [SOBRE_NOS, FUNDACAO, FUNDADORES] }
+    StatusVoluntario: { type: string, enum: [PENDENTE, APROVADO, RECUSADO] }
+    AreaInteresse: { type: string, enum: [CUIDADO_ANIMAIS, EVENTOS, REDES_SOCIAIS, TRANSPORTE, CAPTACAO_RECURSOS, OUTROS] }
+    DiaSemana: { type: string, enum: [DOMINGO, SEGUNDA, TERCA, QUARTA, QUINTA, SEXTA, SABADO] }
+    Turno: { type: string, enum: [MANHA, TARDE, NOITE] }
+    TipoNotificacao:
+      type: string
+      enum: [ADOCAO_APROVADA, ADOCAO_RECUSADA, ADOCAO_ANIMAL_ADOTADO, DOACAO_ANIMAL_ATUALIZADA,
+             DOACAO_FINANCEIRA_CONFIRMADA, VOLUNTARIADO_ATUALIZADO, CHAT_NOVA_MENSAGEM, GERAL]
+
+    # ── Base ──
+    Erro:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        codigo: { type: string, description: 'Código estável de domínio (ex.: ADOCAO_PENDENTE_DUPLICADA)' }
+        erros:
+          type: array
+          description: Erros de validação por campo
+          items:
+            type: object
+            properties:
+              campo: { type: string }
+              mensagem: { type: string }
+    Senha:
+      type: string
+      minLength: 8
+      maxLength: 128
+      description: Mín. 8 caracteres, com letra e número
+    Foto:
+      type: object
+      required: [id, url, ordem]
+      properties:
+        id: { type: string, format: uuid }
+        url: { type: string, format: uri, description: URL assinada (expira em 1h) }
+        ordem: { type: integer }
+
+    # ── Auth ──
+    CadastroEntrada:
+      type: object
+      additionalProperties: false
+      required: [nome, dataNasc, cpf, telefone, email, senha, endereco, aceitouTermos, consentimentoDados]
+      properties:
+        nome: { type: string, minLength: 3, maxLength: 120 }
+        dataNasc: { type: string, format: date, description: 'Idade mínima de 18 anos (codigo IDADE_MINIMA)' }
+        cpf: { type: string, pattern: '^[0-9]{11}$', description: Somente dígitos; DV validado }
+        telefone: { type: string, pattern: '^[0-9]{10,11}$' }
+        email: { type: string, format: email }
+        senha: { $ref: '#/components/schemas/Senha' }
+        endereco: { $ref: '#/components/schemas/Endereco' }
+        aceitouTermos: { type: boolean, const: true }
+        consentimentoDados: { type: boolean, const: true }
+        deviceId: { type: string, maxLength: 128 }
+    LoginEntrada:
+      type: object
+      additionalProperties: false
+      required: [email, senha, deviceId]
+      properties:
+        email: { type: string, format: email }
+        senha: { type: string }
+        deviceId: { type: string, maxLength: 128 }
+    RefreshEntrada:
+      type: object
+      additionalProperties: false
+      required: [refreshToken, deviceId]
+      properties:
+        refreshToken: { type: string }
+        deviceId: { type: string }
+    SessaoSaida:
+      type: object
+      required: [accessToken, refreshToken, expiraEm, usuario]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        expiraEm: { type: string, format: date-time }
+        usuario: { $ref: '#/components/schemas/UsuarioPerfil' }
+
+    # ── Usuário ──
+    Endereco:
+      type: object
+      additionalProperties: false
+      required: [cep, logradouro, numero, bairro, cidade, uf]
+      properties:
+        cep: { type: string, pattern: '^[0-9]{8}$' }
+        logradouro: { type: string, maxLength: 200 }
+        numero: { type: string, maxLength: 20 }
+        complemento: { type: [string, 'null'], maxLength: 100 }
+        bairro: { type: string, maxLength: 100 }
+        cidade: { type: string, maxLength: 100 }
+        uf: { type: string, pattern: '^[A-Z]{2}$' }
+    UsuarioPerfil:
+      type: object
+      description: Nunca contém senha, CPF ou data de nascimento
+      required: [id, nome, email, role]
+      properties:
+        id: { type: string, format: uuid }
+        nome: { type: string }
+        email: { type: string, format: email }
+        telefone: { type: string }
+        endereco: { $ref: '#/components/schemas/Endereco' }
+        fotoUrl: { type: [string, 'null'], format: uri }
+        capaUrl: { type: [string, 'null'], format: uri }
+        role: { $ref: '#/components/schemas/Role' }
+        criadoEm: { type: string, format: date-time }
+    EditarPerfilEntrada:
+      type: object
+      additionalProperties: false
+      properties:
+        nome: { type: string, minLength: 3, maxLength: 120 }
+        telefone: { type: string, pattern: '^[0-9]{10,11}$' }
+        endereco: { $ref: '#/components/schemas/Endereco' }
+    UsuarioAdmin:
+      allOf:
+        - $ref: '#/components/schemas/UsuarioPerfil'
+        - type: object
+          properties:
+            ativo: { type: boolean }
+            cpfMascarado: { type: string, examples: ['***.456.789-**'] }
+
+    # ── Animais ──
+    AnimalResumo:
+      type: object
+      required: [id, nome, tipo, raca, idadeAprox, porte, sexo, status]
+      properties:
+        id: { type: string, format: uuid }
+        nome: { type: string }
+        tipo: { $ref: '#/components/schemas/TipoAnimal' }
+        raca: { type: string }
+        idadeAprox: { type: integer, description: meses }
+        sexo: { $ref: '#/components/schemas/Sexo' }
+        porte: { $ref: '#/components/schemas/Porte' }
+        status: { $ref: '#/components/schemas/StatusAnimal' }
+        fotoCapa: { oneOf: [{ $ref: '#/components/schemas/Foto' }, { type: 'null' }] }
+    AnimalDetalhe:
+      allOf:
+        - $ref: '#/components/schemas/AnimalResumo'
+        - type: object
+          required: [descricao, historiaResgate, vacinado, castrado, fotos]
+          properties:
+            descricao: { type: string }
+            historiaResgate: { type: string }
+            vacinado: { type: boolean }
+            castrado: { type: boolean }
+            fotos:
+              type: array
+              items: { $ref: '#/components/schemas/Foto' }
+            totalPadrinhos: { type: integer }
+    AnimalEntrada:
+      type: object
+      additionalProperties: false
+      required: [nome, tipo, raca, idadeAprox, sexo, porte, descricao, historiaResgate]
+      properties:
+        nome: { type: string, maxLength: 80 }
+        tipo: { $ref: '#/components/schemas/TipoAnimal' }
+        raca: { type: string, maxLength: 80 }
+        idadeAprox: { type: integer, minimum: 0, maximum: 600 }
+        sexo: { $ref: '#/components/schemas/Sexo' }
+        porte: { $ref: '#/components/schemas/Porte' }
+        descricao: { type: string, maxLength: 5000 }
+        historiaResgate: { type: string, maxLength: 10000 }
+        vacinado: { type: boolean }
+        castrado: { type: boolean }
+        status: { $ref: '#/components/schemas/StatusAnimal' }
+    PadrinhoResumo:
+      type: object
+      properties:
+        nome: { type: string, description: Primeiro nome }
+        fotoUrl: { type: [string, 'null'], format: uri }
+        mensagemPadrinho: { type: [string, 'null'] }
+
+    # ── Adoções ──
+    SolicitarAdocaoEntrada:
+      type: object
+      additionalProperties: false
+      required: [animalId, tipoMoradia, possuiEspacoAdequado, motivo, aceitouTermo]
+      properties:
+        animalId: { type: string, format: uuid }
+        tipoMoradia: { $ref: '#/components/schemas/TipoMoradia' }
+        possuiEspacoAdequado: { type: boolean }
+        outrosAnimais: { type: string, maxLength: 1000 }
+        motivo: { type: string, minLength: 50, maxLength: 3000 }
+        aceitouTermo: { type: boolean, const: true }
+    Adocao:
+      type: object
+      required: [id, status, animal, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/StatusAdocao' }
+        animal: { $ref: '#/components/schemas/AnimalResumo' }
+        tipoMoradia: { $ref: '#/components/schemas/TipoMoradia' }
+        possuiEspacoAdequado: { type: boolean }
+        outrosAnimais: { type: [string, 'null'] }
+        motivo: { type: string }
+        termoAceitoEm: { type: string, format: date-time }
+        analisadoEm: { type: [string, 'null'], format: date-time }
+        motivoRecusa: { type: [string, 'null'] }
+        recusaAutomatica:
+          type: boolean
+          description: true quando recusada porque o animal foi adotado por outra pessoa
+        criadoEm: { type: string, format: date-time }
+        timeline:
+          type: array
+          items:
+            type: object
+            properties:
+              etapa: { type: string, enum: [ENVIADA, EM_ANALISE, APROVADA, RECUSADA] }
+              em: { type: [string, 'null'], format: date-time }
+    AdocaoAdmin:
+      allOf:
+        - $ref: '#/components/schemas/Adocao'
+        - type: object
+          properties:
+            solicitante: { $ref: '#/components/schemas/UsuarioAdmin' }
+            analisadoPor: { type: [string, 'null'], description: Nome do admin }
+
+    # ── Doação de animal ──
+    DoarAnimalEntrada:
+      type: object
+      additionalProperties: false
+      required: [nomeAnimal, tipo, raca, idadeAprox, sexo, porte, descricao, motivoDoacao, enderecoRetirada]
+      properties:
+        nomeAnimal: { type: string, maxLength: 80 }
+        tipo: { $ref: '#/components/schemas/TipoAnimal' }
+        raca: { type: string, maxLength: 80 }
+        idadeAprox: { type: integer, minimum: 0, maximum: 600 }
+        sexo: { $ref: '#/components/schemas/Sexo' }
+        porte: { $ref: '#/components/schemas/Porte' }
+        descricao: { type: string, maxLength: 5000 }
+        motivoDoacao: { type: string, maxLength: 3000 }
+        enderecoRetirada: { type: string, maxLength: 500 }
+    DoacaoAnimal:
+      allOf:
+        - $ref: '#/components/schemas/DoarAnimalEntrada'
+        - type: object
+          required: [id, status, criadoEm]
+          properties:
+            id: { type: string, format: uuid }
+            status: { $ref: '#/components/schemas/StatusDoacaoAnimal' }
+            fotos:
+              type: array
+              items: { $ref: '#/components/schemas/Foto' }
+            motivoRecusa: { type: [string, 'null'] }
+            analisadoEm: { type: [string, 'null'], format: date-time }
+            animalCriadoId: { type: [string, 'null'], format: uuid }
+            criadoEm: { type: string, format: date-time }
+
+    # ── Doação financeira ──
+    GerarPixEntrada:
+      type: object
+      additionalProperties: false
+      required: [valor]
+      properties:
+        valor:
+          type: string
+          pattern: '^[0-9]{1,8}\.[0-9]{2}$'
+          description: Decimal como string (ex. "50.00"); mín. 5.00
+        anonima: { type: boolean, default: false }
+        nomeDoador: { type: string, maxLength: 120, description: Apenas sem login }
+        emailDoador: { type: string, format: email, description: Para comprovante }
+    DoacaoFinanceira:
+      type: object
+      required: [id, valor, status, pixCopiaCola, expiresAt]
+      properties:
+        id: { type: string, format: uuid }
+        valor: { type: string, examples: ['50.00'] }
+        status: { $ref: '#/components/schemas/StatusDoacaoFinanceira' }
+        pixCopiaCola: { type: string, description: O app gera o QR Code localmente a partir deste código }
+        expiresAt: { type: string, format: date-time }
+        paidAt: { type: [string, 'null'], format: date-time }
+        criadoEm: { type: string, format: date-time }
+
+    # ── Apadrinhamento / Voluntariado ──
+    Apadrinhamento:
+      type: object
+      required: [id, animal, ativo, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        animal: { $ref: '#/components/schemas/AnimalResumo' }
+        ativo: { type: boolean }
+        mensagemPadrinho: { type: [string, 'null'] }
+        criadoEm: { type: string, format: date-time }
+    CandidaturaEntrada:
+      type: object
+      additionalProperties: false
+      required: [areasInteresse, disponibilidadeDias, turnos, motivacao]
+      properties:
+        areasInteresse:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/AreaInteresse' }
+        areaInteresseOutros: { type: string, maxLength: 200 }
+        disponibilidadeDias:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/DiaSemana' }
+        turnos:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Turno' }
+        motivacao: { type: string, minLength: 20, maxLength: 3000 }
+        habilidades: { type: string, maxLength: 3000 }
+    Voluntario:
+      allOf:
+        - $ref: '#/components/schemas/CandidaturaEntrada'
+        - type: object
+          required: [id, status, criadoEm]
+          properties:
+            id: { type: string, format: uuid }
+            status: { $ref: '#/components/schemas/StatusVoluntario' }
+            cargo: { type: [string, 'null'] }
+            motivoRecusa: { type: [string, 'null'] }
+            usuario: { $ref: '#/components/schemas/UsuarioPerfil' }
+            criadoEm: { type: string, format: date-time }
+
+    # ── Conteúdo ──
+    Post:
+      type: object
+      required: [id, legenda, imagens, totalCurtidas, curtidoPorMim, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        legenda: { type: string }
+        imagens:
+          type: array
+          items: { $ref: '#/components/schemas/Foto' }
+        totalCurtidas: { type: integer }
+        curtidoPorMim: { type: boolean }
+        publicado: { type: boolean, description: Apenas para ADMIN }
+        criadoEm: { type: string, format: date-time }
+    Noticia:
+      type: object
+      required: [id, slug, titulo, resumo, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        titulo: { type: string }
+        resumo: { type: string }
+        conteudo: { type: string, description: Markdown sanitizado (ausente na listagem) }
+        imagem: { type: [string, 'null'], format: uri }
+        publicado: { type: boolean }
+        criadoEm: { type: string, format: date-time }
+        atualizadoEm: { type: string, format: date-time }
+    NoticiaEntrada:
+      type: object
+      additionalProperties: false
+      required: [titulo, resumo, conteudo]
+      properties:
+        titulo: { type: string, maxLength: 160 }
+        slug: { type: string, pattern: '^[a-z0-9-]+$', description: Gerado do título se omitido }
+        resumo: { type: string, maxLength: 300 }
+        conteudo: { type: string, maxLength: 50000 }
+        imagem: { type: string, description: Chave de upload prévio }
+    PerfilOngSecao:
+      type: object
+      required: [secao, titulo, conteudo]
+      properties:
+        secao: { $ref: '#/components/schemas/SecaoPerfilOng' }
+        titulo: { type: string }
+        conteudo: { type: string }
+        publicado: { type: boolean }
+        atualizadoEm: { type: string, format: date-time }
+    Faq:
+      type: object
+      required: [id, pergunta, resposta, ordem]
+      properties:
+        id: { type: string, format: uuid }
+        pergunta: { type: string }
+        resposta: { type: string }
+        ordem: { type: integer }
+        publicado: { type: boolean }
+
+    # ── Chat / Notificações ──
+    Conversa:
+      type: object
+      required: [id, status, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        assunto: { type: [string, 'null'] }
+        status: { $ref: '#/components/schemas/StatusConversa' }
+        usuario: { $ref: '#/components/schemas/UsuarioPerfil' }
+        atendente: { type: [string, 'null'], description: Nome do admin }
+        ultimaMensagem: { oneOf: [{ $ref: '#/components/schemas/Mensagem' }, { type: 'null' }] }
+        naoLidas: { type: integer }
+        criadoEm: { type: string, format: date-time }
+        atualizadoEm: { type: string, format: date-time }
+    Mensagem:
+      type: object
+      required: [id, conteudo, autorEhEquipe, lida, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        conteudo: { type: string }
+        autorId: { type: string, format: uuid }
+        autorEhEquipe: { type: boolean }
+        lida: { type: boolean }
+        lidaEm: { type: [string, 'null'], format: date-time }
+        criadoEm: { type: string, format: date-time }
+    Notificacao:
+      type: object
+      required: [id, tipo, titulo, corpo, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { $ref: '#/components/schemas/TipoNotificacao' }
+        titulo: { type: string }
+        corpo: { type: string }
+        entidadeId:
+          type: [string, 'null']
+          format: uuid
+          description: O app monta a rota a partir de tipo + entidadeId (o servidor nunca envia deep links livres)
+        lidaEm: { type: [string, 'null'], format: date-time }
+        criadoEm: { type: string, format: date-time }
+
+    # ── Admin ──
+    Dashboard:
+      type: object
+      properties:
+        adocoesPendentes: { type: integer }
+        doacoesAnimaisPendentes: { type: integer }
+        animaisDisponiveis: { type: integer }
+        doacoesFinanceirasMes:
+          type: object
+          properties:
+            quantidade: { type: integer }
+            total: { type: string, examples: ['1250.00'] }
+        adocoesPorMes:
+          type: array
+          maxItems: 6
+          items:
+            type: object
+            properties:
+              mes: { type: string, pattern: '^[0-9]{4}-[0-9]{2}$' }
+              total: { type: integer }
+        ultimasPendencias:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            properties:
+              tipo: { type: string, enum: [ADOCAO, DOACAO_ANIMAL, VOLUNTARIO] }
+              id: { type: string, format: uuid }
+              titulo: { type: string }
+              criadoEm: { type: string, format: date-time }
+    AuditLog:
+      type: object
+      required: [id, admin, acao, entidade, entidadeId, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        admin:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            nome: { type: string }
+        acao: { type: string }
+        entidade: { type: string }
+        entidadeId: { type: string }
+        detalhe: { type: [object, 'null'], additionalProperties: true }
+        criadoEm: { type: string, format: date-time }
+
+    # ── Páginas (cursor) ──
+    PaginaAnimais:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/AnimalResumo' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaAdocoes:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Adocao' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaDoacoesAnimais:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/DoacaoAnimal' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaDoacoesFinanceiras:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/DoacaoFinanceira' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaPosts:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Post' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaNoticias:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Noticia' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaMensagens:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Mensagem' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaConversas:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Conversa' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaNotificacoes:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Notificacao' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaUsuarios:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/UsuarioAdmin' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaVoluntarios:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/Voluntario' } }
+        proximoCursor: { type: [string, 'null'] }
+    PaginaAuditoria:
+      type: object
+      required: [itens, proximoCursor]
+      properties:
+        itens: { type: array, items: { $ref: '#/components/schemas/AuditLog' } }
+        proximoCursor: { type: [string, 'null'] }
+
+x-websocket:
+  /ws/chat:
+    descricao: |
+      WebSocket autenticado (access token enviado na primeira mensagem `{tipo:"auth", token}`,
+      nunca na query string). Eventos do servidor: `mensagem.nova`, `mensagem.lida`, `conversa.encerrada`.
+      Eventos do cliente: `digitando`, `lida`. Fallback: polling em GET /conversas/{id}/mensagens.

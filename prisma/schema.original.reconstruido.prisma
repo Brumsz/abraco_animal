@@ -1,0 +1,165 @@
+// =====================================================================
+//  SCHEMA ORIGINAL — RECONSTRUÍDO
+// ---------------------------------------------------------------------
+//  O arquivo prisma/schema.prisma original não estava no repositório.
+//  Este schema foi INFERIDO a partir da especificação (seção 3) para
+//  servir de base ao diff da Etapa 1. Não é usado para migrações.
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GERAL
+  VOLUNTARIO
+  PROPRIETARIA
+}
+
+enum TipoAnimal {
+  EQUINO
+  CANINO
+  BOVINO
+}
+
+enum StatusAdocao {
+  PENDENTE
+  APROVADA
+  RECUSADA
+}
+
+enum SecaoPerfilOng {
+  SOBRE_NOS
+  FUNDACAO
+  FUNDADORES
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  cpf       String   @unique
+  dataNasc  DateTime
+  telefone  String
+  endereco  String
+  role      Role     @default(GERAL)
+  criadoEm  DateTime @default(now())
+
+  adocoes           Adocao[]
+  apadrinhamentos   Apadrinhamento[]
+  voluntario        Voluntario?
+  conversas         Conversa[]
+  mensagens         Mensagem[]
+  recuperacoesSenha RecuperacaoSenha[]
+}
+
+model Animal {
+  id         Int        @id @default(autoincrement())
+  nome       String
+  tipo       TipoAnimal
+  raca       String
+  foto       String
+  disponivel Boolean    @default(true)
+  criadoEm   DateTime   @default(now())
+
+  adocoes         Adocao[]
+  apadrinhamentos Apadrinhamento[]
+}
+
+model Adocao {
+  id        Int          @id @default(autoincrement())
+  usuarioId Int
+  animalId  Int
+  status    StatusAdocao @default(PENDENTE)
+  criadoEm  DateTime     @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  animal  Animal  @relation(fields: [animalId], references: [id])
+}
+
+model Apadrinhamento {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  animalId  Int
+  criadoEm  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  animal  Animal  @relation(fields: [animalId], references: [id])
+}
+
+model Voluntario {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @unique
+  cargo     String?
+  criadoEm  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}
+
+model Conversa {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  criadoEm  DateTime @default(now())
+
+  usuario   Usuario    @relation(fields: [usuarioId], references: [id])
+  mensagens Mensagem[]
+}
+
+model Mensagem {
+  id         Int      @id @default(autoincrement())
+  conversaId Int
+  autorId    Int
+  conteudo   String
+  criadoEm   DateTime @default(now())
+
+  conversa Conversa @relation(fields: [conversaId], references: [id])
+  autor    Usuario  @relation(fields: [autorId], references: [id])
+}
+
+model Post {
+  id       Int      @id @default(autoincrement())
+  legenda  String
+  imagem   String
+  curtidas Int      @default(0)
+  criadoEm DateTime @default(now())
+}
+
+model Noticia {
+  id       Int      @id @default(autoincrement())
+  titulo   String
+  resumo   String
+  conteudo String
+  imagem   String?
+  criadoEm DateTime @default(now())
+}
+
+model PerfilOng {
+  id       Int            @id @default(autoincrement())
+  secao    SecaoPerfilOng @unique
+  titulo   String
+  conteudo String
+}
+
+model Faq {
+  id       Int    @id @default(autoincrement())
+  pergunta String
+  resposta String
+  ordem    Int
+}
+
+model RecuperacaoSenha {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  codigo    String
+  expiraEm  DateTime
+  usado     Boolean  @default(false)
+  criadoEm  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}
