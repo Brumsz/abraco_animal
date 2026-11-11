@@ -1,0 +1,113 @@
+# Ambiente de desenvolvimento: api + postgres + redis + s3 (SeaweedFS).
+# Uso: cp .env.example .env  (preencha as senhas)  &&  docker compose up -d --build
+# Portas publicadas só em 127.0.0.1 — nada fica exposto na rede local.
+
+name: abraco-animal
+
+x-seguranca: &seguranca
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  postgres:
+    image: postgres:16.15-alpine
+    <<: *seguranca
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:?defina POSTGRES_DB no .env}
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      # 5433 no host para não conflitar com um Postgres local instalado no Windows
+      - '127.0.0.1:${POSTGRES_PORTA_HOST:-5433}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4.12-alpine
+    <<: *seguranca
+    command: ['sh', '-c', 'exec redis-server --requirepass "$${REDIS_PASSWORD}" --appendonly yes']
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?defina REDIS_PASSWORD no .env}
+      # redis-cli lê a senha daqui, sem expô-la na linha de comando
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # S3 local. A MinIO deixou de publicar imagens da edição comunitária;
+  # o SeaweedFS fala a mesma API S3 (ver docs/etapa-2/decisoes.md).
+  s3:
+    image: chrislusf/seaweedfs:4.52
+    <<: *seguranca
+    entrypoint: ['/bin/sh', '/scripts/iniciar-s3.sh']
+    environment:
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?defina S3_ACCESS_KEY_ID no .env}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?defina S3_SECRET_ACCESS_KEY no .env}
+      S3_BUCKET: ${S3_BUCKET:?defina S3_BUCKET no .env}
+    ports:
+      - '127.0.0.1:8333:8333'
+    volumes:
+      - s3_data:/data
+      - ./infra/seaweedfs:/scripts:ro
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'test -f /data/.bucket-pronto && wget -q -O /dev/null http://127.0.0.1:8333/healthz',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: abraco-animal/api:dev
+    <<: *seguranca
+    read_only: true
+    cap_drop: [ALL]
+    tmpfs:
+      - /tmp:size=64m
+    env_file: .env
+    environment:
+      # Dentro da rede do compose os hosts são os nomes dos serviços
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      S3_ENDPOINT: http://s3:8333
+    ports:
+      - '127.0.0.1:3333:3333'
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      s3: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.js']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  s3_data:
