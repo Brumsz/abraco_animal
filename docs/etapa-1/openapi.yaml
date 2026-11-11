@@ -461,7 +461,11 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Adocao' }
         '400': { $ref: '#/components/responses/Erro' }
-        '409': { description: Já existe solicitação pendente ou animal indisponível, $ref: '#/components/responses/Erro' }
+        '409':
+          {
+            description: Já existe solicitação pendente ou animal indisponível,
+            $ref: '#/components/responses/Erro',
+          }
         '429': { $ref: '#/components/responses/Erro' }
   /adocoes/{id}:
     get:
@@ -588,7 +592,8 @@ paths:
               required: [id, event]
               properties:
                 id: { type: string }
-                event: { type: string, examples: [PAYMENT_RECEIVED, PAYMENT_CONFIRMED, PAYMENT_OVERDUE] }
+                event:
+                  { type: string, examples: [PAYMENT_RECEIVED, PAYMENT_CONFIRMED, PAYMENT_OVERDUE] }
                 payment: { type: object, additionalProperties: true }
       responses:
         '200': { description: Recebido (também para eventos duplicados) }
@@ -619,7 +624,11 @@ paths:
               schema: { $ref: '#/components/schemas/Apadrinhamento' }
         '404': { $ref: '#/components/responses/Erro' }
         '409': { description: Já é padrinho deste animal, $ref: '#/components/responses/Erro' }
-        '422': { description: Animal não está DISPONIVEL (codigo ANIMAL_NAO_APADRINHAVEL), $ref: '#/components/responses/Erro' }
+        '422':
+          {
+            description: Animal não está DISPONIVEL (codigo ANIMAL_NAO_APADRINHAVEL),
+            $ref: '#/components/responses/Erro',
+          }
   /apadrinhamentos/{id}:
     delete:
       tags: [apadrinhamentos]
@@ -723,7 +732,12 @@ paths:
       summary: Detalhe da notícia
       security: [{}, { bearerAuth: [] }]
       parameters:
-        - { name: slug, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9-]+$' } }
+        - {
+            name: slug,
+            in: path,
+            required: true,
+            schema: { type: string, pattern: '^[a-z0-9-]+$' },
+          }
       responses:
         '200':
           description: Notícia
@@ -1334,7 +1348,12 @@ paths:
       operationId: adminEditarPerfilOng
       summary: Edita seção do perfil da ONG
       parameters:
-        - { name: secao, in: path, required: true, schema: { $ref: '#/components/schemas/SecaoPerfilOng' } }
+        - {
+            name: secao,
+            in: path,
+            required: true,
+            schema: { $ref: '#/components/schemas/SecaoPerfilOng' },
+          }
       requestBody:
         required: true
         content:
@@ -1407,7 +1426,12 @@ paths:
       summary: Lista usuários
       parameters:
         - { name: role, in: query, schema: { $ref: '#/components/schemas/Role' } }
-        - { name: q, in: query, description: Nome ou e-mail, schema: { type: string, maxLength: 80 } }
+        - {
+            name: q,
+            in: query,
+            description: Nome ou e-mail,
+            schema: { type: string, maxLength: 80 },
+          }
         - $ref: '#/components/parameters/Cursor'
         - $ref: '#/components/parameters/Limite'
       responses:
@@ -1669,19 +1693,33 @@ components:
     Porte: { type: string, enum: [PEQUENO, MEDIO, GRANDE, MUITO_GRANDE] }
     StatusAnimal: { type: string, enum: [DISPONIVEL, EM_TRATAMENTO, ADOTADO, INDISPONIVEL] }
     StatusAdocao: { type: string, enum: [PENDENTE, APROVADA, RECUSADA] }
-    TipoMoradia: { type: string, enum: [CASA_COM_QUINTAL, CASA_SEM_QUINTAL, APARTAMENTO, CHACARA, FAZENDA] }
+    TipoMoradia:
+      { type: string, enum: [CASA_COM_QUINTAL, CASA_SEM_QUINTAL, APARTAMENTO, CHACARA, FAZENDA] }
     StatusDoacaoAnimal: { type: string, enum: [PENDENTE, APROVADA, RECUSADA, RECEBIDA] }
     StatusDoacaoFinanceira: { type: string, enum: [PENDENTE, CONFIRMADA, EXPIRADA] }
     StatusConversa: { type: string, enum: [ABERTA, ENCERRADA] }
     SecaoPerfilOng: { type: string, enum: [SOBRE_NOS, FUNDACAO, FUNDADORES] }
     StatusVoluntario: { type: string, enum: [PENDENTE, APROVADO, RECUSADO] }
-    AreaInteresse: { type: string, enum: [CUIDADO_ANIMAIS, EVENTOS, REDES_SOCIAIS, TRANSPORTE, CAPTACAO_RECURSOS, OUTROS] }
+    AreaInteresse:
+      {
+        type: string,
+        enum: [CUIDADO_ANIMAIS, EVENTOS, REDES_SOCIAIS, TRANSPORTE, CAPTACAO_RECURSOS, OUTROS],
+      }
     DiaSemana: { type: string, enum: [DOMINGO, SEGUNDA, TERCA, QUARTA, QUINTA, SEXTA, SABADO] }
     Turno: { type: string, enum: [MANHA, TARDE, NOITE] }
     TipoNotificacao:
       type: string
-      enum: [ADOCAO_APROVADA, ADOCAO_RECUSADA, ADOCAO_ANIMAL_ADOTADO, DOACAO_ANIMAL_ATUALIZADA,
-             DOACAO_FINANCEIRA_CONFIRMADA, VOLUNTARIADO_ATUALIZADO, CHAT_NOVA_MENSAGEM, GERAL]
+      enum:
+        [
+          ADOCAO_APROVADA,
+          ADOCAO_RECUSADA,
+          ADOCAO_ANIMAL_ADOTADO,
+          DOACAO_ANIMAL_ATUALIZADA,
+          DOACAO_FINANCEIRA_CONFIRMADA,
+          VOLUNTARIADO_ATUALIZADO,
+          CHAT_NOVA_MENSAGEM,
+          GERAL,
+        ]
 
     # ── Base ──
     Erro:
@@ -1693,7 +1731,11 @@ components:
         status: { type: integer }
         detail: { type: string }
         instance: { type: string }
-        codigo: { type: string, description: 'Código estável de domínio (ex.: ADOCAO_PENDENTE_DUPLICADA)' }
+        codigo:
+          {
+            type: string,
+            description: 'Código estável de domínio (ex.: ADOCAO_PENDENTE_DUPLICADA)',
+          }
         erros:
           type: array
           description: Erros de validação por campo
@@ -1719,10 +1761,16 @@ components:
     CadastroEntrada:
       type: object
       additionalProperties: false
-      required: [nome, dataNasc, cpf, telefone, email, senha, endereco, aceitouTermos, consentimentoDados]
+      required:
+        [nome, dataNasc, cpf, telefone, email, senha, endereco, aceitouTermos, consentimentoDados]
       properties:
         nome: { type: string, minLength: 3, maxLength: 120 }
-        dataNasc: { type: string, format: date, description: 'Idade mínima de 18 anos (codigo IDADE_MINIMA)' }
+        dataNasc:
+          {
+            type: string,
+            format: date,
+            description: 'Idade mínima de 18 anos (codigo IDADE_MINIMA)',
+          }
         cpf: { type: string, pattern: '^[0-9]{11}$', description: Somente dígitos; DV validado }
         telefone: { type: string, pattern: '^[0-9]{10,11}$' }
         email: { type: string, format: email }
@@ -1897,7 +1945,8 @@ components:
     DoarAnimalEntrada:
       type: object
       additionalProperties: false
-      required: [nomeAnimal, tipo, raca, idadeAprox, sexo, porte, descricao, motivoDoacao, enderecoRetirada]
+      required:
+        [nomeAnimal, tipo, raca, idadeAprox, sexo, porte, descricao, motivoDoacao, enderecoRetirada]
       properties:
         nomeAnimal: { type: string, maxLength: 80 }
         tipo: { $ref: '#/components/schemas/TipoAnimal' }
@@ -1944,7 +1993,8 @@ components:
         id: { type: string, format: uuid }
         valor: { type: string, examples: ['50.00'] }
         status: { $ref: '#/components/schemas/StatusDoacaoFinanceira' }
-        pixCopiaCola: { type: string, description: O app gera o QR Code localmente a partir deste código }
+        pixCopiaCola:
+          { type: string, description: O app gera o QR Code localmente a partir deste código }
         expiresAt: { type: string, format: date-time }
         paidAt: { type: [string, 'null'], format: date-time }
         criadoEm: { type: string, format: date-time }
