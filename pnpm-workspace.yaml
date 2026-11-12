@@ -8,6 +8,7 @@ minimumReleaseAge: 4320
 
 # Scripts de instalação só rodam para pacotes explicitamente aprovados.
 allowBuilds:
+  '@parcel/watcher': false
   '@prisma/engines': true
   esbuild: true
   prisma: true
