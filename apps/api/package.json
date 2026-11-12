@@ -14,13 +14,33 @@
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "fastify": "5.12.8"
+    "@abraco/shared": "workspace:*",
+    "@fastify/cors": "11.4.1",
+    "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "~11.2.2",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "argon2": "0.45.2",
+    "bullmq": "~6.7.2",
+    "fast-jwt": "6.3.6",
+    "fastify": "5.12.8",
+    "fastify-type-provider-zod": "7.0.0",
+    "ioredis": "6.0.0",
+    "nodemailer": "^10.4.0",
+    "zod": "4.6.7"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "12.2.1",
+    "@testcontainers/redis": "12.2.1",
+    "@types/nodemailer": "8.0.2",
+    "@vitest/coverage-v8": "5.1.0",
     "prisma": "7.10.1",
+    "testcontainers": "12.2.1",
     "tsx": "4.23.15"
   }
 }

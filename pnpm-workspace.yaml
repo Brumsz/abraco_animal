@@ -10,8 +10,13 @@ minimumReleaseAge: 4320
 allowBuilds:
   '@parcel/watcher': false
   '@prisma/engines': true
+  argon2: true
+  cpu-features: false
   esbuild: true
+  msgpackr-extract: false
   prisma: true
+  protobufjs: false
+  ssh2: false
 
 # Versões exatas ao adicionar dependências.
 savePrefix: ''
