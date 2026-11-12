@@ -55,6 +55,4 @@
 - Pacotes internos exportam TypeScript direto (`src/index.ts`). Quando a API passar a importar
   `@abraco/shared`, o build de produção usará um bundler (Etapa 11) ou build próprio dos pacotes.
 - Actions do GitHub fixadas por tag; fixar por SHA via Renovate (Etapa 11).
-- E-mail em desenvolvimento: sugiro adicionar **Mailpit** ao compose na Etapa 3, para testar a
-  recuperação de senha sem enviar e-mail real. Precisa de aprovação, porque não está na lista de
-  serviços da spec.
+- ✅ **Mailpit** adicionado ao compose (aprovado): interface em http://localhost:8025, SMTP na 1025.

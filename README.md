@@ -32,7 +32,7 @@ pnpm --filter @abraco/api db:deploy
 curl localhost:3333/health/ready
 ```
 
-Portas (somente `127.0.0.1`): API `3333`, Postgres `5433`, Redis `6379`, S3 `8333`.
+Portas (somente `127.0.0.1`): API `3333`, Postgres `5433`, Redis `6379`, S3 `8333`, Mailpit `8025` (e-mails de teste).
 
 ## Comandos
 

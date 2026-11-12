@@ -77,6 +77,25 @@ services:
       start_period: 15s
     restart: unless-stopped
 
+  # Caixa de e-mail local: captura tudo que a API envia (nada sai para a internet).
+  # Interface web: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    <<: *seguranca
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 'true'
+      MP_SMTP_AUTH_ALLOW_INSECURE: 'true'
+    ports:
+      - '127.0.0.1:1025:1025'
+      - '127.0.0.1:8025:8025'
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   api:
     build:
       context: .
@@ -93,12 +112,14 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       S3_ENDPOINT: http://s3:8333
+      SMTP_HOST: mailpit
     ports:
       - '127.0.0.1:3333:3333'
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
       s3: { condition: service_healthy }
+      mailpit: { condition: service_healthy }
     healthcheck:
       test: ['CMD', '/nodejs/bin/node', 'dist/healthcheck.js']
       interval: 10s
