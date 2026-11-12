@@ -1762,7 +1762,18 @@ components:
       type: object
       additionalProperties: false
       required:
-        [nome, dataNasc, cpf, telefone, email, senha, endereco, aceitouTermos, consentimentoDados]
+        [
+          nome,
+          dataNasc,
+          cpf,
+          telefone,
+          email,
+          senha,
+          endereco,
+          aceitouTermos,
+          consentimentoDados,
+          deviceId,
+        ]
       properties:
         nome: { type: string, minLength: 3, maxLength: 120 }
         dataNasc:
@@ -1778,7 +1789,7 @@ components:
         endereco: { $ref: '#/components/schemas/Endereco' }
         aceitouTermos: { type: boolean, const: true }
         consentimentoDados: { type: boolean, const: true }
-        deviceId: { type: string, maxLength: 128 }
+        deviceId: { type: string, minLength: 8, maxLength: 128 }
     LoginEntrada:
       type: object
       additionalProperties: false
@@ -1786,7 +1797,7 @@ components:
       properties:
         email: { type: string, format: email }
         senha: { type: string }
-        deviceId: { type: string, maxLength: 128 }
+        deviceId: { type: string, minLength: 8, maxLength: 128 }
     RefreshEntrada:
       type: object
       additionalProperties: false

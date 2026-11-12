@@ -3,6 +3,7 @@
 **/coverage
 **/.turbo
 **/.expo
+**/src/generated
 .git
 .github
 .env
