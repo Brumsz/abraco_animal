@@ -5,7 +5,8 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./jest/reanimated-mock": "./jest/reanimated-mock.js"
   },
   "scripts": {
     "lint": "eslint .",
@@ -13,14 +14,14 @@
     "test": "jest"
   },
   "peerDependencies": {
+    "expo-linear-gradient": "~58.0.3",
+    "phosphor-react-native": "~3.0.6",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-native-reanimated": "~4.7.1",
-    "react-native-worklets": "0.13.0",
+    "react-native-safe-area-context": "~5.11.1",
     "react-native-svg": "15.16.0",
-    "phosphor-react-native": "~3.0.6",
-    "expo-linear-gradient": "~58.0.3",
-    "react-native-safe-area-context": "~5.11.1"
+    "react-native-worklets": "0.13.0"
   },
   "devDependencies": {
     "@expo-google-fonts/inter": "~0.4.2",
