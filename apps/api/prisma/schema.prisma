@@ -7,7 +7,7 @@
 //   - Todas as datas em timestamptz (UTC).
 //   - Soft delete via removidoEm onde indicado.
 //   - Índice único parcial de Adocao (PENDENTE) é criado por SQL manual:
-//     prisma/migrations/_manual/adocao_pendente_unica.sql
+//     apps/api/prisma/migrations (migração inicial)
 //   - Blocos marcados "EXTRA" não constam da seção 3 da spec; foram
 //     aprovados na revisão da Etapa 1 (ver docs/etapa-1/decisoes-e-conflitos.md).
 // =====================================================================
