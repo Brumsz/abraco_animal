@@ -1,8 +1,6 @@
 /** @type {import('jest').Config} */
 module.exports = {
   preset: 'jest-expo',
-  // Reanimated 4 / Worklets: usa as implementações web no lugar dos módulos nativos.
-  resolver: require.resolve('react-native-reanimated/jest/resolver'),
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
   // pnpm guarda os pacotes em node_modules/.pnpm/<pkg>@<versão>/node_modules/<pkg>:
