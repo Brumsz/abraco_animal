@@ -40,3 +40,4 @@ desktop.ini
 # Expo
 .expo/
 apps/mobile/dist/
+apps/mobile/expo-env.d.ts
