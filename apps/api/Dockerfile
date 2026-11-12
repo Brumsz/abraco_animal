@@ -20,7 +20,10 @@ FROM deps AS build
 COPY tsconfig.base.json ./
 COPY packages/shared packages/shared
 COPY apps/api apps/api
-RUN pnpm --filter @abraco/api build \
+# O prisma.config.ts exige DATABASE_URL só para carregar; o generate não conecta no banco.
+RUN DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm --filter @abraco/api prisma:generate \
+ && pnpm --filter @abraco/shared build \
+ && pnpm --filter @abraco/api build \
  && pnpm --filter @abraco/api deploy --prod --legacy /out
 
 # ── runtime: distroless, sem shell nem gerenciador de pacotes ─────────

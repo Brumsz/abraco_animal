@@ -38,8 +38,39 @@ jobs:
       - name: Formatação
         run: pnpm format:check
 
+      - name: Gerar Prisma Client
+        run: pnpm --filter @abraco/api prisma:generate
+        env:
+          DATABASE_URL: postgresql://build:build@localhost:5432/build
+
       - name: Lint, typecheck e testes unitários
         run: pnpm turbo run lint typecheck test
+
+  integracao:
+    name: Integração e segurança (Testcontainers)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Gerar Prisma Client e compilar pacotes
+        run: |
+          DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm --filter @abraco/api prisma:generate
+          pnpm --filter @abraco/shared build
+
+      - name: Testes de integração (Postgres e Redis reais)
+        run: pnpm --filter @abraco/api test:integration
 
   migracoes:
     name: Migrações Prisma
