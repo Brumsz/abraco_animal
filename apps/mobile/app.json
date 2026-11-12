@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Abraço Animal",
+    "slug": "abraco-animal",
+    "version": "0.1.0",
+    "scheme": "abracoanimal",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FAF5EB",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "org.abracoanimal.app"
+    },
+    "android": {
+      "package": "org.abracoanimal.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F97316"
+      },
+      "predictiveBackGestureEnabled": false,
+      "allowBackup": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#F97316"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

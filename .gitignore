@@ -36,3 +36,7 @@ desktop.ini
 !.vscode/extensions.json
 !.vscode/settings.json
 *.log
+
+# Expo
+.expo/
+apps/mobile/dist/

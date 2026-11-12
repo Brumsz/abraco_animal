@@ -1,6 +1,7 @@
 // @ts-check
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -28,6 +29,8 @@ export default tseslint.config(
       '**/coverage/**',
       '**/.turbo/**',
       'apps/api/src/generated/**',
+      '**/.expo/**',
+      'apps/mobile/expo-env.d.ts',
     ],
   },
 
@@ -52,6 +55,13 @@ export default tseslint.config(
       eqeqeq: ['error', 'always'],
       'no-console': 'error',
     },
+  },
+
+  // React / React Native (app e design system): regras de hooks.
+  {
+    files: ['apps/mobile/**/*.{ts,tsx}', 'packages/ui/**/*.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks },
+    rules: reactHooks.configs.recommended.rules,
   },
 
   // Clean Architecture: domain não conhece infraestrutura nem HTTP.
@@ -97,7 +107,8 @@ export default tseslint.config(
 
   // Testes: permite padrões comuns em asserts.
   {
-    files: ['**/*.test.ts', '**/*.spec.ts'],
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/jest.setup.ts'],
+    languageOptions: { globals: { ...globals.jest } },
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/unbound-method': 'off',
@@ -105,8 +116,14 @@ export default tseslint.config(
   },
 
   {
-    files: ['**/*.mjs'],
+    files: ['**/*.mjs', '**/*.js'],
     ...tseslint.configs.disableTypeChecked,
+  },
+  // Arquivos de configuração CommonJS (jest.config.js, metro.config.js…)
+  {
+    files: ['**/*.js'],
+    languageOptions: { sourceType: 'commonjs', globals: { ...globals.node } },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 
   prettier,
