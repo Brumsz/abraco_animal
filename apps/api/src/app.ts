@@ -12,6 +12,7 @@ import {
 import type { Redis } from 'ioredis';
 
 import { registrarRotasHealth, type VerificacaoProntidao } from './http/health.js';
+import { rotasAnimais, type DependenciasRotasAnimais } from './modules/animais/http/rotas.js';
 import { rotasAuth, type DependenciasRotasAuth } from './modules/auth/http/rotas.js';
 import { registrarTratadorErros } from './shared/http/tratador-erros.js';
 
@@ -23,6 +24,7 @@ export interface OpcoesApp {
   /** Redis para o rate limit global; sem ele, usa memória (só em testes). */
   readonly redis?: Redis;
   readonly auth?: DependenciasRotasAuth;
+  readonly animais?: DependenciasRotasAnimais;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
 }
@@ -93,6 +95,9 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
 
   if (opcoes.auth) {
     void app.register(rotasAuth(opcoes.auth), { prefix: '/v1' });
+  }
+  if (opcoes.animais) {
+    void app.register(rotasAnimais(opcoes.animais), { prefix: '/v1' });
   }
 
   return app;

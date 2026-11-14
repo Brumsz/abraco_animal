@@ -25,6 +25,18 @@ const TITULOS: Record<number, string> = {
   500: 'Erro interno',
 };
 
+const CODIGOS_POR_STATUS: Record<number, string> = {
+  413: 'CONTEUDO_GRANDE_DEMAIS',
+  429: 'LIMITE_EXCEDIDO',
+  500: 'ERRO_INTERNO',
+};
+
+const MENSAGENS_POR_STATUS: Record<number, string> = {
+  // Upload acima do limite (@fastify/multipart): mensagem do plugin vem em inglês.
+  413: 'O envio excede o tamanho permitido (fotos: até 10 por vez, com no máximo 5 MB cada).',
+  500: 'Ocorreu um erro inesperado. Tente novamente.',
+};
+
 const tipoUri = (codigo: string) => `https://abracoanimal.org.br/erros/${codigo.toLowerCase()}`;
 
 /**
@@ -65,14 +77,13 @@ export function registrarTratadorErros(app: FastifyInstance): void {
       erro.statusCode && erro.statusCode >= 400 && erro.statusCode < 500 ? erro.statusCode : 500;
     if (status === 500) request.log.error({ err: erro }, 'erro não tratado');
 
-    const codigo =
-      status === 429 ? 'LIMITE_EXCEDIDO' : status === 500 ? 'ERRO_INTERNO' : 'REQUISICAO_INVALIDA';
+    const codigo = CODIGOS_POR_STATUS[status] ?? 'REQUISICAO_INVALIDA';
     return reply.code(status).send({
       type: tipoUri(codigo),
       title: TITULOS[status] ?? 'Erro',
       status,
       // Mensagens de erros 4xx do Fastify são seguras; 500 nunca expõe detalhes.
-      detail: status === 500 ? 'Ocorreu um erro inesperado. Tente novamente.' : erro.message,
+      detail: MENSAGENS_POR_STATUS[status] ?? erro.message,
       codigo,
     });
   });

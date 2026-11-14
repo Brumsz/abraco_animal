@@ -1,7 +1,7 @@
 /**
- * Sobe Postgres 16 e Redis 7 reais (Testcontainers), aplica as migrações do
- * Prisma e monta o app completo — só o envio de e-mail é substituído por uma
- * caixa em memória para o teste ler o código de recuperação.
+ * Sobe Postgres 16, Redis 7 e SeaweedFS (S3) reais (Testcontainers), aplica as
+ * migrações do Prisma e monta o app completo — só o envio de e-mail é
+ * substituído por uma caixa em memória para o teste ler o código de recuperação.
  */
 import { execFileSync } from 'node:child_process';
 import { generateKeyPairSync } from 'node:crypto';
@@ -14,11 +14,18 @@ import type { FastifyInstance } from 'fastify';
 import type { Redis } from 'ioredis';
 
 import { construirApp } from '../app.js';
-import { comporAuth, verificacoesProntidao, type ConfigComposicao } from '../composicao.js';
+import {
+  comporAnimais,
+  comporAuth,
+  verificacoesProntidao,
+  type ConfigComposicao,
+} from '../composicao.js';
 import type { FilaEmails } from '../modules/auth/application/portas.js';
-import type { Relogio } from '../shared/aplicacao/relogio.js';
+import { relogioSistema, type Relogio } from '../shared/aplicacao/relogio.js';
+import { ArmazenamentoS3 } from '../shared/infra/armazenamento-s3.js';
 import { criarPrisma, type Prisma } from '../shared/infra/prisma.js';
 import { criarRedis } from '../shared/infra/redis.js';
+import { iniciarS3, type S3Integracao } from './s3-integracao.js';
 
 const RAIZ_API = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -55,6 +62,7 @@ export interface AmbienteIntegracao {
   readonly prisma: Prisma;
   readonly redis: Redis;
   readonly emails: CaixaEmails;
+  readonly s3: S3Integracao;
   readonly config: ConfigComposicao;
   readonly chaves: ReturnType<typeof gerarParJwt>;
   /** Monta um app novo sobre o mesmo banco (ex.: com outro relógio). */
@@ -63,10 +71,12 @@ export interface AmbienteIntegracao {
 }
 
 export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
-  const [pg, rd]: [StartedPostgreSqlContainer, StartedRedisContainer] = await Promise.all([
-    new PostgreSqlContainer('postgres:16.15-alpine').start(),
-    new RedisContainer('redis:7.4.12-alpine').start(),
-  ]);
+  const [pg, rd, s3]: [StartedPostgreSqlContainer, StartedRedisContainer, S3Integracao] =
+    await Promise.all([
+      new PostgreSqlContainer('postgres:16.15-alpine').start(),
+      new RedisContainer('redis:7.4.12-alpine').start(),
+      iniciarS3(),
+    ]);
 
   const databaseUrl = `${pg.getConnectionUri()}?schema=public`;
   // Migrações reais (as mesmas do deploy), incluindo o índice parcial manual.
@@ -98,14 +108,17 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
     CODIGOS_HMAC_KEY_B64: chave32(3),
   };
 
-  const infra = { prisma, redis, emails };
+  const armazenamento = new ArmazenamentoS3(s3.config, relogioSistema);
+  const infra = { prisma, redis, emails, armazenamento };
 
   const criarApp = async (opcoes: { relogio?: Relogio } = {}) => {
-    const auth = await comporAuth(config, { ...infra, ...opcoes });
+    const comOpcoes = { ...infra, ...opcoes };
+    const auth = await comporAuth(config, comOpcoes);
     const app = construirApp({
       verificacoesProntidao: verificacoesProntidao(infra),
       redis,
       auth: auth.rotas,
+      animais: comporAnimais(comOpcoes, auth.rotas.autenticacao),
     });
     return app;
   };
@@ -118,6 +131,7 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
     prisma,
     redis,
     emails,
+    s3,
     config,
     chaves,
     criarApp,
@@ -125,7 +139,9 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       await app.close();
       await prisma.$disconnect();
       redis.disconnect();
-      await Promise.all([pg.stop(), rd.stop()]);
+      armazenamento.destruir();
+      s3.cliente.destroy();
+      await Promise.all([pg.stop(), rd.stop(), s3.container.stop()]);
     },
   };
 }

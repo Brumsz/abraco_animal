@@ -17,8 +17,14 @@ const naoAutenticado = () =>
 export interface Autenticacao {
   /** Exige access token válido e não revogado. */
   readonly autenticar: preHandlerAsyncHookHandler;
+  /**
+   * Rotas públicas que mudam conforme quem pede (ex.: listagem de animais).
+   * Sem Authorization = anônimo; com token inválido = 401 (nunca rebaixa em
+   * silêncio, o que esconderia um app com sessão quebrada).
+   */
+  readonly autenticarOpcional: preHandlerAsyncHookHandler;
   /** Exige uma das roles (use depois de `autenticar`). Proteção real, não só UX. */
-  exigirRole(...roles: Role[]): preHandlerAsyncHookHandler;
+  readonly exigirRole: (...roles: Role[]) => preHandlerAsyncHookHandler;
 }
 
 export function criarAutenticacao(tokens: EmissorTokens, revogacao: ListaRevogacao): Autenticacao {
@@ -32,8 +38,14 @@ export function criarAutenticacao(tokens: EmissorTokens, revogacao: ListaRevogac
     request.claims = claims;
   };
 
+  const autenticarOpcional: preHandlerAsyncHookHandler = async function (request, reply) {
+    if (request.headers.authorization === undefined) return;
+    await autenticar.call(this, request, reply);
+  };
+
   return {
     autenticar,
+    autenticarOpcional,
     exigirRole:
       (...roles) =>
       async (request) => {
