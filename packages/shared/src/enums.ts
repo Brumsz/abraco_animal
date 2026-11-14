@@ -53,3 +53,17 @@ export const STATUS_APADRINHAVEIS: readonly StatusAnimal[] = ['DISPONIVEL'];
 
 /** Regra de negócio D7: idade mínima para cadastro. */
 export const IDADE_MINIMA_CADASTRO = 18;
+
+/** Status que o público vê no detalhe do animal (INDISPONIVEL fica só para a equipe). */
+export const STATUS_VISIVEIS_PUBLICO: readonly StatusAnimal[] = [
+  'DISPONIVEL',
+  'EM_TRATAMENTO',
+  'ADOTADO',
+];
+
+/** Limites de upload de imagens (seção 6). O app valida antes de enviar; a API, sempre. */
+export const UPLOAD_IMAGENS = {
+  tamanhoMaximoBytes: 5 * 1024 * 1024,
+  arquivosPorEnvio: 10,
+  fotosPorAnimal: 10,
+} as const;
