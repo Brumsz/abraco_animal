@@ -3,7 +3,13 @@
  * A montagem dos casos de uso fica em composicao.ts.
  */
 import { CAMPOS_REDIGIDOS, construirApp } from './app.js';
-import { comporAnimais, comporAuth, verificacoesProntidao } from './composicao.js';
+import {
+  comporAdocoes,
+  comporAnimais,
+  comporAuth,
+  comporNotificacoes,
+  verificacoesProntidao,
+} from './composicao.js';
 import { carregarAmbiente } from './config/ambiente.js';
 import { relogioSistema } from './shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from './shared/infra/armazenamento-s3.js';
@@ -53,6 +59,16 @@ const app = construirApp({
   redis,
   auth: auth.rotas,
   animais: comporAnimais(infra, auth.rotas.autenticacao),
+  adocoes: comporAdocoes(infra, auth.rotas.autenticacao, {
+    // Só o tipo do erro: a mensagem do Redis/BullMQ pode trazer o payload (e-mail).
+    aoFalharEmail: (erro) => {
+      app.log.warn(
+        { erro: erro instanceof Error ? erro.name : 'desconhecido' },
+        'falha ao enfileirar e-mail de adoção',
+      );
+    },
+  }),
+  notificacoes: comporNotificacoes(infra, auth.rotas.autenticacao),
 });
 
 workerEmails.on('failed', (job, err) => {

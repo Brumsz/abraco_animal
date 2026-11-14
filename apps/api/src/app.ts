@@ -12,8 +12,13 @@ import {
 import type { Redis } from 'ioredis';
 
 import { registrarRotasHealth, type VerificacaoProntidao } from './http/health.js';
+import { rotasAdocoes, type DependenciasRotasAdocoes } from './modules/adocoes/http/rotas.js';
 import { rotasAnimais, type DependenciasRotasAnimais } from './modules/animais/http/rotas.js';
 import { rotasAuth, type DependenciasRotasAuth } from './modules/auth/http/rotas.js';
+import {
+  rotasNotificacoes,
+  type DependenciasRotasNotificacoes,
+} from './modules/notificacoes/http/rotas.js';
 import { registrarTratadorErros } from './shared/http/tratador-erros.js';
 
 export interface OpcoesApp {
@@ -25,6 +30,8 @@ export interface OpcoesApp {
   readonly redis?: Redis;
   readonly auth?: DependenciasRotasAuth;
   readonly animais?: DependenciasRotasAnimais;
+  readonly adocoes?: DependenciasRotasAdocoes;
+  readonly notificacoes?: DependenciasRotasNotificacoes;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
 }
@@ -98,6 +105,12 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.animais) {
     void app.register(rotasAnimais(opcoes.animais), { prefix: '/v1' });
+  }
+  if (opcoes.adocoes) {
+    void app.register(rotasAdocoes(opcoes.adocoes), { prefix: '/v1' });
+  }
+  if (opcoes.notificacoes) {
+    void app.register(rotasNotificacoes(opcoes.notificacoes), { prefix: '/v1' });
   }
 
   return app;

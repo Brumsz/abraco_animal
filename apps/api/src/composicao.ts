@@ -7,6 +7,17 @@ import type { Redis } from 'ioredis';
 
 import type { Ambiente } from './config/ambiente.js';
 import type { VerificacaoProntidao } from './http/health.js';
+import {
+  AdminListarAdocoes,
+  AdminObterAdocao,
+  AprovarAdocao,
+  ListarMinhasAdocoes,
+  ObterAdocao,
+  RecusarAdocao,
+  SolicitarAdocao,
+} from './modules/adocoes/application/casos-de-uso.js';
+import type { DependenciasRotasAdocoes } from './modules/adocoes/http/rotas.js';
+import { PrismaRepositorioAdocoes } from './modules/adocoes/infrastructure/prisma-repositorio-adocoes.js';
 import { ListarAnimais, ObterAnimal } from './modules/animais/application/consultar-animais.js';
 import {
   EnviarFotosAnimal,
@@ -49,8 +60,17 @@ import {
   RevogacaoRedis,
 } from './modules/auth/infrastructure/redis-auth.js';
 import { TokensJwt } from './modules/auth/infrastructure/tokens-jwt.js';
+import {
+  ContarNaoLidas,
+  ListarNotificacoes,
+  MarcarNotificacaoLida,
+  MarcarTodasLidas,
+} from './modules/notificacoes/application/casos-de-uso.js';
+import type { DependenciasRotasNotificacoes } from './modules/notificacoes/http/rotas.js';
+import { PrismaRepositorioNotificacoes } from './modules/notificacoes/infrastructure/prisma-repositorio-notificacoes.js';
 import { PrismaRepositorioUsuarios } from './modules/usuarios/infrastructure/prisma-repositorio-usuarios.js';
 import type { ArmazenamentoObjetos } from './shared/aplicacao/armazenamento.js';
+import type { EmailsAdocao } from './shared/aplicacao/emails-adocao.js';
 import type { ProcessadorImagens } from './shared/aplicacao/imagens.js';
 import { relogioSistema, type Relogio } from './shared/aplicacao/relogio.js';
 import { ProcessadorImagensSharp } from './shared/infra/processador-imagens-sharp.js';
@@ -59,7 +79,7 @@ import type { Prisma } from './shared/infra/prisma.js';
 export interface Infra {
   readonly prisma: Prisma;
   readonly redis: Redis;
-  readonly emails: FilaEmails;
+  readonly emails: FilaEmails & EmailsAdocao;
   readonly armazenamento: ArmazenamentoObjetos;
   readonly imagens?: ProcessadorImagens;
   readonly relogio?: Relogio;
@@ -153,6 +173,49 @@ export function comporAnimais(infra: Infra, autenticacao: Autenticacao): Depende
     enviarFotos: new EnviarFotosAnimal(deps),
     removerFoto: new RemoverFotoAnimal(deps),
     reordenarFotos: new ReordenarFotosAnimal(deps),
+    autenticacao,
+  };
+}
+
+export function comporAdocoes(
+  infra: Infra,
+  autenticacao: Autenticacao,
+  opcoes: { aoFalharEmail?: (erro: unknown) => void } = {},
+): DependenciasRotasAdocoes {
+  const deps = {
+    adocoes: new PrismaRepositorioAdocoes(infra.prisma),
+    animais: new PrismaRepositorioAnimais(infra.prisma),
+    armazenamento: infra.armazenamento,
+    emails: infra.emails,
+    relogio: infra.relogio ?? relogioSistema,
+    ...(opcoes.aoFalharEmail ? { aoFalharEmail: opcoes.aoFalharEmail } : {}),
+  };
+  return {
+    solicitar: new SolicitarAdocao(deps),
+    listarMinhas: new ListarMinhasAdocoes(deps),
+    obter: new ObterAdocao(deps),
+    adminListar: new AdminListarAdocoes(deps),
+    adminObter: new AdminObterAdocao(deps),
+    aprovar: new AprovarAdocao(deps),
+    recusar: new RecusarAdocao(deps),
+    limitador: new LimitadorTentativas(infra.redis),
+    autenticacao,
+  };
+}
+
+export function comporNotificacoes(
+  infra: Infra,
+  autenticacao: Autenticacao,
+): DependenciasRotasNotificacoes {
+  const deps = {
+    notificacoes: new PrismaRepositorioNotificacoes(infra.prisma),
+    relogio: infra.relogio ?? relogioSistema,
+  };
+  return {
+    listar: new ListarNotificacoes(deps),
+    contar: new ContarNaoLidas(deps),
+    marcarLida: new MarcarNotificacaoLida(deps),
+    marcarTodas: new MarcarTodasLidas(deps),
     autenticacao,
   };
 }
