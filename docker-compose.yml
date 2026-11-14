@@ -112,6 +112,8 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       S3_ENDPOINT: http://s3:8333
+      # O app não alcança "s3:8333": as URLs assinadas usam o endereço externo.
+      S3_ENDPOINT_PUBLICO: ${S3_ENDPOINT_PUBLICO:-http://localhost:8333}
       SMTP_HOST: mailpit
     ports:
       - '127.0.0.1:3333:3333'

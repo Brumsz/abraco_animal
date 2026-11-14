@@ -16,6 +16,9 @@ const pemBase64 = (nome: string) =>
     .transform((v) => Buffer.from(v, 'base64').toString('utf8'))
     .refine((pem) => pem.includes('-----BEGIN'), `${nome} deve ser um PEM em base64`);
 
+/** Variável vazia no .env (`X=`) conta como ausente. */
+const urlOpcional = z.preprocess((v) => (v === '' ? undefined : v), z.url().optional());
+
 const esquema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   HOST: z.string().default('0.0.0.0'),
@@ -55,6 +58,21 @@ const esquema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   EMAIL_REMETENTE: z.string().min(1),
+
+  // Vazio = AWS S3 (endpoint padrão da região).
+  S3_ENDPOINT: urlOpcional,
+  // Endereço que o APP alcança, usado para assinar as URLs das fotos.
+  S3_ENDPOINT_PUBLICO: urlOpcional,
+  S3_REGION: z.string().min(1).default('us-east-1'),
+  S3_BUCKET: z.string().min(3),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
+  S3_FORCE_PATH_STYLE: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  // Seção 6: URLs assinadas expiram em 1h.
+  S3_URL_ASSINADA_TTL_SEGUNDOS: z.coerce.number().int().min(60).max(3600).default(3600),
 });
 
 export type Ambiente = z.infer<typeof esquema>;
