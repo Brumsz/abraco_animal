@@ -20,7 +20,8 @@ import {
   ProcessadorFake,
 } from './testes/fakes.js';
 
-const ADMIN = '00000000-0000-4000-8000-000000000001';
+const ADMIN = { id: '00000000-0000-4000-8000-000000000001', role: 'ADMIN' as const };
+const USUARIO = { id: '00000000-0000-4000-8000-000000000002', role: 'USUARIO' as const };
 
 let animais: AnimaisFake;
 let armazenamento: ArmazenamentoFake;
@@ -51,13 +52,13 @@ async function codigoDe(p: Promise<unknown>): Promise<string> {
 
 const criar = (extra: Parameters<typeof dadosAnimal>[0] = {}, status?: 'EM_TRATAMENTO') =>
   new CriarAnimal(deps).executar({
-    adminId: ADMIN,
+    ator: ADMIN,
     dados: dadosAnimal(extra),
     ...(status ? { status } : {}),
   });
 
 const enviar = (id: string, arquivos: Buffer[]) =>
-  new EnviarFotosAnimal(deps).executar({ adminId: ADMIN, id, arquivos });
+  new EnviarFotosAnimal(deps).executar({ ator: ADMIN, id, arquivos });
 
 describe('CriarAnimal', () => {
   it('cria DISPONIVEL por padrão, normaliza os dados e audita', async () => {
@@ -71,7 +72,7 @@ describe('CriarAnimal', () => {
     });
     expect(animais.auditoria).toEqual([
       {
-        adminId: ADMIN,
+        adminId: ADMIN.id,
         acao: 'ANIMAL_CRIADO',
         entidadeId: animal.id,
         detalhe: { status: 'DISPONIVEL' },
@@ -81,7 +82,7 @@ describe('CriarAnimal', () => {
 
   it('recusa cadastrar como ADOTADO', async () => {
     const p = new CriarAnimal(deps).executar({
-      adminId: ADMIN,
+      ator: ADMIN,
       dados: dadosAnimal(),
       status: 'ADOTADO',
     });
@@ -94,7 +95,7 @@ describe('AtualizarAnimal', () => {
   it('audita só os nomes dos campos alterados', async () => {
     const { id } = await criar();
     const r = await new AtualizarAnimal(deps).executar({
-      adminId: ADMIN,
+      ator: ADMIN,
       id,
       dados: dadosAnimal({ nome: 'Trovão Azul', castrado: true }),
     });
@@ -108,13 +109,13 @@ describe('AtualizarAnimal', () => {
 
   it('sem mudanças não escreve nem audita', async () => {
     const { id } = await criar();
-    await new AtualizarAnimal(deps).executar({ adminId: ADMIN, id, dados: dadosAnimal() });
+    await new AtualizarAnimal(deps).executar({ ator: ADMIN, id, dados: dadosAnimal() });
     expect(animais.auditoria).toHaveLength(1);
   });
 
   it('animal inexistente → 404', async () => {
     const p = new AtualizarAnimal(deps).executar({
-      adminId: ADMIN,
+      ator: ADMIN,
       id: crypto.randomUUID(),
       dados: dadosAnimal(),
     });
@@ -126,7 +127,7 @@ describe('AlterarStatusAnimal', () => {
   it('altera e audita de/para', async () => {
     const { id } = await criar();
     const r = await new AlterarStatusAnimal(deps).executar({
-      adminId: ADMIN,
+      ator: ADMIN,
       id,
       status: 'EM_TRATAMENTO',
     });
@@ -140,14 +141,14 @@ describe('AlterarStatusAnimal', () => {
 
   it('ADOTADO manual → conflito, sem escrita', async () => {
     const { id } = await criar();
-    const p = new AlterarStatusAnimal(deps).executar({ adminId: ADMIN, id, status: 'ADOTADO' });
+    const p = new AlterarStatusAnimal(deps).executar({ ator: ADMIN, id, status: 'ADOTADO' });
     expect(await codigoDe(p)).toBe('TRANSICAO_STATUS_INVALIDA');
     expect(animais.lista[0]?.status).toBe('DISPONIVEL');
   });
 
   it('mesmo status não gera auditoria', async () => {
     const { id } = await criar();
-    await new AlterarStatusAnimal(deps).executar({ adminId: ADMIN, id, status: 'DISPONIVEL' });
+    await new AlterarStatusAnimal(deps).executar({ ator: ADMIN, id, status: 'DISPONIVEL' });
     expect(animais.auditoria).toHaveLength(1);
   });
 });
@@ -156,7 +157,7 @@ describe('RemoverAnimal (soft delete)', () => {
   it('some das consultas, mas preserva as fotos no bucket', async () => {
     const { id } = await criar();
     await enviar(id, [JPEG_FALSO]);
-    await new RemoverAnimal(deps).executar({ adminId: ADMIN, id });
+    await new RemoverAnimal(deps).executar({ ator: ADMIN, id });
 
     expect(await codigoDe(new ObterAnimal(deps).executar({ id, role: 'ADMIN' }))).toBe(
       'ANIMAL_NAO_ENCONTRADO',
@@ -165,7 +166,7 @@ describe('RemoverAnimal (soft delete)', () => {
     expect(armazenamento.objetos.size).toBe(1);
     expect(animais.lista[0]?.removidoEm).toEqual(deps.relogio.agora());
     // Remover de novo → 404 (não audita duas vezes).
-    expect(await codigoDe(new RemoverAnimal(deps).executar({ adminId: ADMIN, id }))).toBe(
+    expect(await codigoDe(new RemoverAnimal(deps).executar({ ator: ADMIN, id }))).toBe(
       'ANIMAL_NAO_ENCONTRADO',
     );
   });
@@ -258,7 +259,7 @@ describe('ListarAnimais', () => {
 describe('ObterAnimal', () => {
   it('INDISPONIVEL: 404 para o público, visível para a equipe', async () => {
     const { id } = await criar();
-    await new AlterarStatusAnimal(deps).executar({ adminId: ADMIN, id, status: 'INDISPONIVEL' });
+    await new AlterarStatusAnimal(deps).executar({ ator: ADMIN, id, status: 'INDISPONIVEL' });
 
     expect(await codigoDe(new ObterAnimal(deps).executar({ id }))).toBe('ANIMAL_NAO_ENCONTRADO');
     expect(await codigoDe(new ObterAnimal(deps).executar({ id, role: 'USUARIO' }))).toBe(
@@ -353,7 +354,7 @@ describe('RemoverFotoAnimal e ReordenarFotosAnimal', () => {
 
   it('remove do banco e do bucket', async () => {
     const { id, ids } = await animalCom3Fotos();
-    await new RemoverFotoAnimal(deps).executar({ adminId: ADMIN, id, fotoId: ids[1] ?? '' });
+    await new RemoverFotoAnimal(deps).executar({ ator: ADMIN, id, fotoId: ids[1] ?? '' });
 
     const detalhe = await new ObterAnimal(deps).executar({ id });
     expect(detalhe.fotos.map((f) => f.id)).toEqual([ids[0], ids[2]]);
@@ -363,7 +364,7 @@ describe('RemoverFotoAnimal e ReordenarFotosAnimal', () => {
   it('remoção conclui mesmo se o bucket falhar (fica órfão, invisível)', async () => {
     const { id, ids } = await animalCom3Fotos();
     armazenamento.falharRemocao = true;
-    await new RemoverFotoAnimal(deps).executar({ adminId: ADMIN, id, fotoId: ids[0] ?? '' });
+    await new RemoverFotoAnimal(deps).executar({ ator: ADMIN, id, fotoId: ids[0] ?? '' });
     expect((await new ObterAnimal(deps).executar({ id })).fotos).toHaveLength(2);
   });
 
@@ -371,7 +372,7 @@ describe('RemoverFotoAnimal e ReordenarFotosAnimal', () => {
     const a = await animalCom3Fotos();
     const b = await animalCom3Fotos();
     const p = new RemoverFotoAnimal(deps).executar({
-      adminId: ADMIN,
+      ator: ADMIN,
       id: a.id,
       fotoId: b.ids[0] ?? '',
     });
@@ -381,7 +382,7 @@ describe('RemoverFotoAnimal e ReordenarFotosAnimal', () => {
   it('reordena e a capa passa a ser a nova primeira', async () => {
     const { id, ids } = await animalCom3Fotos();
     const nova = [ids[2] ?? '', ids[0] ?? '', ids[1] ?? ''];
-    await new ReordenarFotosAnimal(deps).executar({ adminId: ADMIN, id, ids: nova });
+    await new ReordenarFotosAnimal(deps).executar({ ator: ADMIN, id, ids: nova });
 
     const detalhe = await new ObterAnimal(deps).executar({ id });
     expect(detalhe.fotos.map((f) => f.id)).toEqual(nova);
@@ -394,7 +395,7 @@ describe('RemoverFotoAnimal e ReordenarFotosAnimal', () => {
     ['de outro animal', (ids: string[]) => [ids[0] ?? '', ids[1] ?? '', crypto.randomUUID()]],
   ])('reordenação inválida (%s) → erro de validação', async (_nome, montar) => {
     const { id, ids } = await animalCom3Fotos();
-    const p = new ReordenarFotosAnimal(deps).executar({ adminId: ADMIN, id, ids: montar(ids) });
+    const p = new ReordenarFotosAnimal(deps).executar({ ator: ADMIN, id, ids: montar(ids) });
     expect(await codigoDe(p)).toBe('REORDENACAO_INVALIDA');
   });
 });
@@ -404,5 +405,32 @@ describe('prepararImagens', () => {
     const r = await prepararImagens([JPEG_FALSO, JPEG_FALSO], imagens);
     expect(r).toHaveLength(2);
     expect(imagens.processados).toBe(2);
+  });
+});
+
+describe('permissão validada no caso de uso (seção 5), não só na rota', () => {
+  it('USUARIO e VOLUNTARIO não executam nenhum caso de uso de admin', async () => {
+    const { id } = await criar();
+    const fotos = await enviar(id, [JPEG_FALSO]);
+    const fotoId = fotos[0]?.id ?? '';
+    for (const ator of [USUARIO, { ...USUARIO, role: 'VOLUNTARIO' as const }]) {
+      const chamadas = [
+        new CriarAnimal(deps).executar({ ator, dados: dadosAnimal() }),
+        new AtualizarAnimal(deps).executar({ ator, id, dados: dadosAnimal({ nome: 'X' }) }),
+        new AlterarStatusAnimal(deps).executar({ ator, id, status: 'INDISPONIVEL' }),
+        new RemoverAnimal(deps).executar({ ator, id }),
+        new EnviarFotosAnimal(deps).executar({ ator, id, arquivos: [JPEG_FALSO] }),
+        new RemoverFotoAnimal(deps).executar({ ator, id, fotoId }),
+        new ReordenarFotosAnimal(deps).executar({ ator, id, ids: [fotoId] }),
+      ];
+      for (const chamada of chamadas) expect(await codigoDe(chamada)).toBe('ACESSO_NEGADO');
+    }
+    // Nada mudou: só as duas escritas do admin estão na auditoria.
+    expect(animais.auditoria).toHaveLength(2);
+    expect(animais.lista[0]).toMatchObject({
+      nome: 'Trovão',
+      status: 'DISPONIVEL',
+      removidoEm: null,
+    });
   });
 });
