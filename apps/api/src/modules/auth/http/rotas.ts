@@ -1,4 +1,4 @@
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 
 import { ErroDominio } from '../../../shared/dominio/erros.js';
@@ -13,11 +13,8 @@ import type {
 } from '../application/recuperar-senha.js';
 import type { RenovarSessao } from '../application/renovar-sessao.js';
 import type { SessaoEmitida } from '../application/sessoes.js';
-import {
-  REGRAS,
-  type LimitadorTentativas,
-  type RegraLimite,
-} from '../infrastructure/redis-auth.js';
+import { aplicarLimite } from '../../../shared/http/limite.js';
+import { REGRAS, type LimitadorTentativas } from '../infrastructure/redis-auth.js';
 import { claimsDe, type Autenticacao } from './autenticacao.js';
 import {
   cadastroEntrada,
@@ -46,23 +43,6 @@ export interface DependenciasRotasAuth {
 
 const perfil = (u: UsuarioAuth) => ({ ...u, id: u.publicId });
 const sessao = (s: SessaoEmitida) => ({ ...s, usuario: perfil(s.usuario) });
-
-async function aplicarLimite(
-  limitador: LimitadorTentativas,
-  regra: RegraLimite,
-  identificador: string,
-  reply: FastifyReply,
-): Promise<void> {
-  const resultado = await limitador.consumir(regra, identificador);
-  if (!resultado.permitido) {
-    void reply.header('Retry-After', String(resultado.tentarEmSegundos));
-    throw new ErroDominio(
-      'LIMITE_EXCEDIDO',
-      'MUITAS_TENTATIVAS',
-      'Muitas tentativas. Aguarde alguns minutos e tente novamente.',
-    );
-  }
-}
 
 const ip = (request: FastifyRequest) => request.ip;
 

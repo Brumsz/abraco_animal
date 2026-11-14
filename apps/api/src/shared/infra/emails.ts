@@ -2,6 +2,7 @@ import { Queue, Worker, type ConnectionOptions } from 'bullmq';
 import nodemailer from 'nodemailer';
 
 import type { FilaEmails } from '../../modules/auth/application/portas.js';
+import type { DestinatarioEmail, EmailsAdocao } from '../aplicacao/emails-adocao.js';
 
 const FILA = 'emails';
 
@@ -12,13 +13,22 @@ type Job =
       readonly nome: string;
       readonly codigo: string;
     }
-  | { readonly tipo: 'senhaAlterada'; readonly para: string; readonly nome: string };
+  | { readonly tipo: 'senhaAlterada'; readonly para: string; readonly nome: string }
+  | (DestinatarioEmail & {
+      readonly tipo: 'adocaoRecebida' | 'adocaoAprovada' | 'adocaoEncerrada';
+      readonly animal: string;
+    })
+  | (DestinatarioEmail & {
+      readonly tipo: 'adocaoRecusada';
+      readonly animal: string;
+      readonly motivo: string;
+    });
 
 /**
  * Produtor da fila de e-mails. O job sai da fila assim que é enviado
  * (removeOnComplete) — o código de recuperação não fica guardado no Redis.
  */
-export class FilaEmailsBullmq implements FilaEmails {
+export class FilaEmailsBullmq implements FilaEmails, EmailsAdocao {
   private readonly fila: Queue<Job>;
 
   constructor(conexao: ConnectionOptions) {
@@ -39,6 +49,22 @@ export class FilaEmailsBullmq implements FilaEmails {
 
   async senhaAlterada(dados: { para: string; nome: string }) {
     await this.fila.add('senhaAlterada', { tipo: 'senhaAlterada', ...dados });
+  }
+
+  async adocaoRecebida(d: DestinatarioEmail & { animal: string }) {
+    await this.fila.add('adocaoRecebida', { tipo: 'adocaoRecebida', ...d });
+  }
+
+  async adocaoAprovada(d: DestinatarioEmail & { animal: string }) {
+    await this.fila.add('adocaoAprovada', { tipo: 'adocaoAprovada', ...d });
+  }
+
+  async adocaoRecusada(d: DestinatarioEmail & { animal: string; motivo: string }) {
+    await this.fila.add('adocaoRecusada', { tipo: 'adocaoRecusada', ...d });
+  }
+
+  async adocaoEncerrada(d: DestinatarioEmail & { animal: string }) {
+    await this.fila.add('adocaoEncerrada', { tipo: 'adocaoEncerrada', ...d });
   }
 
   fechar() {
@@ -70,28 +96,81 @@ Você recebeu este e-mail porque há uma conta Abraço Animal com este endereço
 
 export function montarEmail(job: Job): { assunto: string; html: string; texto: string } {
   const nome = escapar(job.nome.split(' ')[0] ?? '');
-  if (job.tipo === 'codigoRecuperacao') {
-    const codigo = escapar(job.codigo);
-    return {
-      assunto: 'Seu código para redefinir a senha',
-      texto: `Olá, ${job.nome}! Seu código é ${job.codigo}. Ele vale por 15 minutos. Se você não pediu, ignore este e-mail.`,
-      html: layout(
-        'Redefinição de senha',
-        `<p>Olá, ${nome}!</p><p>Use o código abaixo no app para criar uma nova senha:</p>
+  switch (job.tipo) {
+    case 'codigoRecuperacao': {
+      const codigo = escapar(job.codigo);
+      return {
+        assunto: 'Seu código para redefinir a senha',
+        texto: `Olá, ${job.nome}! Seu código é ${job.codigo}. Ele vale por 15 minutos. Se você não pediu, ignore este e-mail.`,
+        html: layout(
+          'Redefinição de senha',
+          `<p>Olá, ${nome}!</p><p>Use o código abaixo no app para criar uma nova senha:</p>
 <p style="font-size:32px;letter-spacing:8px;font-weight:bold;color:#431407;background:#FFF7ED;padding:16px;text-align:center;border-radius:12px">${codigo}</p>
 <p>Ele vale por <strong>15 minutos</strong>. Se você não pediu, ignore este e-mail — sua senha continua a mesma.</p>`,
-      ),
-    };
-  }
-  return {
-    assunto: 'Sua senha foi alterada',
-    texto: `Olá, ${job.nome}! A senha da sua conta foi alterada e todas as sessões foram encerradas. Se não foi você, fale com a ONG imediatamente.`,
-    html: layout(
-      'Senha alterada',
-      `<p>Olá, ${nome}!</p><p>A senha da sua conta foi alterada e todos os aparelhos foram desconectados.</p>
+        ),
+      };
+    }
+    case 'senhaAlterada':
+      return {
+        assunto: 'Sua senha foi alterada',
+        texto: `Olá, ${job.nome}! A senha da sua conta foi alterada e todas as sessões foram encerradas. Se não foi você, fale com a ONG imediatamente.`,
+        html: layout(
+          'Senha alterada',
+          `<p>Olá, ${nome}!</p><p>A senha da sua conta foi alterada e todos os aparelhos foram desconectados.</p>
 <p>Se não foi você, entre em contato com a ONG imediatamente.</p>`,
-    ),
-  };
+        ),
+      };
+    case 'adocaoRecebida': {
+      const animal = escapar(job.animal);
+      return {
+        assunto: `Recebemos sua solicitação para adotar ${job.animal}`,
+        texto: `Olá, ${job.nome}! Recebemos sua solicitação para adotar ${job.animal}. A equipe vai analisar e você acompanha tudo pelo app, em Perfil > Minhas adoções.`,
+        html: layout(
+          'Solicitação recebida 💛',
+          `<p>Olá, ${nome}!</p><p>Recebemos sua solicitação para adotar <strong>${animal}</strong>.</p>
+<p>A equipe da ONG vai analisar suas respostas com carinho. Você acompanha cada etapa pelo app, em <strong>Perfil › Minhas adoções</strong>.</p>`,
+        ),
+      };
+    }
+    case 'adocaoAprovada': {
+      const animal = escapar(job.animal);
+      return {
+        assunto: `Sua adoção de ${job.animal} foi aprovada! 🎉`,
+        texto: `Olá, ${job.nome}! A ONG aprovou sua solicitação para adotar ${job.animal}. Em breve entraremos em contato para combinar os próximos passos.`,
+        html: layout(
+          'Adoção aprovada! 🎉',
+          `<p>Olá, ${nome}!</p><p>A ONG aprovou sua solicitação para adotar <strong>${animal}</strong>.</p>
+<p>Em breve entraremos em contato pelo telefone cadastrado para combinar os próximos passos.</p>`,
+        ),
+      };
+    }
+    case 'adocaoRecusada': {
+      const animal = escapar(job.animal);
+      const motivo = escapar(job.motivo);
+      return {
+        assunto: `Sua solicitação para adotar ${job.animal} foi analisada`,
+        texto: `Olá, ${job.nome}. A solicitação para adotar ${job.animal} não foi aprovada. Motivo: ${job.motivo}`,
+        html: layout(
+          'Solicitação analisada',
+          `<p>Olá, ${nome}.</p><p>A solicitação para adotar <strong>${animal}</strong> não foi aprovada desta vez.</p>
+<p style="background:#FFF7ED;padding:12px 16px;border-radius:12px"><strong>Motivo:</strong> ${motivo}</p>
+<p>Obrigado por querer fazer parte desta história. Há outros animais esperando por um lar no app.</p>`,
+        ),
+      };
+    }
+    case 'adocaoEncerrada': {
+      const animal = escapar(job.animal);
+      return {
+        assunto: `${job.animal} encontrou um lar`,
+        texto: `Olá, ${job.nome}! ${job.animal} foi adotado por outra família e sua solicitação foi encerrada. Obrigado pelo carinho — conheça outros animais no app.`,
+        html: layout(
+          `${animal} encontrou um lar 💛`,
+          `<p>Olá, ${nome}!</p><p><strong>${animal}</strong> foi adotado por outra família, então sua solicitação foi encerrada.</p>
+<p>Obrigado pelo carinho! Há outros animais esperando por você no app.</p>`,
+        ),
+      };
+    }
+  }
 }
 
 /** Consumidor da fila: envia via SMTP (Mailpit em desenvolvimento). */
