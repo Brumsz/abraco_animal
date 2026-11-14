@@ -282,8 +282,10 @@ model Animal {
   apadrinhamentos Apadrinhamento[]
   doacaoOrigem    DoacaoAnimal?    @relation("DoacaoAnimalGerado")
 
-  @@index([status, tipo, porte, sexo])
-  @@index([criadoEm, id]) // paginação por cursor
+  // Listagem pública: sempre filtra status e pagina por (criadoEm DESC, publicId DESC).
+  // O cursor usa publicId (e não o id interno) para não revelar a sequência.
+  @@index([status, criadoEm(sort: Desc), publicId(sort: Desc)])
+  @@index([criadoEm(sort: Desc), publicId(sort: Desc)])
   @@map("animais")
 }
 

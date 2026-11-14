@@ -7,6 +7,20 @@ import type { Redis } from 'ioredis';
 
 import type { Ambiente } from './config/ambiente.js';
 import type { VerificacaoProntidao } from './http/health.js';
+import { ListarAnimais, ObterAnimal } from './modules/animais/application/consultar-animais.js';
+import {
+  EnviarFotosAnimal,
+  RemoverFotoAnimal,
+  ReordenarFotosAnimal,
+} from './modules/animais/application/fotos-animal.js';
+import {
+  AlterarStatusAnimal,
+  AtualizarAnimal,
+  CriarAnimal,
+  RemoverAnimal,
+} from './modules/animais/application/gerenciar-animais.js';
+import type { DependenciasRotasAnimais } from './modules/animais/http/rotas.js';
+import { PrismaRepositorioAnimais } from './modules/animais/infrastructure/prisma-repositorio-animais.js';
 import { CadastrarUsuario } from './modules/auth/application/cadastrar.js';
 import { Login } from './modules/auth/application/login.js';
 import { Logout } from './modules/auth/application/logout.js';
@@ -17,7 +31,7 @@ import {
   VerificarCodigoRecuperacao,
 } from './modules/auth/application/recuperar-senha.js';
 import { RenovarSessao } from './modules/auth/application/renovar-sessao.js';
-import { criarAutenticacao } from './modules/auth/http/autenticacao.js';
+import { criarAutenticacao, type Autenticacao } from './modules/auth/http/autenticacao.js';
 import type { DependenciasRotasAuth } from './modules/auth/http/rotas.js';
 import {
   CifradorAesGcm,
@@ -36,13 +50,18 @@ import {
 } from './modules/auth/infrastructure/redis-auth.js';
 import { TokensJwt } from './modules/auth/infrastructure/tokens-jwt.js';
 import { PrismaRepositorioUsuarios } from './modules/usuarios/infrastructure/prisma-repositorio-usuarios.js';
+import type { ArmazenamentoObjetos } from './shared/aplicacao/armazenamento.js';
+import type { ProcessadorImagens } from './shared/aplicacao/imagens.js';
 import { relogioSistema, type Relogio } from './shared/aplicacao/relogio.js';
+import { ProcessadorImagensSharp } from './shared/infra/processador-imagens-sharp.js';
 import type { Prisma } from './shared/infra/prisma.js';
 
 export interface Infra {
   readonly prisma: Prisma;
   readonly redis: Redis;
   readonly emails: FilaEmails;
+  readonly armazenamento: ArmazenamentoObjetos;
+  readonly imagens?: ProcessadorImagens;
   readonly relogio?: Relogio;
 }
 
@@ -115,6 +134,27 @@ export async function comporAuth(config: ConfigComposicao, infra: Infra) {
   };
 
   return { rotas, tokens, sessoes, revogacao, cifrador };
+}
+
+export function comporAnimais(infra: Infra, autenticacao: Autenticacao): DependenciasRotasAnimais {
+  const deps = {
+    animais: new PrismaRepositorioAnimais(infra.prisma),
+    armazenamento: infra.armazenamento,
+    imagens: infra.imagens ?? new ProcessadorImagensSharp(),
+    relogio: infra.relogio ?? relogioSistema,
+  };
+  return {
+    listar: new ListarAnimais(deps),
+    obter: new ObterAnimal(deps),
+    criar: new CriarAnimal(deps),
+    atualizar: new AtualizarAnimal(deps),
+    alterarStatus: new AlterarStatusAnimal(deps),
+    remover: new RemoverAnimal(deps),
+    enviarFotos: new EnviarFotosAnimal(deps),
+    removerFoto: new RemoverFotoAnimal(deps),
+    reordenarFotos: new ReordenarFotosAnimal(deps),
+    autenticacao,
+  };
 }
 
 export function verificacoesProntidao(infra: Infra): VerificacaoProntidao[] {

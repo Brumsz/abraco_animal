@@ -3,8 +3,10 @@
  * A montagem dos casos de uso fica em composicao.ts.
  */
 import { CAMPOS_REDIGIDOS, construirApp } from './app.js';
-import { comporAuth, verificacoesProntidao } from './composicao.js';
+import { comporAnimais, comporAuth, verificacoesProntidao } from './composicao.js';
 import { carregarAmbiente } from './config/ambiente.js';
+import { relogioSistema } from './shared/aplicacao/relogio.js';
+import { ArmazenamentoS3 } from './shared/infra/armazenamento-s3.js';
 import { FilaEmailsBullmq, iniciarWorkerEmails } from './shared/infra/emails.js';
 import { criarPrisma } from './shared/infra/prisma.js';
 import { criarRedis } from './shared/infra/redis.js';
@@ -14,7 +16,20 @@ const ambiente = carregarAmbiente();
 const prisma = criarPrisma(ambiente.DATABASE_URL);
 const redis = criarRedis(ambiente.REDIS_URL);
 const emails = new FilaEmailsBullmq(redis);
-const infra = { prisma, redis, emails };
+const armazenamento = new ArmazenamentoS3(
+  {
+    ...(ambiente.S3_ENDPOINT ? { endpoint: ambiente.S3_ENDPOINT } : {}),
+    ...(ambiente.S3_ENDPOINT_PUBLICO ? { endpointPublico: ambiente.S3_ENDPOINT_PUBLICO } : {}),
+    regiao: ambiente.S3_REGION,
+    bucket: ambiente.S3_BUCKET,
+    accessKeyId: ambiente.S3_ACCESS_KEY_ID,
+    secretAccessKey: ambiente.S3_SECRET_ACCESS_KEY,
+    forcePathStyle: ambiente.S3_FORCE_PATH_STYLE,
+    ttlUrlSegundos: ambiente.S3_URL_ASSINADA_TTL_SEGUNDOS,
+  },
+  relogioSistema,
+);
+const infra = { prisma, redis, emails, armazenamento };
 
 // Worker de e-mails no mesmo processo (separável em outro container na Etapa 11).
 const workerEmails = iniciarWorkerEmails(redis, {
@@ -37,6 +52,7 @@ const app = construirApp({
   corsOrigens: ambiente.CORS_ORIGINS,
   redis,
   auth: auth.rotas,
+  animais: comporAnimais(infra, auth.rotas.autenticacao),
 });
 
 workerEmails.on('failed', (job, err) => {
@@ -57,6 +73,7 @@ async function encerrar(sinal: string): Promise<void> {
     await workerEmails.close();
     await emails.fechar();
     await prisma.$disconnect();
+    armazenamento.destruir();
     redis.disconnect();
     process.exit(0);
   } catch (err) {
