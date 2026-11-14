@@ -5,7 +5,7 @@ import type { FastifyPluginAsyncZod, ZodTypeProvider } from 'fastify-type-provid
 
 import { ErroDominio } from '../../../shared/dominio/erros.js';
 import { codificarCursor } from '../../../shared/http/cursor.js';
-import { claimsDe, type Autenticacao } from '../../auth/http/autenticacao.js';
+import { atorDe, type Autenticacao } from '../../auth/http/autenticacao.js';
 import type { ListarAnimais, ObterAnimal } from '../application/consultar-animais.js';
 import type {
   EnviarFotosAnimal,
@@ -130,7 +130,7 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
           },
         });
 
-        const adminId = (request: FastifyRequest) => claimsDe(request).sub;
+        const ator = atorDe;
 
         admin.post(
           '/animais',
@@ -138,7 +138,7 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
           async (request, reply) => {
             const { status, ...dados } = request.body;
             const animal = await deps.criar.executar({
-              adminId: adminId(request),
+              ator: ator(request),
               dados,
               ...(status ? { status } : {}),
             });
@@ -157,7 +157,7 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
           },
           async (request) =>
             deps.atualizar.executar({
-              adminId: adminId(request),
+              ator: ator(request),
               id: request.params.id,
               dados: request.body,
             }),
@@ -174,14 +174,14 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
           },
           async (request) =>
             deps.alterarStatus.executar({
-              adminId: adminId(request),
+              ator: ator(request),
               id: request.params.id,
               status: request.body.status,
             }),
         );
 
         admin.delete('/animais/:id', { schema: { params: idParam } }, async (request, reply) => {
-          await deps.remover.executar({ adminId: adminId(request), id: request.params.id });
+          await deps.remover.executar({ ator: ator(request), id: request.params.id });
           return reply.code(204).send();
         });
 
@@ -197,7 +197,7 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
               );
             }
             const fotos = await deps.enviarFotos.executar({
-              adminId: adminId(request),
+              ator: ator(request),
               id: request.params.id,
               arquivos: await lerArquivos(request),
             });
@@ -210,7 +210,7 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
           { schema: { params: idParam, body: reordenarFotosEntrada } },
           async (request, reply) => {
             await deps.reordenarFotos.executar({
-              adminId: adminId(request),
+              ator: ator(request),
               id: request.params.id,
               ids: request.body.ids,
             });
@@ -223,7 +223,7 @@ export function rotasAnimais(deps: DependenciasRotasAnimais): FastifyPluginAsync
           { schema: { params: fotoParam } },
           async (request, reply) => {
             await deps.removerFoto.executar({
-              adminId: adminId(request),
+              ator: ator(request),
               id: request.params.id,
               fotoId: request.params.fotoId,
             });

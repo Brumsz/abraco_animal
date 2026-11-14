@@ -474,7 +474,7 @@ paths:
     get:
       tags: [adocoes]
       operationId: obterAdocao
-      summary: Apenas o solicitante ou ADMIN. Outro usuário → 403.
+      summary: Apenas o solicitante ou ADMIN. Outro usuário (inclusive VOLUNTARIO) → 403.
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
         '200':
@@ -1016,7 +1016,7 @@ paths:
           description: Aprovada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Adocao' }
+              schema: { $ref: '#/components/schemas/AdocaoAdmin' }
         '403': { $ref: '#/components/responses/Erro' }
         '409': { $ref: '#/components/responses/Erro' }
   /admin/adocoes/{id}/recusar:
@@ -1031,7 +1031,7 @@ paths:
           description: Recusada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Adocao' }
+              schema: { $ref: '#/components/schemas/AdocaoAdmin' }
         '403': { $ref: '#/components/responses/Erro' }
         '409': { $ref: '#/components/responses/Erro' }
 
@@ -1132,7 +1132,7 @@ paths:
     delete:
       tags: [admin]
       operationId: adminRemoverAnimal
-      summary: Soft delete
+      summary: Soft delete (409 ANIMAL_COM_ADOCOES_PENDENTES se houver adoções pendentes)
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
         '204': { description: Removido }
@@ -1976,7 +1976,18 @@ components:
         - $ref: '#/components/schemas/Adocao'
         - type: object
           properties:
-            solicitante: { $ref: '#/components/schemas/UsuarioAdmin' }
+            solicitante:
+              description: Contato para a análise. Sem CPF nem data de nascimento (minimização, LGPD). null após anonimização.
+              oneOf:
+                - type: 'null'
+                - type: object
+                  required: [id, nome, email, telefone, endereco]
+                  properties:
+                    id: { type: string, format: uuid }
+                    nome: { type: string }
+                    email: { type: string, format: email }
+                    telefone: { type: string }
+                    endereco: { $ref: '#/components/schemas/Endereco' }
             analisadoPor: { type: [string, 'null'], description: Nome do admin }
 
     # ── Doação de animal ──

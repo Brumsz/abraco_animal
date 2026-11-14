@@ -2,6 +2,7 @@ import type { Role } from '@abraco/shared';
 import type { FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
 
 import { ErroDominio } from '../../../shared/dominio/erros.js';
+import type { Ator } from '../../../shared/dominio/permissoes.js';
 import type { ClaimsAcesso, EmissorTokens, ListaRevogacao } from '../application/portas.js';
 
 declare module 'fastify' {
@@ -63,4 +64,10 @@ export function criarAutenticacao(tokens: EmissorTokens, revogacao: ListaRevogac
 export function claimsDe(request: FastifyRequest): ClaimsAcesso {
   if (!request.claims) throw naoAutenticado();
   return request.claims;
+}
+
+/** Quem está chamando, no formato dos casos de uso. */
+export function atorDe(request: FastifyRequest): Ator {
+  const claims = claimsDe(request);
+  return { id: claims.sub, role: claims.role };
 }

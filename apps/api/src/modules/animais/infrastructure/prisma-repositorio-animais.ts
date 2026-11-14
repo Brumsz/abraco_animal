@@ -3,6 +3,7 @@ import type { StatusAnimal } from '@abraco/shared';
 import type { Prisma as PrismaGerado } from '../../../generated/prisma/client.js';
 import type { EntradaAuditoria } from '../../../shared/aplicacao/auditoria.js';
 import { ErroDominio } from '../../../shared/dominio/erros.js';
+import { gravarAuditoria } from '../../../shared/infra/auditoria-prisma.js';
 import { violouUnicidade, type Prisma } from '../../../shared/infra/prisma.js';
 import type { DadosAnimal } from '../domain/animal.js';
 import type {
@@ -17,7 +18,7 @@ import type {
 
 type Tx = PrismaGerado.TransactionClient;
 
-const CAMPOS = {
+export const CAMPOS_ANIMAL = {
   id: true,
   publicId: true,
   nome: true,
@@ -34,15 +35,27 @@ const CAMPOS = {
   criadoEm: true,
 } as const satisfies PrismaGerado.AnimalSelect;
 
-const CAMPOS_FOTO = { publicId: true, url: true, ordem: true } as const;
+export const CAMPOS_FOTO = { publicId: true, url: true, ordem: true } as const;
 
 type LinhaFoto = PrismaGerado.AnimalFotoGetPayload<{ select: typeof CAMPOS_FOTO }>;
 
-const foto = (f: LinhaFoto): FotoRegistro => ({
+export const foto = (f: LinhaFoto): FotoRegistro => ({
   publicId: f.publicId,
   chave: f.url,
   ordem: f.ordem,
 });
+
+/** Seleção do resumo (com a capa) para quem mostra o animal junto de outra coisa (ex.: adoção). */
+export const SELECAO_RESUMO_ANIMAL = {
+  ...CAMPOS_ANIMAL,
+  fotos: { select: CAMPOS_FOTO, orderBy: { ordem: 'asc' }, take: 1 },
+} as const satisfies PrismaGerado.AnimalSelect;
+
+type LinhaResumo = PrismaGerado.AnimalGetPayload<{ select: typeof SELECAO_RESUMO_ANIMAL }>;
+
+export function paraResumoAnimal({ fotos, ...animal }: LinhaResumo): AnimalResumoRegistro {
+  return { ...animal, fotoCapa: fotos[0] ? foto(fotos[0]) : null };
+}
 
 const conflito = () =>
   new ErroDominio(
@@ -57,18 +70,8 @@ const conflito = () =>
  */
 export const escaparLike = (texto: string) => texto.replace(/[\\%_]/g, (c) => `\\${c}`);
 
-/** Grava a auditoria dentro da transação da alteração. */
-async function auditar(tx: Tx, animalPublicId: string, a: EntradaAuditoria): Promise<void> {
-  await tx.auditLog.create({
-    data: {
-      admin: { connect: { publicId: a.adminId } },
-      acao: a.acao,
-      entidade: 'Animal',
-      entidadeId: animalPublicId,
-      ...(a.detalhe ? { detalhe: a.detalhe } : {}),
-    },
-  });
-}
+const auditar = (tx: Tx, animalPublicId: string, a: EntradaAuditoria) =>
+  gravarAuditoria(tx, 'Animal', animalPublicId, a);
 
 export class PrismaRepositorioAnimais implements RepositorioAnimais {
   constructor(private readonly prisma: Prisma) {}
@@ -78,7 +81,7 @@ export class PrismaRepositorioAnimais implements RepositorioAnimais {
     a: EntradaAuditoria,
   ): Promise<AnimalCompleto> {
     return this.prisma.$transaction(async (tx) => {
-      const criado = await tx.animal.create({ data: dados, select: CAMPOS });
+      const criado = await tx.animal.create({ data: dados, select: CAMPOS_ANIMAL });
       await auditar(tx, criado.publicId, a);
       return { ...criado, fotos: [], totalPadrinhos: 0 };
     });
@@ -88,7 +91,7 @@ export class PrismaRepositorioAnimais implements RepositorioAnimais {
     const linha = await this.prisma.animal.findFirst({
       where: { publicId, removidoEm: null },
       select: {
-        ...CAMPOS,
+        ...CAMPOS_ANIMAL,
         fotos: { select: CAMPOS_FOTO, orderBy: { ordem: 'asc' } },
         _count: { select: { apadrinhamentos: { where: { ativo: true } } } },
       },
@@ -127,11 +130,23 @@ export class PrismaRepositorioAnimais implements RepositorioAnimais {
 
   async remover(animal: AnimalRegistro, em: Date, a: EntradaAuditoria): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
+      // O UPDATE trava a linha do animal ANTES da contagem: uma solicitação nova
+      // (que lê o animal com FOR SHARE) espera esta transação e então vê o animal removido.
       const r = await tx.animal.updateMany({
         where: { id: animal.id, removidoEm: null },
         data: { removidoEm: em },
       });
       if (r.count === 0) throw conflito();
+      const pendentes = await tx.adocao.count({
+        where: { animalId: animal.id, status: 'PENDENTE', removidoEm: null },
+      });
+      if (pendentes > 0) {
+        throw new ErroDominio(
+          'CONFLITO',
+          'ANIMAL_COM_ADOCOES_PENDENTES',
+          'Este animal tem solicitações de adoção pendentes. Analise-as antes de removê-lo.',
+        );
+      }
       await auditar(tx, animal.publicId, a);
     });
   }
@@ -161,12 +176,9 @@ export class PrismaRepositorioAnimais implements RepositorioAnimais {
       },
       orderBy: [{ criadoEm: 'desc' }, { publicId: 'desc' }],
       take: limite,
-      select: { ...CAMPOS, fotos: { select: CAMPOS_FOTO, orderBy: { ordem: 'asc' }, take: 1 } },
+      select: SELECAO_RESUMO_ANIMAL,
     });
-    return linhas.map(({ fotos, ...animal }) => ({
-      ...animal,
-      fotoCapa: fotos[0] ? foto(fotos[0]) : null,
-    }));
+    return linhas.map(paraResumoAnimal);
   }
 
   async adicionarFotos(

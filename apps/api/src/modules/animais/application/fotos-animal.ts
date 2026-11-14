@@ -6,6 +6,7 @@ import { UPLOAD_IMAGENS } from '@abraco/shared';
 import type { ArmazenamentoObjetos } from '../../../shared/aplicacao/armazenamento.js';
 import { prepararImagens, type ProcessadorImagens } from '../../../shared/aplicacao/imagens.js';
 import { ErroDominio, erroValidacao } from '../../../shared/dominio/erros.js';
+import { exigirAdmin, type Ator } from '../../../shared/dominio/permissoes.js';
 import { fotoSaida, type FotoSaida } from './apresentacao.js';
 import { exigirAnimal } from './gerenciar-animais.js';
 import type { RepositorioAnimais } from './portas.js';
@@ -30,10 +31,11 @@ export class EnviarFotosAnimal {
   constructor(private readonly deps: Deps) {}
 
   async executar(entrada: {
-    adminId: string;
+    ator: Ator;
     id: string;
     arquivos: readonly Buffer[];
   }): Promise<FotoSaida[]> {
+    exigirAdmin(entrada.ator);
     const animal = await exigirAnimal(this.deps.animais, entrada.id);
     if (entrada.arquivos.length === 0) {
       throw erroValidacao('NENHUM_ARQUIVO', 'Envie ao menos uma foto', 'fotos');
@@ -59,7 +61,7 @@ export class EnviarFotosAnimal {
         ),
       );
       const fotos = await this.deps.animais.adicionarFotos(animal, chaves, {
-        adminId: entrada.adminId,
+        adminId: entrada.ator.id,
         acao: 'ANIMAL_FOTOS_ADICIONADAS',
         detalhe: { quantidade: chaves.length },
       });
@@ -78,12 +80,13 @@ const fotoNaoEncontrada = () =>
 export class RemoverFotoAnimal {
   constructor(private readonly deps: Omit<Deps, 'imagens'>) {}
 
-  async executar(entrada: { adminId: string; id: string; fotoId: string }): Promise<void> {
+  async executar(entrada: { ator: Ator; id: string; fotoId: string }): Promise<void> {
+    exigirAdmin(entrada.ator);
     const animal = await exigirAnimal(this.deps.animais, entrada.id);
     const foto = animal.fotos.find((f) => f.publicId === entrada.fotoId);
     if (!foto) throw fotoNaoEncontrada();
     await this.deps.animais.removerFoto(animal, foto, {
-      adminId: entrada.adminId,
+      adminId: entrada.ator.id,
       acao: 'ANIMAL_FOTO_REMOVIDA',
       detalhe: { fotoId: foto.publicId },
     });
@@ -95,7 +98,8 @@ export class RemoverFotoAnimal {
 export class ReordenarFotosAnimal {
   constructor(private readonly deps: Pick<Deps, 'animais'>) {}
 
-  async executar(entrada: { adminId: string; id: string; ids: readonly string[] }): Promise<void> {
+  async executar(entrada: { ator: Ator; id: string; ids: readonly string[] }): Promise<void> {
+    exigirAdmin(entrada.ator);
     const animal = await exigirAnimal(this.deps.animais, entrada.id);
     const atuais = new Set(animal.fotos.map((f) => f.publicId));
     const pedidos = new Set(entrada.ids);
@@ -111,7 +115,7 @@ export class ReordenarFotosAnimal {
       );
     }
     await this.deps.animais.reordenarFotos(animal, entrada.ids, {
-      adminId: entrada.adminId,
+      adminId: entrada.ator.id,
       acao: 'ANIMAL_FOTOS_REORDENADAS',
       detalhe: { ids: [...entrada.ids] },
     });

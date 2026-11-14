@@ -15,12 +15,15 @@ import type { Redis } from 'ioredis';
 
 import { construirApp } from '../app.js';
 import {
+  comporAdocoes,
   comporAnimais,
   comporAuth,
+  comporNotificacoes,
   verificacoesProntidao,
   type ConfigComposicao,
 } from '../composicao.js';
 import type { FilaEmails } from '../modules/auth/application/portas.js';
+import type { DestinatarioEmail, EmailsAdocao } from '../shared/aplicacao/emails-adocao.js';
 import { relogioSistema, type Relogio } from '../shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from '../shared/infra/armazenamento-s3.js';
 import { criarPrisma, type Prisma } from '../shared/infra/prisma.js';
@@ -29,9 +32,31 @@ import { iniciarS3, type S3Integracao } from './s3-integracao.js';
 
 const RAIZ_API = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
-export class CaixaEmails implements FilaEmails {
+export class CaixaEmails implements FilaEmails, EmailsAdocao {
   readonly codigos: { para: string; codigo: string }[] = [];
   readonly alteracoes: string[] = [];
+  readonly adocoes: { tipo: string; para: string; animal: string; motivo?: string }[] = [];
+  private adocao(tipo: string, d: DestinatarioEmail & { animal: string; motivo?: string }) {
+    this.adocoes.push({
+      tipo,
+      para: d.para,
+      animal: d.animal,
+      ...(d.motivo ? { motivo: d.motivo } : {}),
+    });
+    return Promise.resolve();
+  }
+  adocaoRecebida(d: DestinatarioEmail & { animal: string }) {
+    return this.adocao('recebida', d);
+  }
+  adocaoAprovada(d: DestinatarioEmail & { animal: string }) {
+    return this.adocao('aprovada', d);
+  }
+  adocaoRecusada(d: DestinatarioEmail & { animal: string; motivo: string }) {
+    return this.adocao('recusada', d);
+  }
+  adocaoEncerrada(d: DestinatarioEmail & { animal: string }) {
+    return this.adocao('encerrada', d);
+  }
   codigoRecuperacao(d: { para: string; codigo: string }) {
     this.codigos.push({ para: d.para, codigo: d.codigo });
     return Promise.resolve();
@@ -119,6 +144,8 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       redis,
       auth: auth.rotas,
       animais: comporAnimais(comOpcoes, auth.rotas.autenticacao),
+      adocoes: comporAdocoes(comOpcoes, auth.rotas.autenticacao),
+      notificacoes: comporNotificacoes(comOpcoes, auth.rotas.autenticacao),
     });
     return app;
   };
