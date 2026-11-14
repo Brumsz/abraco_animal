@@ -396,7 +396,10 @@ paths:
       tags: [animais]
       operationId: listarAnimais
       security: [{}, { bearerAuth: [] }]
-      summary: USUARIO/anônimo vê só DISPONIVEL; VOLUNTARIO e ADMIN podem filtrar por status
+      summary: USUARIO/anônimo vê só DISPONIVEL; VOLUNTARIO e ADMIN veem todos e podem filtrar por status
+      description: >-
+        Ordenação do mais novo para o mais antigo. `q` busca no nome, sem diferenciar
+        maiúsculas; % e _ são texto literal. Token inválido → 401 (não vira anônimo).
       parameters:
         - { name: q, in: query, schema: { type: string, maxLength: 80 } }
         - { name: tipo, in: query, schema: { $ref: '#/components/schemas/TipoAnimal' } }
@@ -416,7 +419,7 @@ paths:
     get:
       tags: [animais]
       operationId: obterAnimal
-      summary: Detalhe do animal
+      summary: Detalhe do animal (INDISPONIVEL → 404 para quem não é da equipe)
       security: [{}, { bearerAuth: [] }]
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
@@ -1112,13 +1115,13 @@ paths:
     put:
       tags: [admin]
       operationId: adminAtualizarAnimal
-      summary: Atualiza animal
+      summary: Atualiza animal (o status muda só pelo PATCH /status)
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/AnimalEntrada' }
+            schema: { $ref: '#/components/schemas/AnimalAtualizacao' }
       responses:
         '200':
           description: Atualizado
@@ -1139,6 +1142,9 @@ paths:
       tags: [admin]
       operationId: adminAlterarStatusAnimal
       summary: Altera status do animal
+      description: >-
+        Livre entre DISPONIVEL, EM_TRATAMENTO e INDISPONIVEL; sair de ADOTADO é permitido
+        (devolução). ADOTADO só é definido pela aprovação de uma adoção → 409.
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
@@ -1162,6 +1168,10 @@ paths:
       tags: [admin]
       operationId: adminEnviarFotosAnimal
       summary: Envia fotos do animal
+      description: >-
+        JPEG, PNG ou WebP, conferidos pelos magic bytes (extensão e Content-Type do cliente são
+        ignorados). Até 5 MB por arquivo, 10 por envio e 10 por animal. Viram WebP de até 1600 px,
+        sem EXIF/GPS. Arquivo falso → 422 IMAGEM_INVALIDA; acima do limite → 413.
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
@@ -1899,7 +1909,24 @@ components:
         historiaResgate: { type: string, maxLength: 10000 }
         vacinado: { type: boolean }
         castrado: { type: boolean }
-        status: { $ref: '#/components/schemas/StatusAnimal' }
+        status:
+          description: Padrão DISPONIVEL. ADOTADO não é aceito no cadastro (422).
+          allOf: [{ $ref: '#/components/schemas/StatusAnimal' }]
+    AnimalAtualizacao:
+      type: object
+      additionalProperties: false
+      required: [nome, tipo, raca, idadeAprox, sexo, porte, descricao, historiaResgate]
+      properties:
+        nome: { type: string, maxLength: 80 }
+        tipo: { $ref: '#/components/schemas/TipoAnimal' }
+        raca: { type: string, maxLength: 80 }
+        idadeAprox: { type: integer, minimum: 0, maximum: 600 }
+        sexo: { $ref: '#/components/schemas/Sexo' }
+        porte: { $ref: '#/components/schemas/Porte' }
+        descricao: { type: string, maxLength: 5000 }
+        historiaResgate: { type: string, maxLength: 10000 }
+        vacinado: { type: boolean }
+        castrado: { type: boolean }
     PadrinhoResumo:
       type: object
       properties:
