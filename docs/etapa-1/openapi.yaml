@@ -490,7 +490,7 @@ paths:
     post:
       tags: [doacoes-animais]
       operationId: doarAnimal
-      summary: Oferece um animal à ONG (até 10 fotos, 5MB cada; magic bytes validados)
+      summary: Oferece um animal à ONG (1 a 10 fotos, 5MB cada; magic bytes validados; 10/hora por usuário)
       requestBody:
         required: true
         content:
@@ -1053,6 +1053,19 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/PaginaDoacoesAnimais' }
         '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/doacoes-animais/{id}:
+    get:
+      tags: [admin]
+      operationId: adminObterDoacaoAnimal
+      summary: Detalhe com o contato do doador (sem CPF nem data de nascimento)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Doação + doador
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DoacaoAnimalAdmin' }
+        '4XX': { $ref: '#/components/responses/Erro' }
   /admin/doacoes-animais/{id}/aprovar:
     post:
       tags: [admin]
@@ -1064,13 +1077,13 @@ paths:
           description: Aprovada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+              schema: { $ref: '#/components/schemas/DoacaoAnimalAdmin' }
         '4XX': { $ref: '#/components/responses/Erro' }
   /admin/doacoes-animais/{id}/recusar:
     post:
       tags: [admin]
       operationId: adminRecusarDoacaoAnimal
-      summary: Recusa doação de animal
+      summary: Recusa doação PENDENTE ou APROVADA (por exemplo, quando a retirada não dá certo)
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody: { $ref: '#/components/requestBodies/Recusa' }
       responses:
@@ -1078,20 +1091,23 @@ paths:
           description: Recusada
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+              schema: { $ref: '#/components/schemas/DoacaoAnimalAdmin' }
         '4XX': { $ref: '#/components/responses/Erro' }
   /admin/doacoes-animais/{id}/receber:
     post:
       tags: [admin]
       operationId: adminReceberDoacaoAnimal
-      summary: APROVADA → RECEBIDA e cria Animal EM_TRATAMENTO (idempotente)
+      summary: APROVADA → RECEBIDA e cria Animal EM_TRATAMENTO com cópias das fotos
+      description: >-
+        Idempotente: chamar de novo (ou duas admins ao mesmo tempo) devolve 200 com o mesmo
+        animalCriadoId, sem criar outro animal. PENDENTE ou RECUSADA → 409.
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
         '200':
           description: Recebida
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/DoacaoAnimal' }
+              schema: { $ref: '#/components/schemas/DoacaoAnimalAdmin' }
         '409': { $ref: '#/components/responses/Erro' }
 
   /admin/animais:
@@ -2019,8 +2035,32 @@ components:
               items: { $ref: '#/components/schemas/Foto' }
             motivoRecusa: { type: [string, 'null'] }
             analisadoEm: { type: [string, 'null'], format: date-time }
+            recebidoEm: { type: [string, 'null'], format: date-time }
             animalCriadoId: { type: [string, 'null'], format: uuid }
             criadoEm: { type: string, format: date-time }
+            timeline:
+              type: array
+              items:
+                type: object
+                properties:
+                  etapa: { type: string, enum: [ENVIADA, EM_ANALISE, APROVADA, RECEBIDA, RECUSADA] }
+                  em: { type: [string, 'null'], format: date-time }
+    DoacaoAnimalAdmin:
+      allOf:
+        - $ref: '#/components/schemas/DoacaoAnimal'
+        - type: object
+          properties:
+            doador:
+              oneOf:
+                - type: 'null'
+                - type: object
+                  required: [id, nome, email, telefone]
+                  properties:
+                    id: { type: string, format: uuid }
+                    nome: { type: string }
+                    email: { type: string, format: email }
+                    telefone: { type: string }
+            analisadoPor: { type: [string, 'null'] }
 
     # ── Doação financeira ──
     GerarPixEntrada:
