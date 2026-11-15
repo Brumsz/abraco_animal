@@ -21,6 +21,18 @@ import {
 } from './modules/doacoes-animais/http/rotas.js';
 import { rotasPix, type DependenciasRotasPix } from './modules/doacoes-financeiras/http/rotas.js';
 import {
+  rotasApadrinhamentos,
+  type DependenciasRotasApadrinhamentos,
+} from './modules/apadrinhamentos/http/rotas.js';
+import {
+  rotasInstitucional,
+  type DependenciasRotasInstitucional,
+} from './modules/institucional/http/rotas.js';
+import {
+  rotasVoluntariado,
+  type DependenciasRotasVoluntariado,
+} from './modules/voluntariado/http/rotas.js';
+import {
   rotasNotificacoes,
   type DependenciasRotasNotificacoes,
 } from './modules/notificacoes/http/rotas.js';
@@ -38,6 +50,9 @@ export interface OpcoesApp {
   readonly adocoes?: DependenciasRotasAdocoes;
   readonly doacoesAnimais?: DependenciasRotasDoacoesAnimais;
   readonly pix?: DependenciasRotasPix;
+  readonly apadrinhamentos?: DependenciasRotasApadrinhamentos;
+  readonly voluntariado?: DependenciasRotasVoluntariado;
+  readonly institucional?: DependenciasRotasInstitucional;
   readonly notificacoes?: DependenciasRotasNotificacoes;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
@@ -123,6 +138,15 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.pix) {
     void app.register(rotasPix(opcoes.pix), { prefix: '/v1' });
+  }
+  if (opcoes.apadrinhamentos) {
+    void app.register(rotasApadrinhamentos(opcoes.apadrinhamentos), { prefix: '/v1' });
+  }
+  if (opcoes.voluntariado) {
+    void app.register(rotasVoluntariado(opcoes.voluntariado), { prefix: '/v1' });
+  }
+  if (opcoes.institucional) {
+    void app.register(rotasInstitucional(opcoes.institucional), { prefix: '/v1' });
   }
   if (opcoes.notificacoes) {
     void app.register(rotasNotificacoes(opcoes.notificacoes), { prefix: '/v1' });

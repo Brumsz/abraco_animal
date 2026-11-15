@@ -8,8 +8,11 @@ import {
   comporAnimais,
   comporAuth,
   comporDoacoesAnimais,
+  comporApadrinhamentos,
+  comporInstitucional,
   comporNotificacoes,
   comporPix,
+  comporVoluntariado,
   verificacoesProntidao,
 } from './composicao.js';
 import { carregarAmbiente } from './config/ambiente.js';
@@ -72,6 +75,9 @@ const app = construirApp({
   adocoes: comporAdocoes(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   doacoesAnimais: comporDoacoesAnimais(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   notificacoes: comporNotificacoes(infra, auth.rotas.autenticacao),
+  apadrinhamentos: comporApadrinhamentos(infra, auth.rotas.autenticacao),
+  voluntariado: comporVoluntariado(infra, auth.rotas.autenticacao, { aoFalharEmail }),
+  institucional: comporInstitucional(infra, auth.rotas.autenticacao),
   pix: comporPix(ambiente, infra, auth.rotas.autenticacao, {
     // Só o contexto e o tipo do erro: nada de corpo do PSP nem dados do doador.
     aoFalhar: (contexto, erro) => {
