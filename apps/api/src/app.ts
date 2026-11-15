@@ -16,6 +16,10 @@ import { rotasAdocoes, type DependenciasRotasAdocoes } from './modules/adocoes/h
 import { rotasAnimais, type DependenciasRotasAnimais } from './modules/animais/http/rotas.js';
 import { rotasAuth, type DependenciasRotasAuth } from './modules/auth/http/rotas.js';
 import {
+  rotasDoacoesAnimais,
+  type DependenciasRotasDoacoesAnimais,
+} from './modules/doacoes-animais/http/rotas.js';
+import {
   rotasNotificacoes,
   type DependenciasRotasNotificacoes,
 } from './modules/notificacoes/http/rotas.js';
@@ -31,6 +35,7 @@ export interface OpcoesApp {
   readonly auth?: DependenciasRotasAuth;
   readonly animais?: DependenciasRotasAnimais;
   readonly adocoes?: DependenciasRotasAdocoes;
+  readonly doacoesAnimais?: DependenciasRotasDoacoesAnimais;
   readonly notificacoes?: DependenciasRotasNotificacoes;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
@@ -108,6 +113,9 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.adocoes) {
     void app.register(rotasAdocoes(opcoes.adocoes), { prefix: '/v1' });
+  }
+  if (opcoes.doacoesAnimais) {
+    void app.register(rotasDoacoesAnimais(opcoes.doacoesAnimais), { prefix: '/v1' });
   }
   if (opcoes.notificacoes) {
     void app.register(rotasNotificacoes(opcoes.notificacoes), { prefix: '/v1' });

@@ -7,6 +7,7 @@ import {
   comporAdocoes,
   comporAnimais,
   comporAuth,
+  comporDoacoesAnimais,
   comporNotificacoes,
   verificacoesProntidao,
 } from './composicao.js';
@@ -49,6 +50,14 @@ const workerEmails = iniciarWorkerEmails(redis, {
 
 const auth = await comporAuth(ambiente, infra);
 
+// Só o tipo do erro: a mensagem do Redis/BullMQ pode trazer o payload (e-mail).
+function aoFalharEmail(erro: unknown): void {
+  app.log.warn(
+    { erro: erro instanceof Error ? erro.name : 'desconhecido' },
+    'falha ao enfileirar e-mail',
+  );
+}
+
 const app = construirApp({
   logger: {
     level: ambiente.LOG_LEVEL,
@@ -59,15 +68,8 @@ const app = construirApp({
   redis,
   auth: auth.rotas,
   animais: comporAnimais(infra, auth.rotas.autenticacao),
-  adocoes: comporAdocoes(infra, auth.rotas.autenticacao, {
-    // Só o tipo do erro: a mensagem do Redis/BullMQ pode trazer o payload (e-mail).
-    aoFalharEmail: (erro) => {
-      app.log.warn(
-        { erro: erro instanceof Error ? erro.name : 'desconhecido' },
-        'falha ao enfileirar e-mail de adoção',
-      );
-    },
-  }),
+  adocoes: comporAdocoes(infra, auth.rotas.autenticacao, { aoFalharEmail }),
+  doacoesAnimais: comporDoacoesAnimais(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   notificacoes: comporNotificacoes(infra, auth.rotas.autenticacao),
 });
 

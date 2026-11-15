@@ -61,6 +61,18 @@ import {
 } from './modules/auth/infrastructure/redis-auth.js';
 import { TokensJwt } from './modules/auth/infrastructure/tokens-jwt.js';
 import {
+  AdminListarDoacoes,
+  AdminObterDoacao,
+  AprovarDoacao,
+  DoarAnimal,
+  ListarMinhasDoacoes,
+  ObterDoacao,
+  ReceberDoacao,
+  RecusarDoacao,
+} from './modules/doacoes-animais/application/casos-de-uso.js';
+import type { DependenciasRotasDoacoesAnimais } from './modules/doacoes-animais/http/rotas.js';
+import { PrismaRepositorioDoacoesAnimais } from './modules/doacoes-animais/infrastructure/prisma-repositorio-doacoes-animais.js';
+import {
   ContarNaoLidas,
   ListarNotificacoes,
   MarcarNotificacaoLida,
@@ -71,6 +83,7 @@ import { PrismaRepositorioNotificacoes } from './modules/notificacoes/infrastruc
 import { PrismaRepositorioUsuarios } from './modules/usuarios/infrastructure/prisma-repositorio-usuarios.js';
 import type { ArmazenamentoObjetos } from './shared/aplicacao/armazenamento.js';
 import type { EmailsAdocao } from './shared/aplicacao/emails-adocao.js';
+import type { EmailsDoacaoAnimal } from './shared/aplicacao/emails-doacao-animal.js';
 import type { ProcessadorImagens } from './shared/aplicacao/imagens.js';
 import { relogioSistema, type Relogio } from './shared/aplicacao/relogio.js';
 import { ProcessadorImagensSharp } from './shared/infra/processador-imagens-sharp.js';
@@ -79,7 +92,7 @@ import type { Prisma } from './shared/infra/prisma.js';
 export interface Infra {
   readonly prisma: Prisma;
   readonly redis: Redis;
-  readonly emails: FilaEmails & EmailsAdocao;
+  readonly emails: FilaEmails & EmailsAdocao & EmailsDoacaoAnimal;
   readonly armazenamento: ArmazenamentoObjetos;
   readonly imagens?: ProcessadorImagens;
   readonly relogio?: Relogio;
@@ -198,6 +211,33 @@ export function comporAdocoes(
     adminObter: new AdminObterAdocao(deps),
     aprovar: new AprovarAdocao(deps),
     recusar: new RecusarAdocao(deps),
+    limitador: new LimitadorTentativas(infra.redis),
+    autenticacao,
+  };
+}
+
+export function comporDoacoesAnimais(
+  infra: Infra,
+  autenticacao: Autenticacao,
+  opcoes: { aoFalharEmail?: (erro: unknown) => void } = {},
+): DependenciasRotasDoacoesAnimais {
+  const deps = {
+    doacoes: new PrismaRepositorioDoacoesAnimais(infra.prisma),
+    armazenamento: infra.armazenamento,
+    imagens: infra.imagens ?? new ProcessadorImagensSharp(),
+    emails: infra.emails,
+    relogio: infra.relogio ?? relogioSistema,
+    ...(opcoes.aoFalharEmail ? { aoFalharEmail: opcoes.aoFalharEmail } : {}),
+  };
+  return {
+    doar: new DoarAnimal(deps),
+    listarMinhas: new ListarMinhasDoacoes(deps),
+    obter: new ObterDoacao(deps),
+    adminListar: new AdminListarDoacoes(deps),
+    adminObter: new AdminObterDoacao(deps),
+    aprovar: new AprovarDoacao(deps),
+    recusar: new RecusarDoacao(deps),
+    receber: new ReceberDoacao(deps),
     limitador: new LimitadorTentativas(infra.redis),
     autenticacao,
   };
