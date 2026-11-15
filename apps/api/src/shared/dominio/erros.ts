@@ -11,7 +11,9 @@ export type TipoErro =
   | 'NAO_ENCONTRADO'
   | 'CONFLITO'
   | 'REGRA_NEGOCIO'
-  | 'LIMITE_EXCEDIDO';
+  | 'LIMITE_EXCEDIDO'
+  /** Serviço de terceiros (ex.: PSP do Pix) fora do ar → 502. */
+  | 'SERVICO_EXTERNO';
 
 export class ErroDominio extends Error {
   constructor(
