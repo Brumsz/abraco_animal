@@ -169,6 +169,17 @@ export class ArmazenamentoFake implements ArmazenamentoObjetos {
     for (const c of chaves) this.objetos.delete(c);
     return Promise.resolve();
   }
+  falharCopiaNumero: number | null = null;
+  private copias = 0;
+  copiar(origem: string, destino: string) {
+    this.copias += 1;
+    const obj = this.objetos.get(origem);
+    if (!obj || this.falharCopiaNumero === this.copias) {
+      return Promise.reject(new Error('falha ao copiar'));
+    }
+    this.objetos.set(destino, obj);
+    return Promise.resolve();
+  }
   urlAssinada(chave: string) {
     return Promise.resolve(`https://s3.teste/${chave}?assinatura=x`);
   }

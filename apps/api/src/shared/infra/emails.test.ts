@@ -9,6 +9,9 @@ describe('templates de e-mail', () => {
     ['adocaoRecebida', 'Recebemos sua solicitação para adotar Trovão'],
     ['adocaoAprovada', 'Sua adoção de Trovão foi aprovada! 🎉'],
     ['adocaoEncerrada', 'Trovão encontrou um lar'],
+    ['doacaoEnviada', 'Recebemos sua oferta de doação de Trovão'],
+    ['doacaoAprovada', 'A ONG aceitou receber Trovão'],
+    ['doacaoConcluida', 'Trovão chegou à ONG!'],
   ] as const)('%s: assunto, saudação pelo primeiro nome e nome do animal', (tipo, assunto) => {
     const e = montarEmail({ tipo, ...base, animal: 'Trovão' });
     expect(e.assunto).toBe(assunto);
@@ -17,9 +20,9 @@ describe('templates de e-mail', () => {
     expect(e.texto).toContain('Trovão');
   });
 
-  it('recusa leva o motivo no corpo', () => {
+  it.each(['adocaoRecusada', 'doacaoRecusada'] as const)('%s leva o motivo no corpo', (tipo) => {
     const e = montarEmail({
-      tipo: 'adocaoRecusada',
+      tipo,
       ...base,
       animal: 'Trovão',
       motivo: 'Espaço insuficiente para o porte.',

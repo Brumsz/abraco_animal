@@ -1,4 +1,5 @@
 import {
+  CopyObjectCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
   PutObjectCommand,
@@ -74,6 +75,17 @@ export class ArmazenamentoS3 implements ArmazenamentoObjetos {
     if (r.Errors && r.Errors.length > 0) {
       throw new Error(`falha ao remover ${String(r.Errors.length)} objeto(s) do bucket`);
     }
+  }
+
+  async copiar(origem: string, destino: string): Promise<void> {
+    await this.s3.send(
+      new CopyObjectCommand({
+        Bucket: this.config.bucket,
+        Key: destino,
+        // CopySource é "bucket/chave" com a chave codificada para URL.
+        CopySource: `${this.config.bucket}/${origem.split('/').map(encodeURIComponent).join('/')}`,
+      }),
+    );
   }
 
   /**

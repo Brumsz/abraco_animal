@@ -365,6 +365,8 @@ model DoacaoAnimal {
   analisadoPorId Int?
   analisadoEm    DateTime? @db.Timestamptz(3)
   motivoRecusa   String?   @db.Text
+  // Quando o animal chegou à ONG (status RECEBIDA) — etapa final da linha do tempo
+  recebidoEm     DateTime? @db.Timestamptz(3)
 
   // Animal criado automaticamente ao marcar RECEBIDA (garante idempotência)
   animalCriadoId Int? @unique

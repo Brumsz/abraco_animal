@@ -4,6 +4,7 @@ import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import { ErroDominio, type TipoErro } from '../dominio/erros.js';
 
 const STATUS: Record<TipoErro, number> = {
+  REQUISICAO_INVALIDA: 400,
   VALIDACAO: 422,
   NAO_AUTENTICADO: 401,
   PROIBIDO: 403,
