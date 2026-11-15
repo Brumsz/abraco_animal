@@ -48,6 +48,37 @@ export const TIPOS_NOTIFICACAO = [
 ] as const;
 export type TipoNotificacao = (typeof TIPOS_NOTIFICACAO)[number];
 
+export const STATUS_VOLUNTARIO = ['PENDENTE', 'APROVADO', 'RECUSADO'] as const;
+export type StatusVoluntario = (typeof STATUS_VOLUNTARIO)[number];
+
+export const AREAS_INTERESSE = [
+  'CUIDADO_ANIMAIS',
+  'EVENTOS',
+  'REDES_SOCIAIS',
+  'TRANSPORTE',
+  'CAPTACAO_RECURSOS',
+  'OUTROS',
+] as const;
+export type AreaInteresse = (typeof AREAS_INTERESSE)[number];
+
+export const DIAS_SEMANA = [
+  'DOMINGO',
+  'SEGUNDA',
+  'TERCA',
+  'QUARTA',
+  'QUINTA',
+  'SEXTA',
+  'SABADO',
+] as const;
+export type DiaSemana = (typeof DIAS_SEMANA)[number];
+
+export const TURNOS = ['MANHA', 'TARDE', 'NOITE'] as const;
+export type Turno = (typeof TURNOS)[number];
+
+/** Ordem de exibição das seções da página "Sobre a ONG". */
+export const SECOES_PERFIL_ONG = ['SOBRE_NOS', 'FUNDACAO', 'FUNDADORES'] as const;
+export type SecaoPerfilOng = (typeof SECOES_PERFIL_ONG)[number];
+
 /** Regra de negócio D6: só animais DISPONIVEL podem ser apadrinhados. */
 export const STATUS_APADRINHAVEIS: readonly StatusAnimal[] = ['DISPONIVEL'];
 

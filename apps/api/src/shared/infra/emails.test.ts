@@ -43,6 +43,20 @@ describe('templates de e-mail', () => {
     expect(e.html).toContain('&#60;script&#62;');
   });
 
+  it('voluntariado: recebida, aprovada (com cargo escapado) e recusada', () => {
+    expect(montarEmail({ tipo: 'candidaturaRecebida', ...base }).assunto).toBe(
+      'Recebemos sua candidatura de voluntariado',
+    );
+    const ok = montarEmail({ tipo: 'voluntarioAprovado', ...base, cargo: '<b>Cuidadora</b>' });
+    expect(ok.html).toContain('&#60;b&#62;Cuidadora');
+    expect(montarEmail({ tipo: 'voluntarioAprovado', ...base, cargo: null }).texto).not.toContain(
+      'como',
+    );
+    expect(
+      montarEmail({ tipo: 'voluntarioRecusado', ...base, motivo: 'Sem vagas.' }).html,
+    ).toContain('Sem vagas.');
+  });
+
   it('comprovante: valor, data em São Paulo e primeiro nome', () => {
     const e = montarEmail({
       tipo: 'comprovanteDoacao',
