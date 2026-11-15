@@ -537,7 +537,11 @@ paths:
       tags: [doacoes-financeiras]
       operationId: gerarPix
       security: [{}, { bearerAuth: [] }]
-      summary: Cria cobrança Pix no Asaas (expira em 15 min)
+      summary: Cria cobrança Pix no Asaas (expira em 15 min; 10/hora por usuário ou IP)
+      description: >-
+        Idempotency-Key repetida devolve a MESMA cobrança; repetida com outro valor, outro dono
+        ou outro anonimato → 409 IDEMPOTENCY_KEY_REUSADA. Valor de R$ 5,00 a R$ 10.000,00 (422).
+        Com login, nomeDoador e emailDoador não são aceitos (vêm da conta).
       parameters:
         - name: Idempotency-Key
           in: header
@@ -555,6 +559,8 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/DoacaoFinanceira' }
         '400': { $ref: '#/components/responses/Erro' }
+        '409': { $ref: '#/components/responses/Erro' }
+        '422': { $ref: '#/components/responses/Erro' }
         '429': { $ref: '#/components/responses/Erro' }
         '502': { $ref: '#/components/responses/Erro' }
   /doacoes-financeiras/{id}/status:
@@ -599,8 +605,25 @@ paths:
                   { type: string, examples: [PAYMENT_RECEIVED, PAYMENT_CONFIRMED, PAYMENT_OVERDUE] }
                 payment: { type: object, additionalProperties: true }
       responses:
-        '200': { description: Recebido (também para eventos duplicados) }
+        '200':
+          {
+            description: Recebido (também para eventos duplicados,
+            ignorados ou de outras cobranças),
+          }
+        '400': { $ref: '#/components/responses/Erro' }
         '401': { $ref: '#/components/responses/Erro' }
+        '502': { description: PSP indisponível na reconsulta — o Asaas reenvia depois }
+
+  /dev/pix/{id}/pagar:
+    post:
+      tags: [webhooks]
+      operationId: simularPagamentoPix
+      summary: SÓ DESENVOLVIMENTO (PSP simulado) — simula o pagamento pelo mesmo caminho do webhook
+      description: Não existe em produção nem quando ASAAS_API_KEY está configurada.
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200': { description: Pagamento simulado e processado }
+        '404': { $ref: '#/components/responses/Erro' }
 
   # ─────────────────────────── APADRINHAMENTOS ──────────────────────
   /apadrinhamentos:
@@ -2081,7 +2104,10 @@ components:
       properties:
         id: { type: string, format: uuid }
         valor: { type: string, examples: ['50.00'] }
-        status: { $ref: '#/components/schemas/StatusDoacaoFinanceira' }
+        status:
+          description: PENDENTE vencida aparece como EXPIRADA. Pagamento depois do prazo ainda confirma.
+          allOf: [{ $ref: '#/components/schemas/StatusDoacaoFinanceira' }]
+        anonima: { type: boolean }
         pixCopiaCola:
           { type: string, description: O app gera o QR Code localmente a partir deste código }
         expiresAt: { type: string, format: date-time }

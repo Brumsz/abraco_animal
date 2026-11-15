@@ -12,6 +12,7 @@ const STATUS: Record<TipoErro, number> = {
   CONFLITO: 409,
   REGRA_NEGOCIO: 422,
   LIMITE_EXCEDIDO: 429,
+  SERVICO_EXTERNO: 502,
 };
 
 const TITULOS: Record<number, string> = {
@@ -24,6 +25,7 @@ const TITULOS: Record<number, string> = {
   422: 'Dados inválidos',
   429: 'Muitas tentativas',
   500: 'Erro interno',
+  502: 'Serviço externo indisponível',
 };
 
 const CODIGOS_POR_STATUS: Record<number, string> = {

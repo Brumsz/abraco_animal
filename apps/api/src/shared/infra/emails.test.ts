@@ -42,4 +42,19 @@ describe('templates de e-mail', () => {
     expect(e.html).not.toMatch(/<script|<img|<a href/);
     expect(e.html).toContain('&#60;script&#62;');
   });
+
+  it('comprovante: valor, data em São Paulo e primeiro nome', () => {
+    const e = montarEmail({
+      tipo: 'comprovanteDoacao',
+      ...base,
+      valor: 'R$ 50,00',
+      data: '2026-11-15T02:30:00.000Z',
+    });
+    expect(e.assunto).toBe('Comprovante da sua doação de R$ 50,00');
+    expect(e.html).toContain('R$ 50,00');
+    expect(e.html).toContain('Olá, Maria!');
+    // 02:30 UTC = 23:30 do dia 14 no horário de Brasília.
+    expect(e.texto).toContain('14 de novembro de 2026');
+    expect(e.texto).toContain('23:30');
+  });
 });

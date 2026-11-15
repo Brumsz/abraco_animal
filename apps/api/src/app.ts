@@ -19,6 +19,7 @@ import {
   rotasDoacoesAnimais,
   type DependenciasRotasDoacoesAnimais,
 } from './modules/doacoes-animais/http/rotas.js';
+import { rotasPix, type DependenciasRotasPix } from './modules/doacoes-financeiras/http/rotas.js';
 import {
   rotasNotificacoes,
   type DependenciasRotasNotificacoes,
@@ -36,6 +37,7 @@ export interface OpcoesApp {
   readonly animais?: DependenciasRotasAnimais;
   readonly adocoes?: DependenciasRotasAdocoes;
   readonly doacoesAnimais?: DependenciasRotasDoacoesAnimais;
+  readonly pix?: DependenciasRotasPix;
   readonly notificacoes?: DependenciasRotasNotificacoes;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
@@ -95,8 +97,10 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
     // IP é dado pessoal (LGPD): a chave no Redis usa o hash, nunca o IP em claro.
     keyGenerator: (request) => createHash('sha256').update(request.ip).digest('hex').slice(0, 32),
     ...(opcoes.redis ? { redis: opcoes.redis } : {}),
-    // Health checks do orquestrador não contam no limite.
-    allowList: (request) => request.url.startsWith('/health/'),
+    // Health checks do orquestrador e webhooks do PSP (autenticados por token e
+    // deduplicados) não contam no limite por IP: rajadas do Asaas não podem virar 429.
+    allowList: (request) =>
+      request.url.startsWith('/health/') || request.url.startsWith('/v1/webhooks/'),
   });
 
   // Rotas entram depois dos plugins acima para herdar os hooks deles.
@@ -116,6 +120,9 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.doacoesAnimais) {
     void app.register(rotasDoacoesAnimais(opcoes.doacoesAnimais), { prefix: '/v1' });
+  }
+  if (opcoes.pix) {
+    void app.register(rotasPix(opcoes.pix), { prefix: '/v1' });
   }
   if (opcoes.notificacoes) {
     void app.register(rotasNotificacoes(opcoes.notificacoes), { prefix: '/v1' });

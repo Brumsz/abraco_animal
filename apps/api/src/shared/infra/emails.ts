@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import type { FilaEmails } from '../../modules/auth/application/portas.js';
 import type { DestinatarioEmail, EmailsAdocao } from '../aplicacao/emails-adocao.js';
 import type { EmailsDoacaoAnimal } from '../aplicacao/emails-doacao-animal.js';
+import type { EmailsDoacaoFinanceira } from '../../modules/doacoes-financeiras/application/portas.js';
 
 const FILA = 'emails';
 
@@ -29,13 +30,22 @@ type Job =
       readonly tipo: 'adocaoRecusada' | 'doacaoRecusada';
       readonly animal: string;
       readonly motivo: string;
+    })
+  | (DestinatarioEmail & {
+      readonly tipo: 'comprovanteDoacao';
+      /** Já formatado ("R$ 50,00"). */
+      readonly valor: string;
+      /** ISO 8601 (o job é serializado em JSON no Redis). */
+      readonly data: string;
     });
 
 /**
  * Produtor da fila de e-mails. O job sai da fila assim que é enviado
  * (removeOnComplete) — o código de recuperação não fica guardado no Redis.
  */
-export class FilaEmailsBullmq implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal {
+export class FilaEmailsBullmq
+  implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal, EmailsDoacaoFinanceira
+{
   private readonly fila: Queue<Job>;
 
   constructor(conexao: ConnectionOptions) {
@@ -88,6 +98,16 @@ export class FilaEmailsBullmq implements FilaEmails, EmailsAdocao, EmailsDoacaoA
 
   async doacaoConcluida(d: DestinatarioEmail & { animal: string }) {
     await this.fila.add('doacaoConcluida', { tipo: 'doacaoConcluida', ...d });
+  }
+
+  async comprovanteDoacao(d: { para: string; nome: string; valor: string; data: Date }) {
+    await this.fila.add('comprovanteDoacao', {
+      tipo: 'comprovanteDoacao',
+      para: d.para,
+      nome: d.nome,
+      valor: d.valor,
+      data: d.data.toISOString(),
+    });
   }
 
   fechar() {
@@ -228,6 +248,25 @@ export function montarEmail(job: Job): { assunto: string; html: string; texto: s
           `${animal} chegou! 💛`,
           `<p>Olá, ${nome}!</p><p><strong>${animal}</strong> chegou à Abraço Animal e já está sob os cuidados da equipe.</p>
 <p>Obrigado pela confiança!</p>`,
+        ),
+      };
+    }
+    case 'comprovanteDoacao': {
+      const valor = escapar(job.valor);
+      const data = new Intl.DateTimeFormat('pt-BR', {
+        dateStyle: 'long',
+        timeStyle: 'short',
+        timeZone: 'America/Sao_Paulo',
+      }).format(new Date(job.data));
+      return {
+        assunto: `Comprovante da sua doação de ${job.valor}`,
+        texto: `Olá, ${job.nome}! Recebemos sua doação de ${job.valor} via Pix em ${data}. Obrigado por ajudar os animais da Abraço Animal!`,
+        html: layout(
+          'Obrigado pela sua doação! 💛',
+          `<p>Olá, ${nome}!</p><p>Recebemos sua doação via Pix:</p>
+<p style="font-size:28px;font-weight:bold;color:#431407;background:#FFF7ED;padding:16px;text-align:center;border-radius:12px">${valor}</p>
+<p>Data: ${escapar(data)}</p>
+<p>Cada real ajuda no resgate, na alimentação e no tratamento dos animais. Obrigado!</p>`,
         ),
       };
     }

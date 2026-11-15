@@ -20,12 +20,15 @@ import {
   comporAuth,
   comporDoacoesAnimais,
   comporNotificacoes,
+  comporPix,
   verificacoesProntidao,
   type ConfigComposicao,
 } from '../composicao.js';
 import type { FilaEmails } from '../modules/auth/application/portas.js';
 import type { DestinatarioEmail, EmailsAdocao } from '../shared/aplicacao/emails-adocao.js';
 import type { EmailsDoacaoAnimal } from '../shared/aplicacao/emails-doacao-animal.js';
+import type { EmailsDoacaoFinanceira } from '../modules/doacoes-financeiras/application/portas.js';
+import { GatewaySimulado } from '../modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
 import { relogioSistema, type Relogio } from '../shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from '../shared/infra/armazenamento-s3.js';
 import { criarPrisma, type Prisma } from '../shared/infra/prisma.js';
@@ -34,7 +37,14 @@ import { iniciarS3, type S3Integracao } from './s3-integracao.js';
 
 const RAIZ_API = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
-export class CaixaEmails implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal {
+export class CaixaEmails
+  implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal, EmailsDoacaoFinanceira
+{
+  readonly comprovantes: { para: string; nome: string; valor: string }[] = [];
+  comprovanteDoacao(d: { para: string; nome: string; valor: string; data: Date }) {
+    this.comprovantes.push({ para: d.para, nome: d.nome, valor: d.valor });
+    return Promise.resolve();
+  }
   readonly codigos: { para: string; codigo: string }[] = [];
   readonly alteracoes: string[] = [];
   readonly adocoes: { tipo: string; para: string; animal: string; motivo?: string }[] = [];
@@ -102,6 +112,9 @@ export interface AmbienteIntegracao {
   readonly redis: Redis;
   readonly emails: CaixaEmails;
   readonly s3: S3Integracao;
+  /** PSP simulado compartilhado: o teste decide se a cobrança foi paga. */
+  readonly psp: GatewaySimulado;
+  readonly tokenWebhook: string;
   readonly config: ConfigComposicao;
   readonly chaves: ReturnType<typeof gerarParJwt>;
   /** Monta um app novo sobre o mesmo banco (ex.: com outro relógio). */
@@ -148,6 +161,16 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
   };
 
   const armazenamento = new ArmazenamentoS3(s3.config, relogioSistema);
+  const psp = new GatewaySimulado();
+  const tokenWebhook = 'token-de-webhook-de-teste-com-mais-de-32-caracteres';
+  const configPix = {
+    NODE_ENV: 'test' as const,
+    ASAAS_API_URL: 'https://asaas.invalid/v3',
+    ASAAS_API_KEY: undefined,
+    ASAAS_CLIENTE_ID: undefined,
+    ASAAS_WEBHOOK_TOKEN: tokenWebhook,
+    PIX_EXPIRACAO_MINUTOS: 15,
+  };
   const infra = { prisma, redis, emails, armazenamento };
 
   const criarApp = async (opcoes: { relogio?: Relogio } = {}) => {
@@ -160,6 +183,7 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       animais: comporAnimais(comOpcoes, auth.rotas.autenticacao),
       adocoes: comporAdocoes(comOpcoes, auth.rotas.autenticacao),
       doacoesAnimais: comporDoacoesAnimais(comOpcoes, auth.rotas.autenticacao),
+      pix: comporPix(configPix, comOpcoes, auth.rotas.autenticacao, { gateway: psp }),
       notificacoes: comporNotificacoes(comOpcoes, auth.rotas.autenticacao),
     });
     return app;
@@ -174,6 +198,8 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
     redis,
     emails,
     s3,
+    psp,
+    tokenWebhook,
     config,
     chaves,
     criarApp,
