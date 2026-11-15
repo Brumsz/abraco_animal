@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer';
 
 import type { FilaEmails } from '../../modules/auth/application/portas.js';
 import type { DestinatarioEmail, EmailsAdocao } from '../aplicacao/emails-adocao.js';
+import type { EmailsDoacaoAnimal } from '../aplicacao/emails-doacao-animal.js';
 
 const FILA = 'emails';
 
@@ -15,11 +16,17 @@ type Job =
     }
   | { readonly tipo: 'senhaAlterada'; readonly para: string; readonly nome: string }
   | (DestinatarioEmail & {
-      readonly tipo: 'adocaoRecebida' | 'adocaoAprovada' | 'adocaoEncerrada';
+      readonly tipo:
+        | 'adocaoRecebida'
+        | 'adocaoAprovada'
+        | 'adocaoEncerrada'
+        | 'doacaoEnviada'
+        | 'doacaoAprovada'
+        | 'doacaoConcluida';
       readonly animal: string;
     })
   | (DestinatarioEmail & {
-      readonly tipo: 'adocaoRecusada';
+      readonly tipo: 'adocaoRecusada' | 'doacaoRecusada';
       readonly animal: string;
       readonly motivo: string;
     });
@@ -28,7 +35,7 @@ type Job =
  * Produtor da fila de e-mails. O job sai da fila assim que é enviado
  * (removeOnComplete) — o código de recuperação não fica guardado no Redis.
  */
-export class FilaEmailsBullmq implements FilaEmails, EmailsAdocao {
+export class FilaEmailsBullmq implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal {
   private readonly fila: Queue<Job>;
 
   constructor(conexao: ConnectionOptions) {
@@ -65,6 +72,22 @@ export class FilaEmailsBullmq implements FilaEmails, EmailsAdocao {
 
   async adocaoEncerrada(d: DestinatarioEmail & { animal: string }) {
     await this.fila.add('adocaoEncerrada', { tipo: 'adocaoEncerrada', ...d });
+  }
+
+  async doacaoEnviada(d: DestinatarioEmail & { animal: string }) {
+    await this.fila.add('doacaoEnviada', { tipo: 'doacaoEnviada', ...d });
+  }
+
+  async doacaoAprovada(d: DestinatarioEmail & { animal: string }) {
+    await this.fila.add('doacaoAprovada', { tipo: 'doacaoAprovada', ...d });
+  }
+
+  async doacaoRecusada(d: DestinatarioEmail & { animal: string; motivo: string }) {
+    await this.fila.add('doacaoRecusada', { tipo: 'doacaoRecusada', ...d });
+  }
+
+  async doacaoConcluida(d: DestinatarioEmail & { animal: string }) {
+    await this.fila.add('doacaoConcluida', { tipo: 'doacaoConcluida', ...d });
   }
 
   fechar() {
@@ -155,6 +178,56 @@ export function montarEmail(job: Job): { assunto: string; html: string; texto: s
           `<p>Olá, ${nome}.</p><p>A solicitação para adotar <strong>${animal}</strong> não foi aprovada desta vez.</p>
 <p style="background:#FFF7ED;padding:12px 16px;border-radius:12px"><strong>Motivo:</strong> ${motivo}</p>
 <p>Obrigado por querer fazer parte desta história. Há outros animais esperando por um lar no app.</p>`,
+        ),
+      };
+    }
+    case 'doacaoEnviada': {
+      const animal = escapar(job.animal);
+      return {
+        assunto: `Recebemos sua oferta de doação de ${job.animal}`,
+        texto: `Olá, ${job.nome}! Recebemos sua oferta para doar ${job.animal} à ONG. A equipe vai analisar e você acompanha pelo app, em Perfil > Minhas doações.`,
+        html: layout(
+          'Oferta de doação recebida',
+          `<p>Olá, ${nome}!</p><p>Recebemos sua oferta para doar <strong>${animal}</strong> à Abraço Animal.</p>
+<p>A equipe vai analisar com carinho. Você acompanha pelo app, em <strong>Perfil › Minhas doações</strong>.</p>`,
+        ),
+      };
+    }
+    case 'doacaoAprovada': {
+      const animal = escapar(job.animal);
+      return {
+        assunto: `A ONG aceitou receber ${job.animal}`,
+        texto: `Olá, ${job.nome}! A ONG aceitou receber ${job.animal}. Entraremos em contato pelo telefone cadastrado para combinar a retirada.`,
+        html: layout(
+          'Doação aceita 💛',
+          `<p>Olá, ${nome}!</p><p>A ONG aceitou receber <strong>${animal}</strong>.</p>
+<p>Entraremos em contato pelo telefone cadastrado para combinar o dia da retirada.</p>`,
+        ),
+      };
+    }
+    case 'doacaoRecusada': {
+      const animal = escapar(job.animal);
+      const motivo = escapar(job.motivo);
+      return {
+        assunto: `Sua oferta de doação de ${job.animal} foi analisada`,
+        texto: `Olá, ${job.nome}. Não poderemos receber ${job.animal} agora. Motivo: ${job.motivo}`,
+        html: layout(
+          'Oferta analisada',
+          `<p>Olá, ${nome}.</p><p>Infelizmente não poderemos receber <strong>${animal}</strong> agora.</p>
+<p style="background:#FFF7ED;padding:12px 16px;border-radius:12px"><strong>Motivo:</strong> ${motivo}</p>
+<p>Obrigado por pensar na Abraço Animal.</p>`,
+        ),
+      };
+    }
+    case 'doacaoConcluida': {
+      const animal = escapar(job.animal);
+      return {
+        assunto: `${job.animal} chegou à ONG!`,
+        texto: `Olá, ${job.nome}! ${job.animal} chegou à Abraço Animal e já está sob os cuidados da equipe. Obrigado pela confiança!`,
+        html: layout(
+          `${animal} chegou! 💛`,
+          `<p>Olá, ${nome}!</p><p><strong>${animal}</strong> chegou à Abraço Animal e já está sob os cuidados da equipe.</p>
+<p>Obrigado pela confiança!</p>`,
         ),
       };
     }

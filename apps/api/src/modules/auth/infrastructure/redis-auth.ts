@@ -106,4 +106,9 @@ export const REGRAS = {
   verificacaoCodigoPorIp: { nome: 'verificacao', maximo: 10, janelaSegundos: 15 * 60 },
   // Seção 6: criação de adoção/doação, 10 por hora por usuário.
   criacaoAdocaoPorUsuario: { nome: 'criacao-adocao', maximo: 10, janelaSegundos: 3600 },
+  criacaoDoacaoAnimalPorUsuario: {
+    nome: 'criacao-doacao-animal',
+    maximo: 10,
+    janelaSegundos: 3600,
+  },
 } as const satisfies Record<string, RegraLimite>;

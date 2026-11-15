@@ -3,7 +3,10 @@ import { randomUUID } from 'node:crypto';
 
 import { UPLOAD_IMAGENS } from '@abraco/shared';
 
-import type { ArmazenamentoObjetos } from '../../../shared/aplicacao/armazenamento.js';
+import {
+  removerSemFalhar,
+  type ArmazenamentoObjetos,
+} from '../../../shared/aplicacao/armazenamento.js';
 import { prepararImagens, type ProcessadorImagens } from '../../../shared/aplicacao/imagens.js';
 import { ErroDominio, erroValidacao } from '../../../shared/dominio/erros.js';
 import { exigirAdmin, type Ator } from '../../../shared/dominio/permissoes.js';
@@ -16,15 +19,6 @@ interface Deps {
   readonly armazenamento: ArmazenamentoObjetos;
   readonly imagens: ProcessadorImagens;
   readonly gerarId?: () => string;
-}
-
-/** Remoção que não pode derrubar a operação principal; sobra = objeto órfão no bucket. */
-async function removerSemFalhar(armazenamento: ArmazenamentoObjetos, chaves: readonly string[]) {
-  try {
-    await armazenamento.remover(chaves);
-  } catch {
-    // Objetos órfãos não são visíveis (bucket privado, sem URL). Limpeza periódica: Etapa 11.
-  }
 }
 
 export class EnviarFotosAnimal {

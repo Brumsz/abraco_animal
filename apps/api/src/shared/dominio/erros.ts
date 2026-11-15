@@ -3,6 +3,8 @@
  * `tipo` para o status (shared/http/tratador-erros.ts).
  */
 export type TipoErro =
+  /** Formato da requisição (equivale ao erro de esquema do Zod → 400). */
+  | 'REQUISICAO_INVALIDA'
   | 'VALIDACAO'
   | 'NAO_AUTENTICADO'
   | 'PROIBIDO'
