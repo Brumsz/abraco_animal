@@ -18,6 +18,7 @@ const pemBase64 = (nome: string) =>
 
 /** Variável vazia no .env (`X=`) conta como ausente. */
 const urlOpcional = z.preprocess((v) => (v === '' ? undefined : v), z.url().optional());
+const textoOpcional = z.preprocess((v) => (v === '' ? undefined : v), z.string().optional());
 
 const esquema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -73,6 +74,14 @@ const esquema = z.object({
     .transform((v) => v === 'true'),
   // Seção 6: URLs assinadas expiram em 1h.
   S3_URL_ASSINADA_TTL_SEGUNDOS: z.coerce.number().int().min(60).max(3600).default(3600),
+
+  ASAAS_API_URL: z.url().default('https://api-sandbox.asaas.com/v3'),
+  // Vazia = PSP SIMULADO (só fora de produção; ver carregarAmbiente).
+  ASAAS_API_KEY: textoOpcional,
+  // Cliente da ONG no Asaas usado em todas as cobranças (o doador não informa CPF).
+  ASAAS_CLIENTE_ID: textoOpcional,
+  ASAAS_WEBHOOK_TOKEN: z.string().min(32, 'ASAAS_WEBHOOK_TOKEN deve ter ao menos 32 caracteres'),
+  PIX_EXPIRACAO_MINUTOS: z.coerce.number().int().min(5).max(60).default(15),
 });
 
 export type Ambiente = z.infer<typeof esquema>;
@@ -92,5 +101,14 @@ export function carregarAmbiente(fonte: NodeJS.ProcessEnv = process.env): Ambien
       'Configuração inválida: DADOS_CRYPTO_KEY_B64 e CPF_HMAC_KEY_B64 devem ser diferentes',
     );
   }
-  return resultado.data;
+  const a = resultado.data;
+  if (a.NODE_ENV === 'production' && !a.ASAAS_API_KEY) {
+    throw new Error(
+      'Configuração inválida: ASAAS_API_KEY é obrigatória em produção (sem ela o Pix seria simulado)',
+    );
+  }
+  if (a.ASAAS_API_KEY && !a.ASAAS_CLIENTE_ID) {
+    throw new Error('Configuração inválida: defina ASAAS_CLIENTE_ID junto com ASAAS_API_KEY');
+  }
+  return a;
 }

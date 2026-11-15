@@ -9,6 +9,7 @@ import {
   comporAuth,
   comporDoacoesAnimais,
   comporNotificacoes,
+  comporPix,
   verificacoesProntidao,
 } from './composicao.js';
 import { carregarAmbiente } from './config/ambiente.js';
@@ -71,7 +72,17 @@ const app = construirApp({
   adocoes: comporAdocoes(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   doacoesAnimais: comporDoacoesAnimais(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   notificacoes: comporNotificacoes(infra, auth.rotas.autenticacao),
+  pix: comporPix(ambiente, infra, auth.rotas.autenticacao, {
+    // Só o contexto e o tipo do erro: nada de corpo do PSP nem dados do doador.
+    aoFalhar: (contexto, erro) => {
+      app.log.warn({ contexto, erro: erro instanceof Error ? erro.name : 'desconhecido' }, 'pix');
+    },
+  }),
 });
+
+if (!ambiente.ASAAS_API_KEY) {
+  app.log.warn('ASAAS_API_KEY vazia: Pix SIMULADO ativo (POST /v1/dev/pix/{id}/pagar)');
+}
 
 workerEmails.on('failed', (job, err) => {
   // Só o tipo do e-mail vai para o log — nunca destinatário nem código.

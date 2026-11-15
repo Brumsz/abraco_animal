@@ -73,6 +73,20 @@ import {
 import type { DependenciasRotasDoacoesAnimais } from './modules/doacoes-animais/http/rotas.js';
 import { PrismaRepositorioDoacoesAnimais } from './modules/doacoes-animais/infrastructure/prisma-repositorio-doacoes-animais.js';
 import {
+  ConsultarStatusPix,
+  GerarPix,
+  ListarMinhasDoacoesFinanceiras,
+  ProcessarWebhookPix,
+} from './modules/doacoes-financeiras/application/casos-de-uso.js';
+import type {
+  EmailsDoacaoFinanceira,
+  GatewayPix,
+} from './modules/doacoes-financeiras/application/portas.js';
+import type { DependenciasRotasPix } from './modules/doacoes-financeiras/http/rotas.js';
+import { GatewayAsaas } from './modules/doacoes-financeiras/infrastructure/gateway-asaas.js';
+import { GatewaySimulado } from './modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
+import { PrismaRepositorioDoacoesFinanceiras } from './modules/doacoes-financeiras/infrastructure/prisma-repositorio-doacoes-financeiras.js';
+import {
   ContarNaoLidas,
   ListarNotificacoes,
   MarcarNotificacaoLida,
@@ -92,7 +106,7 @@ import type { Prisma } from './shared/infra/prisma.js';
 export interface Infra {
   readonly prisma: Prisma;
   readonly redis: Redis;
-  readonly emails: FilaEmails & EmailsAdocao & EmailsDoacaoAnimal;
+  readonly emails: FilaEmails & EmailsAdocao & EmailsDoacaoAnimal & EmailsDoacaoFinanceira;
   readonly armazenamento: ArmazenamentoObjetos;
   readonly imagens?: ProcessadorImagens;
   readonly relogio?: Relogio;
@@ -240,6 +254,58 @@ export function comporDoacoesAnimais(
     receber: new ReceberDoacao(deps),
     limitador: new LimitadorTentativas(infra.redis),
     autenticacao,
+  };
+}
+
+export type ConfigPix = Pick<
+  Ambiente,
+  | 'NODE_ENV'
+  | 'ASAAS_API_URL'
+  | 'ASAAS_API_KEY'
+  | 'ASAAS_CLIENTE_ID'
+  | 'ASAAS_WEBHOOK_TOKEN'
+  | 'PIX_EXPIRACAO_MINUTOS'
+>;
+
+/**
+ * Asaas real quando há ASAAS_API_KEY; senão o simulador (a configuração já
+ * proíbe isso em produção, e a rota de simulação também confere NODE_ENV).
+ */
+export function comporPix(
+  config: ConfigPix,
+  infra: Infra,
+  autenticacao: Autenticacao,
+  opcoes: { aoFalhar?: (contexto: string, erro: unknown) => void; gateway?: GatewayPix } = {},
+): DependenciasRotasPix {
+  const doacoes = new PrismaRepositorioDoacoesFinanceiras(infra.prisma);
+  const simulado = !opcoes.gateway && !config.ASAAS_API_KEY ? new GatewaySimulado() : undefined;
+  const gateway =
+    opcoes.gateway ??
+    simulado ??
+    new GatewayAsaas({
+      url: config.ASAAS_API_URL,
+      apiKey: config.ASAAS_API_KEY ?? '',
+      clienteId: config.ASAAS_CLIENTE_ID ?? '',
+    });
+  const deps = {
+    doacoes,
+    gateway,
+    emails: infra.emails,
+    relogio: infra.relogio ?? relogioSistema,
+    expiracaoMinutos: config.PIX_EXPIRACAO_MINUTOS,
+    ...(opcoes.aoFalhar ? { aoFalhar: opcoes.aoFalhar } : {}),
+  };
+  return {
+    gerar: new GerarPix(deps),
+    consultar: new ConsultarStatusPix(deps),
+    listarMinhas: new ListarMinhasDoacoesFinanceiras(deps),
+    webhook: new ProcessarWebhookPix(deps),
+    limitador: new LimitadorTentativas(infra.redis),
+    autenticacao,
+    tokenWebhook: config.ASAAS_WEBHOOK_TOKEN,
+    ...(simulado && config.NODE_ENV !== 'production'
+      ? { simulador: { gateway: simulado, doacoes } }
+      : {}),
   };
 }
 
