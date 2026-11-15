@@ -433,7 +433,7 @@ paths:
     get:
       tags: [animais, apadrinhamentos]
       operationId: listarPadrinhosAnimal
-      summary: Padrinhos do animal
+      summary: Padrinhos ativos do animal (só o primeiro nome; até 50)
       security: [{}, { bearerAuth: [] }]
       parameters: [{ $ref: '#/components/parameters/Id' }]
       responses:
@@ -671,7 +671,10 @@ paths:
     post:
       tags: [voluntariado]
       operationId: candidatarVoluntario
-      summary: Envia candidatura de voluntariado
+      summary: Envia candidatura de voluntariado (RECUSADA pode ser reenviada)
+      description: >-
+        409 CANDIDATURA_EM_ANALISE (já pendente), JA_E_VOLUNTARIO (aprovada) ou JA_E_DA_EQUIPE
+        (role VOLUNTARIO/ADMIN). OUTROS em areasInteresse exige areaInteresseOutros (422).
       requestBody:
         required: true
         content:
@@ -1391,6 +1394,20 @@ paths:
         '204': { description: Publicação alterada }
 
         '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/perfil-ong:
+    get:
+      tags: [admin]
+      operationId: adminListarPerfilOng
+      summary: Todas as seções (inclusive não publicadas)
+      responses:
+        '200':
+          description: Seções
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PerfilOngSecao' }
+        '4XX': { $ref: '#/components/responses/Erro' }
   /admin/perfil-ong/{secao}:
     put:
       tags: [admin]
@@ -1424,6 +1441,19 @@ paths:
 
         '4XX': { $ref: '#/components/responses/Erro' }
   /admin/faq:
+    get:
+      tags: [admin]
+      operationId: adminListarFaq
+      summary: Todas as perguntas (inclusive não publicadas), em ordem
+      responses:
+        '200':
+          description: FAQ
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Faq' }
+        '4XX': { $ref: '#/components/responses/Erro' }
     post:
       tags: [admin]
       operationId: adminCriarFaq
@@ -1545,11 +1575,24 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/PaginaVoluntarios' }
         '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/voluntarios/{id}:
+    get:
+      tags: [admin]
+      operationId: adminObterVoluntario
+      summary: Candidatura + contato do candidato (sem CPF nem data de nascimento)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Candidatura
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Voluntario' }
+        '4XX': { $ref: '#/components/responses/Erro' }
   /admin/voluntarios/{id}/aprovar:
     post:
       tags: [admin]
       operationId: adminAprovarVoluntario
-      summary: Aprova e promove o usuário a VOLUNTARIO
+      summary: Aprova e promove o usuário a VOLUNTARIO (só USUARIO; ADMIN nunca é rebaixado)
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         content:

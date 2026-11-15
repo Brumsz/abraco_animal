@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import type { FilaEmails } from '../../modules/auth/application/portas.js';
 import type { DestinatarioEmail, EmailsAdocao } from '../aplicacao/emails-adocao.js';
 import type { EmailsDoacaoAnimal } from '../aplicacao/emails-doacao-animal.js';
+import type { EmailsVoluntariado } from '../aplicacao/emails-voluntariado.js';
 import type { EmailsDoacaoFinanceira } from '../../modules/doacoes-financeiras/application/portas.js';
 
 const FILA = 'emails';
@@ -31,6 +32,9 @@ type Job =
       readonly animal: string;
       readonly motivo: string;
     })
+  | (DestinatarioEmail & { readonly tipo: 'candidaturaRecebida' })
+  | (DestinatarioEmail & { readonly tipo: 'voluntarioAprovado'; readonly cargo: string | null })
+  | (DestinatarioEmail & { readonly tipo: 'voluntarioRecusado'; readonly motivo: string })
   | (DestinatarioEmail & {
       readonly tipo: 'comprovanteDoacao';
       /** Já formatado ("R$ 50,00"). */
@@ -44,7 +48,12 @@ type Job =
  * (removeOnComplete) — o código de recuperação não fica guardado no Redis.
  */
 export class FilaEmailsBullmq
-  implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal, EmailsDoacaoFinanceira
+  implements
+    FilaEmails,
+    EmailsAdocao,
+    EmailsDoacaoAnimal,
+    EmailsDoacaoFinanceira,
+    EmailsVoluntariado
 {
   private readonly fila: Queue<Job>;
 
@@ -108,6 +117,18 @@ export class FilaEmailsBullmq
       valor: d.valor,
       data: d.data.toISOString(),
     });
+  }
+
+  async candidaturaRecebida(d: DestinatarioEmail) {
+    await this.fila.add('candidaturaRecebida', { tipo: 'candidaturaRecebida', ...d });
+  }
+
+  async voluntarioAprovado(d: DestinatarioEmail & { cargo: string | null }) {
+    await this.fila.add('voluntarioAprovado', { tipo: 'voluntarioAprovado', ...d });
+  }
+
+  async voluntarioRecusado(d: DestinatarioEmail & { motivo: string }) {
+    await this.fila.add('voluntarioRecusado', { tipo: 'voluntarioRecusado', ...d });
   }
 
   fechar() {
@@ -248,6 +269,41 @@ export function montarEmail(job: Job): { assunto: string; html: string; texto: s
           `${animal} chegou! 💛`,
           `<p>Olá, ${nome}!</p><p><strong>${animal}</strong> chegou à Abraço Animal e já está sob os cuidados da equipe.</p>
 <p>Obrigado pela confiança!</p>`,
+        ),
+      };
+    }
+    case 'candidaturaRecebida':
+      return {
+        assunto: 'Recebemos sua candidatura de voluntariado',
+        texto: `Olá, ${job.nome}! Recebemos sua candidatura para ser voluntário(a) na Abraço Animal. A equipe vai analisar e você acompanha pelo app.`,
+        html: layout(
+          'Candidatura recebida 💛',
+          `<p>Olá, ${nome}!</p><p>Recebemos sua candidatura para ser voluntário(a) na Abraço Animal.</p>
+<p>A equipe vai analisar e você acompanha tudo pelo app.</p>`,
+        ),
+      };
+    case 'voluntarioAprovado': {
+      const cargo = job.cargo ? ` como <strong>${escapar(job.cargo)}</strong>` : '';
+      return {
+        assunto: 'Bem-vindo(a) à equipe da Abraço Animal!',
+        texto: `Olá, ${job.nome}! Sua candidatura foi aprovada${job.cargo ? ` como ${job.cargo}` : ''}. Em breve entraremos em contato para combinar os próximos passos.`,
+        html: layout(
+          'Bem-vindo(a) à equipe! 💛',
+          `<p>Olá, ${nome}!</p><p>Sua candidatura de voluntariado foi aprovada${cargo}.</p>
+<p>Em breve entraremos em contato para combinar os próximos passos. Obrigado por fazer parte!</p>`,
+        ),
+      };
+    }
+    case 'voluntarioRecusado': {
+      const motivo = escapar(job.motivo);
+      return {
+        assunto: 'Sua candidatura de voluntariado foi analisada',
+        texto: `Olá, ${job.nome}. Sua candidatura não foi aprovada desta vez. Motivo: ${job.motivo}`,
+        html: layout(
+          'Candidatura analisada',
+          `<p>Olá, ${nome}.</p><p>Sua candidatura de voluntariado não foi aprovada desta vez.</p>
+<p style="background:#FFF7ED;padding:12px 16px;border-radius:12px"><strong>Motivo:</strong> ${motivo}</p>
+<p>Você pode se candidatar de novo pelo app quando quiser.</p>`,
         ),
       };
     }

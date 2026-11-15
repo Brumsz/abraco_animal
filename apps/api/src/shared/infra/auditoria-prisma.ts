@@ -4,7 +4,7 @@ import type { EntradaAuditoria } from '../aplicacao/auditoria.js';
 /** Grava a auditoria DENTRO da transação da alteração (`tx`). */
 export async function gravarAuditoria(
   tx: PrismaGerado.TransactionClient,
-  entidade: 'Animal' | 'Adocao' | 'DoacaoAnimal',
+  entidade: 'Animal' | 'Adocao' | 'DoacaoAnimal' | 'Voluntario' | 'PerfilOng' | 'Faq',
   entidadeId: string,
   a: EntradaAuditoria,
 ): Promise<void> {

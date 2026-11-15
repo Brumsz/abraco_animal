@@ -87,6 +87,37 @@ import { GatewayAsaas } from './modules/doacoes-financeiras/infrastructure/gatew
 import { GatewaySimulado } from './modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
 import { PrismaRepositorioDoacoesFinanceiras } from './modules/doacoes-financeiras/infrastructure/prisma-repositorio-doacoes-financeiras.js';
 import {
+  Apadrinhar,
+  EncerrarApadrinhamento,
+  ListarMeusApadrinhamentos,
+  ListarPadrinhos,
+} from './modules/apadrinhamentos/application/casos-de-uso.js';
+import type { DependenciasRotasApadrinhamentos } from './modules/apadrinhamentos/http/rotas.js';
+import { PrismaRepositorioApadrinhamentos } from './modules/apadrinhamentos/infrastructure/prisma-repositorio-apadrinhamentos.js';
+import {
+  AdminListarFaq,
+  AdminListarSecoes,
+  AtualizarFaq,
+  CriarFaq,
+  EditarSecao,
+  ListarFaq,
+  ObterPerfilOng,
+  RemoverFaq,
+  ReordenarFaq,
+} from './modules/institucional/application/casos-de-uso.js';
+import type { DependenciasRotasInstitucional } from './modules/institucional/http/rotas.js';
+import { PrismaRepositorioInstitucional } from './modules/institucional/infrastructure/prisma-repositorio-institucional.js';
+import {
+  AdminListarCandidaturas,
+  AdminObterCandidatura,
+  AprovarCandidatura,
+  Candidatar,
+  ObterMinhaCandidatura,
+  RecusarCandidatura,
+} from './modules/voluntariado/application/casos-de-uso.js';
+import type { DependenciasRotasVoluntariado } from './modules/voluntariado/http/rotas.js';
+import { PrismaRepositorioCandidaturas } from './modules/voluntariado/infrastructure/prisma-repositorio-candidaturas.js';
+import {
   ContarNaoLidas,
   ListarNotificacoes,
   MarcarNotificacaoLida,
@@ -98,6 +129,7 @@ import { PrismaRepositorioUsuarios } from './modules/usuarios/infrastructure/pri
 import type { ArmazenamentoObjetos } from './shared/aplicacao/armazenamento.js';
 import type { EmailsAdocao } from './shared/aplicacao/emails-adocao.js';
 import type { EmailsDoacaoAnimal } from './shared/aplicacao/emails-doacao-animal.js';
+import type { EmailsVoluntariado } from './shared/aplicacao/emails-voluntariado.js';
 import type { ProcessadorImagens } from './shared/aplicacao/imagens.js';
 import { relogioSistema, type Relogio } from './shared/aplicacao/relogio.js';
 import { ProcessadorImagensSharp } from './shared/infra/processador-imagens-sharp.js';
@@ -106,7 +138,11 @@ import type { Prisma } from './shared/infra/prisma.js';
 export interface Infra {
   readonly prisma: Prisma;
   readonly redis: Redis;
-  readonly emails: FilaEmails & EmailsAdocao & EmailsDoacaoAnimal & EmailsDoacaoFinanceira;
+  readonly emails: FilaEmails &
+    EmailsAdocao &
+    EmailsDoacaoAnimal &
+    EmailsDoacaoFinanceira &
+    EmailsVoluntariado;
   readonly armazenamento: ArmazenamentoObjetos;
   readonly imagens?: ProcessadorImagens;
   readonly relogio?: Relogio;
@@ -306,6 +342,67 @@ export function comporPix(
     ...(simulado && config.NODE_ENV !== 'production'
       ? { simulador: { gateway: simulado, doacoes } }
       : {}),
+  };
+}
+
+export function comporApadrinhamentos(
+  infra: Infra,
+  autenticacao: Autenticacao,
+): DependenciasRotasApadrinhamentos {
+  const deps = {
+    apadrinhamentos: new PrismaRepositorioApadrinhamentos(infra.prisma),
+    animais: new PrismaRepositorioAnimais(infra.prisma),
+    armazenamento: infra.armazenamento,
+  };
+  return {
+    apadrinhar: new Apadrinhar(deps),
+    listarMeus: new ListarMeusApadrinhamentos(deps),
+    encerrar: new EncerrarApadrinhamento(deps),
+    listarPadrinhos: new ListarPadrinhos(deps),
+    limitador: new LimitadorTentativas(infra.redis),
+    autenticacao,
+  };
+}
+
+export function comporVoluntariado(
+  infra: Infra,
+  autenticacao: Autenticacao,
+  opcoes: { aoFalharEmail?: (erro: unknown) => void } = {},
+): DependenciasRotasVoluntariado {
+  const deps = {
+    candidaturas: new PrismaRepositorioCandidaturas(infra.prisma),
+    emails: infra.emails,
+    relogio: infra.relogio ?? relogioSistema,
+    ...(opcoes.aoFalharEmail ? { aoFalharEmail: opcoes.aoFalharEmail } : {}),
+  };
+  return {
+    candidatar: new Candidatar(deps),
+    minha: new ObterMinhaCandidatura(deps),
+    adminListar: new AdminListarCandidaturas(deps),
+    adminObter: new AdminObterCandidatura(deps),
+    aprovar: new AprovarCandidatura(deps),
+    recusar: new RecusarCandidatura(deps),
+    limitador: new LimitadorTentativas(infra.redis),
+    autenticacao,
+  };
+}
+
+export function comporInstitucional(
+  infra: Infra,
+  autenticacao: Autenticacao,
+): DependenciasRotasInstitucional {
+  const deps = { institucional: new PrismaRepositorioInstitucional(infra.prisma) };
+  return {
+    perfil: new ObterPerfilOng(deps),
+    faq: new ListarFaq(deps),
+    adminSecoes: new AdminListarSecoes(deps),
+    editarSecao: new EditarSecao(deps),
+    adminFaq: new AdminListarFaq(deps),
+    criarFaq: new CriarFaq(deps),
+    atualizarFaq: new AtualizarFaq(deps),
+    removerFaq: new RemoverFaq(deps),
+    reordenarFaq: new ReordenarFaq(deps),
+    autenticacao,
   };
 }
 

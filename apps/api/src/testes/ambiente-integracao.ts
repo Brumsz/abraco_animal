@@ -19,8 +19,11 @@ import {
   comporAnimais,
   comporAuth,
   comporDoacoesAnimais,
+  comporApadrinhamentos,
+  comporInstitucional,
   comporNotificacoes,
   comporPix,
+  comporVoluntariado,
   verificacoesProntidao,
   type ConfigComposicao,
 } from '../composicao.js';
@@ -28,6 +31,7 @@ import type { FilaEmails } from '../modules/auth/application/portas.js';
 import type { DestinatarioEmail, EmailsAdocao } from '../shared/aplicacao/emails-adocao.js';
 import type { EmailsDoacaoAnimal } from '../shared/aplicacao/emails-doacao-animal.js';
 import type { EmailsDoacaoFinanceira } from '../modules/doacoes-financeiras/application/portas.js';
+import type { EmailsVoluntariado } from '../shared/aplicacao/emails-voluntariado.js';
 import { GatewaySimulado } from '../modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
 import { relogioSistema, type Relogio } from '../shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from '../shared/infra/armazenamento-s3.js';
@@ -38,8 +42,26 @@ import { iniciarS3, type S3Integracao } from './s3-integracao.js';
 const RAIZ_API = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 export class CaixaEmails
-  implements FilaEmails, EmailsAdocao, EmailsDoacaoAnimal, EmailsDoacaoFinanceira
+  implements
+    FilaEmails,
+    EmailsAdocao,
+    EmailsDoacaoAnimal,
+    EmailsDoacaoFinanceira,
+    EmailsVoluntariado
 {
+  readonly voluntariado: { tipo: string; para: string }[] = [];
+  candidaturaRecebida(d: { para: string }) {
+    this.voluntariado.push({ tipo: 'recebida', para: d.para });
+    return Promise.resolve();
+  }
+  voluntarioAprovado(d: { para: string }) {
+    this.voluntariado.push({ tipo: 'aprovado', para: d.para });
+    return Promise.resolve();
+  }
+  voluntarioRecusado(d: { para: string }) {
+    this.voluntariado.push({ tipo: 'recusado', para: d.para });
+    return Promise.resolve();
+  }
   readonly comprovantes: { para: string; nome: string; valor: string }[] = [];
   comprovanteDoacao(d: { para: string; nome: string; valor: string; data: Date }) {
     this.comprovantes.push({ para: d.para, nome: d.nome, valor: d.valor });
@@ -184,6 +206,9 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       adocoes: comporAdocoes(comOpcoes, auth.rotas.autenticacao),
       doacoesAnimais: comporDoacoesAnimais(comOpcoes, auth.rotas.autenticacao),
       pix: comporPix(configPix, comOpcoes, auth.rotas.autenticacao, { gateway: psp }),
+      apadrinhamentos: comporApadrinhamentos(comOpcoes, auth.rotas.autenticacao),
+      voluntariado: comporVoluntariado(comOpcoes, auth.rotas.autenticacao),
+      institucional: comporInstitucional(comOpcoes, auth.rotas.autenticacao),
       notificacoes: comporNotificacoes(comOpcoes, auth.rotas.autenticacao),
     });
     return app;
