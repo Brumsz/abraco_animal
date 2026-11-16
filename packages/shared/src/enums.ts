@@ -75,6 +75,9 @@ export type DiaSemana = (typeof DIAS_SEMANA)[number];
 export const TURNOS = ['MANHA', 'TARDE', 'NOITE'] as const;
 export type Turno = (typeof TURNOS)[number];
 
+export const STATUS_CONVERSA = ['ABERTA', 'ENCERRADA'] as const;
+export type StatusConversa = (typeof STATUS_CONVERSA)[number];
+
 /** Ordem de exibição das seções da página "Sobre a ONG". */
 export const SECOES_PERFIL_ONG = ['SOBRE_NOS', 'FUNDACAO', 'FUNDADORES'] as const;
 export type SecaoPerfilOng = (typeof SECOES_PERFIL_ONG)[number];
