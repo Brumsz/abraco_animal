@@ -4,8 +4,11 @@ import cors from '@fastify/cors';
 import websocket from '@fastify/websocket';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
+import swagger from '@fastify/swagger';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import {
+  jsonSchemaTransform,
+  jsonSchemaTransformObject,
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
@@ -64,6 +67,11 @@ export interface OpcoesApp {
   readonly noticias?: DependenciasRotasNoticias;
   readonly chat?: { rotas: DependenciasRotasChat; websocket: DependenciasWebsocket };
   readonly notificacoes?: DependenciasRotasNotificacoes;
+  /**
+   * Coleta as rotas para gerar o OpenAPI (script `openapi:gerar`). Desligado
+   * no servidor: não há rota de documentação exposta em produção.
+   */
+  readonly gerarOpenapi?: boolean;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
 }
@@ -101,6 +109,25 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   registrarTratadorErros(app);
+
+  if (opcoes.gerarOpenapi) {
+    // Antes das rotas: o plugin coleta cada rota registrada depois dele.
+    void app.register(swagger, {
+      openapi: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Abraço Animal API',
+          version: '1.0.0',
+          description: 'Gerado a partir dos esquemas Zod das rotas (não editar à mão).',
+        },
+        components: {
+          securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
+        },
+      },
+      transform: jsonSchemaTransform,
+      transformObject: jsonSchemaTransformObject,
+    });
+  }
 
   void app.register(helmet, {
     hsts: { maxAge: 31_536_000, includeSubDomains: true },
