@@ -825,7 +825,7 @@ paths:
     post:
       tags: [chat]
       operationId: abrirConversa
-      summary: Abre conversa com a ONG
+      summary: Abre conversa com a ONG (uma ABERTA por vez → 409 CONVERSA_ABERTA_EXISTENTE; 5/hora)
       requestBody:
         required: true
         content:
@@ -863,7 +863,7 @@ paths:
     post:
       tags: [chat]
       operationId: enviarMensagem
-      summary: Envia mensagem
+      summary: Envia mensagem (30/min). Primeira resposta da equipe assume a conversa
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
@@ -1291,6 +1291,18 @@ paths:
               schema: { $ref: '#/components/schemas/Noticia' }
         '4XX': { $ref: '#/components/responses/Erro' }
   /admin/noticias/{id}:
+    get:
+      tags: [admin]
+      operationId: adminObterNoticia
+      summary: Detalhe (inclusive rascunho), para pré-visualização
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Notícia
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Noticia' }
+        '4XX': { $ref: '#/components/responses/Erro' }
     put:
       tags: [admin]
       operationId: adminAtualizarNoticia
@@ -1316,6 +1328,40 @@ paths:
       responses:
         '204': { description: Removida }
         '4XX': { $ref: '#/components/responses/Erro' }
+  /admin/noticias/{id}/imagem:
+    put:
+      tags: [admin]
+      operationId: adminDefinirCapaNoticia
+      summary: Envia a capa (multipart, campo "imagem"; magic bytes, sem EXIF, WebP)
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [imagem]
+              properties:
+                imagem: { type: string, format: binary }
+      responses:
+        '200':
+          description: Notícia com a capa
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Noticia' }
+        '4XX': { $ref: '#/components/responses/Erro' }
+    delete:
+      tags: [admin]
+      operationId: adminRemoverCapaNoticia
+      summary: Remove a capa
+      parameters: [{ $ref: '#/components/parameters/Id' }]
+      responses:
+        '200':
+          description: Notícia sem capa
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Noticia' }
+        '4XX': { $ref: '#/components/responses/Erro' }
   /admin/noticias/{id}/publicacao:
     put:
       tags: [admin]
@@ -1328,6 +1374,20 @@ paths:
 
         '4XX': { $ref: '#/components/responses/Erro' }
   /admin/posts:
+    get:
+      tags: [admin]
+      operationId: adminListarPosts
+      summary: Todos os posts (inclusive rascunhos)
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limite'
+      responses:
+        '200':
+          description: Posts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaPosts' }
+        '4XX': { $ref: '#/components/responses/Erro' }
     post:
       tags: [admin]
       operationId: adminCriarPost
@@ -2225,7 +2285,11 @@ components:
         slug: { type: string }
         titulo: { type: string }
         resumo: { type: string }
-        conteudo: { type: string, description: Markdown sanitizado (ausente na listagem) }
+        conteudo:
+          type: string
+          description: >-
+            Markdown sanitizado no servidor (sem HTML; links só http(s)/mailto/#/relativos).
+            Ausente na listagem.
         imagem: { type: [string, 'null'], format: uri }
         publicado: { type: boolean }
         criadoEm: { type: string, format: date-time }
@@ -2239,7 +2303,6 @@ components:
         slug: { type: string, pattern: '^[a-z0-9-]+$', description: Gerado do título se omitido }
         resumo: { type: string, maxLength: 300 }
         conteudo: { type: string, maxLength: 50000 }
-        imagem: { type: string, description: Chave de upload prévio }
     PerfilOngSecao:
       type: object
       required: [secao, titulo, conteudo]
@@ -2279,8 +2342,9 @@ components:
       properties:
         id: { type: string, format: uuid }
         conteudo: { type: string }
-        autorId: { type: string, format: uuid }
-        autorEhEquipe: { type: boolean }
+        autorEhEquipe:
+          type: boolean
+          description: O id do autor não é exposto; o app só precisa saber de que lado veio.
         lida: { type: boolean }
         lidaEm: { type: [string, 'null'], format: date-time }
         criadoEm: { type: string, format: date-time }
@@ -2420,8 +2484,14 @@ components:
         proximoCursor: { type: [string, 'null'] }
 
 x-websocket:
-  /ws/chat:
+  /v1/ws/chat:
     descricao: |
-      WebSocket autenticado (access token enviado na primeira mensagem `{tipo:"auth", token}`,
-      nunca na query string). Eventos do servidor: `mensagem.nova`, `mensagem.lida`, `conversa.encerrada`.
-      Eventos do cliente: `digitando`, `lida`. Fallback: polling em GET /conversas/{id}/mensagens.
+      WebSocket autenticado: o access token vai na PRIMEIRA mensagem `{tipo:"auth", token}` (em até 5 s),
+      nunca na URL. Reenviar `auth` com um token renovado (mesmo usuário) mantém a conexão.
+      Cliente → servidor: `auth`, `digitando {conversaId}`, `ping` (→ `pong`).
+      Servidor → cliente: `auth.ok`, `mensagem.nova`, `mensagem.lida`, `conversa.encerrada`, `digitando`, `erro {codigo}`.
+      Mensagens de chat são enviadas SÓ pela API REST (POST /conversas/{id}/mensagens).
+      Fechamentos: 4401 (sem auth, token inválido/expirado, sessão revogada), 4400 (formato inválido),
+      4429 (> 30 mensagens / 10 s). Origin de navegador fora do CORS → 403 no upgrade. Máx. 4 KB por mensagem.
+      Eventos distribuídos via Redis pub/sub (funciona com várias instâncias da API).
+      Fallback: polling em GET /conversas/{id}/mensagens.
