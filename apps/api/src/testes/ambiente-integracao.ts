@@ -19,6 +19,7 @@ import {
   comporAnimais,
   comporAuth,
   comporDoacoesAnimais,
+  comporAdmin,
   comporApadrinhamentos,
   comporChat,
   comporFeed,
@@ -214,6 +215,7 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       voluntariado: comporVoluntariado(comOpcoes, auth.rotas.autenticacao),
       institucional: comporInstitucional(comOpcoes, auth.rotas.autenticacao),
       feed: comporFeed(comOpcoes, auth.rotas.autenticacao),
+      admin: comporAdmin(comOpcoes, auth.rotas.autenticacao, auth),
       noticias: comporNoticias(comOpcoes, auth.rotas.autenticacao),
       // Redis REAL também no pub/sub do chat.
       chat: comporChat(comOpcoes, auth.rotas.autenticacao, {
