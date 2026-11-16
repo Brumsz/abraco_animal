@@ -35,7 +35,11 @@ import { PrismaRepositorioAnimais } from './modules/animais/infrastructure/prism
 import { CadastrarUsuario } from './modules/auth/application/cadastrar.js';
 import { Login } from './modules/auth/application/login.js';
 import { Logout } from './modules/auth/application/logout.js';
-import type { FilaEmails } from './modules/auth/application/portas.js';
+import type {
+  EmissorTokens,
+  FilaEmails,
+  ListaRevogacao,
+} from './modules/auth/application/portas.js';
 import {
   RedefinirSenha,
   SolicitarRecuperacao,
@@ -86,6 +90,46 @@ import type { DependenciasRotasPix } from './modules/doacoes-financeiras/http/ro
 import { GatewayAsaas } from './modules/doacoes-financeiras/infrastructure/gateway-asaas.js';
 import { GatewaySimulado } from './modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
 import { PrismaRepositorioDoacoesFinanceiras } from './modules/doacoes-financeiras/infrastructure/prisma-repositorio-doacoes-financeiras.js';
+import {
+  AbrirConversa,
+  AdminListarConversas,
+  AssumirConversa,
+  EncerrarConversa,
+  EnviarMensagem,
+  ListarMensagens,
+  ListarMinhasConversas,
+  MarcarMensagensLidas,
+  SinalizarDigitando,
+} from './modules/chat/application/casos-de-uso.js';
+import type { DependenciasRotasChat } from './modules/chat/http/rotas.js';
+import type { DependenciasWebsocket } from './modules/chat/http/websocket.js';
+import type { BarramentoAssinavel } from './modules/chat/infrastructure/barramento.js';
+import { PrismaRepositorioChat } from './modules/chat/infrastructure/prisma-repositorio-chat.js';
+import {
+  AdminListarPosts,
+  CriarPost,
+  Curtir,
+  EditarPost,
+  ListarPosts,
+  ObterPost,
+  PublicarPost,
+  RemoverPost,
+} from './modules/feed/application/casos-de-uso.js';
+import type { DependenciasRotasFeed } from './modules/feed/http/rotas.js';
+import { PrismaRepositorioPosts } from './modules/feed/infrastructure/prisma-repositorio-posts.js';
+import {
+  AdminListarNoticias,
+  AdminObterNoticia,
+  CriarNoticia,
+  DefinirCapaNoticia,
+  EditarNoticia,
+  ListarNoticias,
+  ObterNoticia,
+  PublicarNoticia,
+  RemoverNoticia,
+} from './modules/noticias/application/casos-de-uso.js';
+import type { DependenciasRotasNoticias } from './modules/noticias/http/rotas.js';
+import { PrismaRepositorioNoticias } from './modules/noticias/infrastructure/prisma-repositorio-noticias.js';
 import {
   Apadrinhar,
   EncerrarApadrinhamento,
@@ -403,6 +447,89 @@ export function comporInstitucional(
     removerFaq: new RemoverFaq(deps),
     reordenarFaq: new ReordenarFaq(deps),
     autenticacao,
+  };
+}
+
+export function comporFeed(infra: Infra, autenticacao: Autenticacao): DependenciasRotasFeed {
+  const deps = {
+    posts: new PrismaRepositorioPosts(infra.prisma),
+    armazenamento: infra.armazenamento,
+    imagens: infra.imagens ?? new ProcessadorImagensSharp(),
+  };
+  return {
+    listar: new ListarPosts(deps),
+    obter: new ObterPost(deps),
+    curtir: new Curtir(deps),
+    adminListar: new AdminListarPosts(deps),
+    criar: new CriarPost(deps),
+    editar: new EditarPost(deps),
+    publicar: new PublicarPost(deps),
+    remover: new RemoverPost(deps),
+    autenticacao,
+  };
+}
+
+export function comporNoticias(
+  infra: Infra,
+  autenticacao: Autenticacao,
+): DependenciasRotasNoticias {
+  const deps = {
+    noticias: new PrismaRepositorioNoticias(infra.prisma),
+    armazenamento: infra.armazenamento,
+    imagens: infra.imagens ?? new ProcessadorImagensSharp(),
+  };
+  return {
+    listar: new ListarNoticias(deps),
+    obter: new ObterNoticia(deps),
+    adminListar: new AdminListarNoticias(deps),
+    adminObter: new AdminObterNoticia(deps),
+    criar: new CriarNoticia(deps),
+    editar: new EditarNoticia(deps),
+    publicar: new PublicarNoticia(deps),
+    capa: new DefinirCapaNoticia(deps),
+    remover: new RemoverNoticia(deps),
+    autenticacao,
+  };
+}
+
+/** REST + WebSocket do chat, ligados ao mesmo barramento de eventos. */
+export function comporChat(
+  infra: Infra,
+  autenticacao: Autenticacao,
+  d: {
+    tokens: EmissorTokens;
+    revogacao: ListaRevogacao;
+    barramento: BarramentoAssinavel;
+    origensPermitidas: readonly string[];
+    aoFalhar?: (erro: unknown) => void;
+  },
+): { rotas: DependenciasRotasChat; websocket: DependenciasWebsocket } {
+  const deps = {
+    chat: new PrismaRepositorioChat(infra.prisma),
+    barramento: d.barramento,
+    relogio: infra.relogio ?? relogioSistema,
+    ...(d.aoFalhar ? { aoFalhar: d.aoFalhar } : {}),
+  };
+  return {
+    rotas: {
+      abrir: new AbrirConversa(deps),
+      minhas: new ListarMinhasConversas(deps),
+      mensagens: new ListarMensagens(deps),
+      enviar: new EnviarMensagem(deps),
+      lidas: new MarcarMensagensLidas(deps),
+      adminListar: new AdminListarConversas(deps),
+      assumir: new AssumirConversa(deps),
+      encerrar: new EncerrarConversa(deps),
+      limitador: new LimitadorTentativas(infra.redis),
+      autenticacao,
+    },
+    websocket: {
+      tokens: d.tokens,
+      revogacao: d.revogacao,
+      digitando: new SinalizarDigitando(deps),
+      barramento: d.barramento,
+      origensPermitidas: d.origensPermitidas,
+    },
   };
 }
 

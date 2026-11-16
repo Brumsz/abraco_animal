@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 
 import cors from '@fastify/cors';
+import websocket from '@fastify/websocket';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
@@ -20,6 +21,10 @@ import {
   type DependenciasRotasDoacoesAnimais,
 } from './modules/doacoes-animais/http/rotas.js';
 import { rotasPix, type DependenciasRotasPix } from './modules/doacoes-financeiras/http/rotas.js';
+import { rotasChat, type DependenciasRotasChat } from './modules/chat/http/rotas.js';
+import { rotaWebsocketChat, type DependenciasWebsocket } from './modules/chat/http/websocket.js';
+import { rotasFeed, type DependenciasRotasFeed } from './modules/feed/http/rotas.js';
+import { rotasNoticias, type DependenciasRotasNoticias } from './modules/noticias/http/rotas.js';
 import {
   rotasApadrinhamentos,
   type DependenciasRotasApadrinhamentos,
@@ -53,6 +58,9 @@ export interface OpcoesApp {
   readonly apadrinhamentos?: DependenciasRotasApadrinhamentos;
   readonly voluntariado?: DependenciasRotasVoluntariado;
   readonly institucional?: DependenciasRotasInstitucional;
+  readonly feed?: DependenciasRotasFeed;
+  readonly noticias?: DependenciasRotasNoticias;
+  readonly chat?: { rotas: DependenciasRotasChat; websocket: DependenciasWebsocket };
   readonly notificacoes?: DependenciasRotasNotificacoes;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
@@ -110,7 +118,12 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
     timeWindow: '1 minute',
     nameSpace: 'rl:geral:',
     // IP é dado pessoal (LGPD): a chave no Redis usa o hash, nunca o IP em claro.
-    keyGenerator: (request) => createHash('sha256').update(request.ip).digest('hex').slice(0, 32),
+    // `ip` pode faltar sem socket de rede (ex.: upgrade de WebSocket injetado em teste).
+    keyGenerator: (request) =>
+      createHash('sha256')
+        .update((request.ip as string | undefined) ?? 'sem-ip')
+        .digest('hex')
+        .slice(0, 32),
     ...(opcoes.redis ? { redis: opcoes.redis } : {}),
     // Health checks do orquestrador e webhooks do PSP (autenticados por token e
     // deduplicados) não contam no limite por IP: rajadas do Asaas não podem virar 429.
@@ -147,6 +160,18 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.institucional) {
     void app.register(rotasInstitucional(opcoes.institucional), { prefix: '/v1' });
+  }
+  if (opcoes.feed) {
+    void app.register(rotasFeed(opcoes.feed), { prefix: '/v1' });
+  }
+  if (opcoes.noticias) {
+    void app.register(rotasNoticias(opcoes.noticias), { prefix: '/v1' });
+  }
+  if (opcoes.chat) {
+    // Na raiz: o plugin decora a instância principal (inclusive app.injectWS dos testes).
+    void app.register(websocket, { options: { maxPayload: 4096 } });
+    void app.register(rotasChat(opcoes.chat.rotas), { prefix: '/v1' });
+    void app.register(rotaWebsocketChat(opcoes.chat.websocket), { prefix: '/v1' });
   }
   if (opcoes.notificacoes) {
     void app.register(rotasNotificacoes(opcoes.notificacoes), { prefix: '/v1' });
