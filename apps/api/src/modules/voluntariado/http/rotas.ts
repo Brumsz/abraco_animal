@@ -52,8 +52,15 @@ const candidaturaAdminSaida = candidaturaSaida.extend({
     nome: z.string(),
     email: z.string(),
     telefone: z.string(),
-    cidade: z.string(),
-    uf: z.string(),
+    endereco: z.object({
+      cep: z.string(),
+      logradouro: z.string(),
+      numero: z.string(),
+      complemento: z.string().nullable(),
+      bairro: z.string(),
+      cidade: z.string(),
+      uf: z.string(),
+    }),
   }),
 });
 

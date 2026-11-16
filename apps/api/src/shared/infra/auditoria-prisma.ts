@@ -13,7 +13,8 @@ export async function gravarAuditoria(
     | 'Faq'
     | 'Post'
     | 'Noticia'
-    | 'Conversa',
+    | 'Conversa'
+    | 'Usuario',
   entidadeId: string,
   a: EntradaAuditoria,
 ): Promise<void> {
