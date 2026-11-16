@@ -115,7 +115,10 @@ jobs:
         working-directory: apps/api
         run: pnpm exec prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
 
-      - name: Índice único parcial de adoção existe
+      - name: Índices únicos parciais (adoção pendente e conversa aberta) existem
         run: |
-          psql "postgresql://ci:ci@localhost:5432/abraco_ci" -tAc \
-            "select 1 from pg_indexes where indexname = 'adocoes_pendente_unica'" | grep -q 1
+          for indice in adocoes_pendente_unica conversas_aberta_unica; do
+            psql "postgresql://ci:ci@localhost:5432/abraco_ci" -tAc \
+              "select 1 from pg_indexes where indexname = '$indice'" | grep -q 1 \
+              || { echo "índice $indice não encontrado"; exit 1; }
+          done

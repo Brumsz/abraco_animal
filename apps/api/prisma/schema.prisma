@@ -510,6 +510,7 @@ model Conversa {
   admin     Usuario?   @relation("ConversaAdmin", fields: [adminId], references: [id], onDelete: SetNull)
   mensagens Mensagem[]
 
+  // Índice único parcial (usuarioId) WHERE status = 'ABERTA' → migração conversa_aberta_unica
   @@index([status, atualizadoEm])
   @@index([usuarioId])
   @@map("conversas")
