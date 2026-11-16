@@ -8,6 +8,7 @@ import {
   comporAnimais,
   comporAuth,
   comporDoacoesAnimais,
+  comporAdmin,
   comporApadrinhamentos,
   comporChat,
   comporFeed,
@@ -83,6 +84,7 @@ const app = construirApp({
   voluntariado: comporVoluntariado(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   institucional: comporInstitucional(infra, auth.rotas.autenticacao),
   feed: comporFeed(infra, auth.rotas.autenticacao),
+  admin: comporAdmin(infra, auth.rotas.autenticacao, auth),
   noticias: comporNoticias(infra, auth.rotas.autenticacao),
   chat: comporChat(infra, auth.rotas.autenticacao, {
     tokens: auth.tokens,

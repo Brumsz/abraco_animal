@@ -22,6 +22,7 @@ import {
 } from './modules/doacoes-animais/http/rotas.js';
 import { rotasPix, type DependenciasRotasPix } from './modules/doacoes-financeiras/http/rotas.js';
 import { rotasChat, type DependenciasRotasChat } from './modules/chat/http/rotas.js';
+import { rotasAdmin, type DependenciasRotasAdmin } from './modules/admin/http/rotas.js';
 import { rotaWebsocketChat, type DependenciasWebsocket } from './modules/chat/http/websocket.js';
 import { rotasFeed, type DependenciasRotasFeed } from './modules/feed/http/rotas.js';
 import { rotasNoticias, type DependenciasRotasNoticias } from './modules/noticias/http/rotas.js';
@@ -59,6 +60,7 @@ export interface OpcoesApp {
   readonly voluntariado?: DependenciasRotasVoluntariado;
   readonly institucional?: DependenciasRotasInstitucional;
   readonly feed?: DependenciasRotasFeed;
+  readonly admin?: DependenciasRotasAdmin;
   readonly noticias?: DependenciasRotasNoticias;
   readonly chat?: { rotas: DependenciasRotasChat; websocket: DependenciasWebsocket };
   readonly notificacoes?: DependenciasRotasNotificacoes;
@@ -160,6 +162,9 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.institucional) {
     void app.register(rotasInstitucional(opcoes.institucional), { prefix: '/v1' });
+  }
+  if (opcoes.admin) {
+    void app.register(rotasAdmin(opcoes.admin), { prefix: '/v1/admin' });
   }
   if (opcoes.feed) {
     void app.register(rotasFeed(opcoes.feed), { prefix: '/v1' });

@@ -91,6 +91,19 @@ import { GatewayAsaas } from './modules/doacoes-financeiras/infrastructure/gatew
 import { GatewaySimulado } from './modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
 import { PrismaRepositorioDoacoesFinanceiras } from './modules/doacoes-financeiras/infrastructure/prisma-repositorio-doacoes-financeiras.js';
 import {
+  AdminListarUsuarios,
+  AlterarAtivoUsuario,
+  AlterarRoleUsuario,
+  ConsultarAuditoria,
+  ObterDashboard,
+} from './modules/admin/application/casos-de-uso.js';
+import type { DependenciasRotasAdmin } from './modules/admin/http/rotas.js';
+import {
+  PrismaRepositorioAuditoria,
+  PrismaRepositorioPainel,
+  PrismaRepositorioUsuariosAdmin,
+} from './modules/admin/infrastructure/prisma-repositorios-admin.js';
+import {
   AbrirConversa,
   AdminListarConversas,
   AssumirConversa,
@@ -530,6 +543,39 @@ export function comporChat(
       barramento: d.barramento,
       origensPermitidas: d.origensPermitidas,
     },
+  };
+}
+
+/**
+ * Painel do admin. Desativar/rebaixar usa o mesmo mecanismo da redefinição de
+ * senha: revoga as sessões no banco e os `sid` no Redis (access tokens caem na hora).
+ */
+export function comporAdmin(
+  infra: Infra,
+  autenticacao: Autenticacao,
+  auth: { tokens: EmissorTokens; revogacao: ListaRevogacao; sessoes: PrismaRepositorioSessoes },
+): DependenciasRotasAdmin {
+  const deps = {
+    painel: new PrismaRepositorioPainel(infra.prisma),
+    usuarios: new PrismaRepositorioUsuariosAdmin(infra.prisma),
+    auditoria: new PrismaRepositorioAuditoria(infra.prisma),
+    relogio: infra.relogio ?? relogioSistema,
+    sessoes: {
+      encerrarTodas: async (usuarioId: number) => {
+        const sids = await auth.sessoes.revogarTodasDoUsuario(usuarioId);
+        await Promise.all(
+          sids.map((sid) => auth.revogacao.revogarSid(sid, auth.tokens.ttlAcessoSegundos)),
+        );
+      },
+    },
+  };
+  return {
+    dashboard: new ObterDashboard(deps),
+    listarUsuarios: new AdminListarUsuarios(deps),
+    alterarAtivo: new AlterarAtivoUsuario(deps),
+    alterarRole: new AlterarRoleUsuario(deps),
+    auditoria: new ConsultarAuditoria(deps),
+    autenticacao,
   };
 }
 
