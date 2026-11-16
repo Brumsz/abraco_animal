@@ -16,7 +16,11 @@ export interface OpcoesCliente {
   readonly baseUrl: string;
   /** Access token atual (fica só na memória do app). */
   obterToken(): string | null;
-  /** Troca o refresh token por um access token novo; `null` = sessão acabou. */
+  /**
+   * Troca o refresh token por um access token novo; `null` = sessão acabou.
+   * Lançar `ErroRede` (sem internet) NÃO encerra a sessão: a chamada falha
+   * como erro de rede e a pessoa continua logada.
+   */
   renovar(): Promise<string | null>;
   aoPerderSessao?(): void;
   readonly fetch?: typeof fetch;
@@ -38,7 +42,11 @@ export function criarClienteApi(opcoes: OpcoesCliente): ClienteApi {
   const renovarUmaVez = (): Promise<string | null> => {
     renovacao ??= opcoes
       .renovar()
-      .catch(() => null)
+      .catch((erro: unknown) => {
+        // Sem internet não é "sessão acabou": repassa o erro de rede.
+        if (erro instanceof ErroRede) throw erro;
+        return null;
+      })
       .finally(() => {
         renovacao = null;
       });

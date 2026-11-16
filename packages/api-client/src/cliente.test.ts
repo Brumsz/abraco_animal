@@ -99,6 +99,16 @@ describe('cliente HTTP', () => {
     expect(aoPerderSessao).toHaveBeenCalledTimes(1);
   });
 
+  it('sem internet na renovação: erro de rede, e a sessão NÃO é encerrada', async () => {
+    const s = servidor();
+    s.aceitar('outro');
+    const { api, aoPerderSessao } = montar(s, () =>
+      Promise.reject(new ErroRede(new TypeError('offline'))),
+    );
+    await expect(ok(api.GET('/v1/me'))).rejects.toBeInstanceOf(ErroRede);
+    expect(aoPerderSessao).not.toHaveBeenCalled();
+  });
+
   it('401 em /auth (ex.: senha errada no login) NÃO tenta renovar', async () => {
     const s = servidor();
     const renovar = vi.fn(() => Promise.resolve('novo'));
