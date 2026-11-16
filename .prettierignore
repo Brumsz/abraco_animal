@@ -7,3 +7,6 @@ apps/api/src/generated
 apps/api/prisma/migrations
 docs/etapa-1/schema.diff
 apps/mobile/expo-env.d.ts
+# Gerados (pnpm api:gerar): o CI compara com a saída do gerador, byte a byte
+packages/api-client/openapi.json
+packages/api-client/src/esquema.ts

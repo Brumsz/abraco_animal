@@ -29,6 +29,8 @@ export default tseslint.config(
       '**/coverage/**',
       '**/.turbo/**',
       'apps/api/src/generated/**',
+      // Gerado do OpenAPI (pnpm api:gerar)
+      'packages/api-client/src/esquema.ts',
       '**/.expo/**',
       'apps/mobile/expo-env.d.ts',
     ],
