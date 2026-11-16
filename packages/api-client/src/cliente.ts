@@ -35,7 +35,8 @@ export type ClienteApi = Client<paths> & {
 const ehRotaDeAuth = (url: string) => new URL(url).pathname.startsWith('/v1/auth/');
 
 export function criarClienteApi(opcoes: OpcoesCliente): ClienteApi {
-  const base = opcoes.fetch ?? globalThis.fetch.bind(globalThis);
+  // Lido na hora da chamada: polyfills/mocks instalados depois continuam valendo.
+  const base: typeof fetch = opcoes.fetch ?? ((entrada, init) => globalThis.fetch(entrada, init));
   let renovacao: Promise<string | null> | null = null;
 
   /** Uma renovação por vez: as chamadas que chegarem no meio esperam a mesma. */

@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { onboardingConcluido } from '@/core/preferencias';
+import { iniciarSessao } from '@/core/sessao';
 import { Logo } from '@/shared/componentes/Logo';
 
 const DURACAO_SPLASH_MS = 1500;
@@ -19,9 +20,10 @@ export default function TelaSplash() {
     let ativo = true;
     const espera = new Promise((resolver) => setTimeout(resolver, DURACAO_SPLASH_MS));
 
-    void Promise.all([onboardingConcluido(), espera]).then(([concluido]) => {
+    // A sessão guardada (refresh token) é renovada durante a splash.
+    void Promise.all([onboardingConcluido(), espera, iniciarSessao()]).then(([concluido]) => {
       if (!ativo) return;
-      // Sem sessão ainda (Etapa 3): após o onboarding o destino é o login.
+      // As telas logadas (Home) chegam com os protótipos; até lá o destino é o login.
       router.replace(concluido ? '/login' : '/onboarding');
     });
 

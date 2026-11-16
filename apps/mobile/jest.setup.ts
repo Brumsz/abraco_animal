@@ -8,6 +8,8 @@ jest.mock('react-native-reanimated', () =>
 jest.mock('expo-secure-store', () => {
   const dados = new Map<string, string>();
   return {
+    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WHEN_UNLOCKED_THIS_DEVICE_ONLY',
+    __dados: dados,
     getItemAsync: jest.fn((chave: string) => Promise.resolve(dados.get(chave) ?? null)),
     setItemAsync: jest.fn((chave: string, valor: string) => {
       dados.set(chave, valor);
@@ -26,3 +28,8 @@ jest.mock(
   () =>
     jest.requireActual<{ default: unknown }>('react-native-safe-area-context/jest/mock').default,
 );
+
+// expo-crypto é nativo: nos testes usa o crypto do Node.
+jest.mock('expo-crypto', () => ({
+  randomUUID: () => jest.requireActual<{ randomUUID: () => string }>('crypto').randomUUID(),
+}));
