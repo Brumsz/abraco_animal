@@ -23,6 +23,11 @@ export interface Candidato {
   readonly nome: string;
   readonly email: string;
   readonly telefone: string;
+  readonly cep: string;
+  readonly logradouro: string;
+  readonly numero: string;
+  readonly complemento: string | null;
+  readonly bairro: string;
   readonly cidade: string;
   readonly uf: string;
 }
@@ -100,8 +105,16 @@ const saidaAdmin = (c: CandidaturaRegistro) => ({
     nome: c.candidato.nome,
     email: c.candidato.email,
     telefone: c.candidato.telefone,
-    cidade: c.candidato.cidade,
-    uf: c.candidato.uf,
+    // Seção 4: "voluntários ativos com cargo e endereço".
+    endereco: {
+      cep: c.candidato.cep,
+      logradouro: c.candidato.logradouro,
+      numero: c.candidato.numero,
+      complemento: c.candidato.complemento,
+      bairro: c.candidato.bairro,
+      cidade: c.candidato.cidade,
+      uf: c.candidato.uf,
+    },
   },
 });
 

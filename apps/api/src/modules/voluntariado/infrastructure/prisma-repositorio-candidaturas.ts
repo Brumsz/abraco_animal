@@ -31,7 +31,19 @@ const CAMPOS = {
   criadoEm: true,
   // Contato para a equipe; CPF e data de nascimento cifrados nunca saem daqui.
   usuario: {
-    select: { publicId: true, nome: true, email: true, telefone: true, cidade: true, uf: true },
+    select: {
+      publicId: true,
+      nome: true,
+      email: true,
+      telefone: true,
+      cep: true,
+      logradouro: true,
+      numero: true,
+      complemento: true,
+      bairro: true,
+      cidade: true,
+      uf: true,
+    },
   },
 } as const satisfies PrismaGerado.VoluntarioSelect;
 
