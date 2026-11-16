@@ -16,7 +16,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "openapi:gerar": "tsx src/openapi/gerar.ts"
   },
   "dependencies": {
     "@abraco/shared": "workspace:*",
@@ -26,6 +27,7 @@
     "@fastify/helmet": "13.2.0",
     "@fastify/multipart": "10.1.8",
     "@fastify/rate-limit": "~11.2.2",
+    "@fastify/swagger": "9.9.3",
     "@fastify/websocket": "11.3.7",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
