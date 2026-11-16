@@ -20,6 +20,9 @@ import {
   comporAuth,
   comporDoacoesAnimais,
   comporApadrinhamentos,
+  comporChat,
+  comporFeed,
+  comporNoticias,
   comporInstitucional,
   comporNotificacoes,
   comporPix,
@@ -33,6 +36,7 @@ import type { EmailsDoacaoAnimal } from '../shared/aplicacao/emails-doacao-anima
 import type { EmailsDoacaoFinanceira } from '../modules/doacoes-financeiras/application/portas.js';
 import type { EmailsVoluntariado } from '../shared/aplicacao/emails-voluntariado.js';
 import { GatewaySimulado } from '../modules/doacoes-financeiras/infrastructure/gateway-simulado.js';
+import { BarramentoRedis } from '../modules/chat/infrastructure/barramento.js';
 import { relogioSistema, type Relogio } from '../shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from '../shared/infra/armazenamento-s3.js';
 import { criarPrisma, type Prisma } from '../shared/infra/prisma.js';
@@ -209,6 +213,15 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       apadrinhamentos: comporApadrinhamentos(comOpcoes, auth.rotas.autenticacao),
       voluntariado: comporVoluntariado(comOpcoes, auth.rotas.autenticacao),
       institucional: comporInstitucional(comOpcoes, auth.rotas.autenticacao),
+      feed: comporFeed(comOpcoes, auth.rotas.autenticacao),
+      noticias: comporNoticias(comOpcoes, auth.rotas.autenticacao),
+      // Redis REAL também no pub/sub do chat.
+      chat: comporChat(comOpcoes, auth.rotas.autenticacao, {
+        tokens: auth.tokens,
+        revogacao: auth.revogacao,
+        barramento: new BarramentoRedis(redis),
+        origensPermitidas: ['https://painel.abracoanimal.org.br'],
+      }),
       notificacoes: comporNotificacoes(comOpcoes, auth.rotas.autenticacao),
     });
     return app;

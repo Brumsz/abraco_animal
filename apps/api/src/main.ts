@@ -9,6 +9,9 @@ import {
   comporAuth,
   comporDoacoesAnimais,
   comporApadrinhamentos,
+  comporChat,
+  comporFeed,
+  comporNoticias,
   comporInstitucional,
   comporNotificacoes,
   comporPix,
@@ -16,6 +19,7 @@ import {
   verificacoesProntidao,
 } from './composicao.js';
 import { carregarAmbiente } from './config/ambiente.js';
+import { BarramentoRedis } from './modules/chat/infrastructure/barramento.js';
 import { relogioSistema } from './shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from './shared/infra/armazenamento-s3.js';
 import { FilaEmailsBullmq, iniciarWorkerEmails } from './shared/infra/emails.js';
@@ -78,6 +82,21 @@ const app = construirApp({
   apadrinhamentos: comporApadrinhamentos(infra, auth.rotas.autenticacao),
   voluntariado: comporVoluntariado(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   institucional: comporInstitucional(infra, auth.rotas.autenticacao),
+  feed: comporFeed(infra, auth.rotas.autenticacao),
+  noticias: comporNoticias(infra, auth.rotas.autenticacao),
+  chat: comporChat(infra, auth.rotas.autenticacao, {
+    tokens: auth.tokens,
+    revogacao: auth.revogacao,
+    // Pub/sub no Redis: eventos chegam aos WebSockets de todas as instâncias.
+    barramento: new BarramentoRedis(redis),
+    origensPermitidas: ambiente.CORS_ORIGINS,
+    aoFalhar: (erro) => {
+      app.log.warn(
+        { erro: erro instanceof Error ? erro.name : 'desconhecido' },
+        'barramento do chat',
+      );
+    },
+  }),
   pix: comporPix(ambiente, infra, auth.rotas.autenticacao, {
     // Só o contexto e o tipo do erro: nada de corpo do PSP nem dados do doador.
     aoFalhar: (contexto, erro) => {
