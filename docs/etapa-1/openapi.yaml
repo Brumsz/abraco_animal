@@ -1597,13 +1597,19 @@ paths:
               properties:
                 ativo: { type: boolean }
       responses:
-        '204': { description: Alterado (desativar revoga todas as sessões) }
+        '204':
+          { description: Alterado (desativar revoga todas as sessões e os access tokens na hora) }
+        '403':
+          {
+            description: Própria conta (ACAO_NA_PROPRIA_CONTA) ou conta ADMIN (ALVO_E_ADMIN),
+            $ref: '#/components/responses/Erro',
+          }
         '4XX': { $ref: '#/components/responses/Erro' }
   /admin/usuarios/{id}/role:
     patch:
       tags: [admin]
       operationId: adminAlterarRole
-      summary: Promove a VOLUNTARIO ou rebaixa a USUARIO (promoção a ADMIN fora do app)
+      summary: Promove a VOLUNTARIO ou rebaixa a USUARIO (promoção a ADMIN fora do app; rebaixar revoga as sessões)
       parameters: [{ $ref: '#/components/parameters/Id' }]
       requestBody:
         required: true
@@ -1726,7 +1732,12 @@ paths:
       summary: Log de auditoria
       parameters:
         - { name: adminId, in: query, schema: { type: string, format: uuid } }
-        - { name: entidade, in: query, schema: { type: string } }
+        - {
+            name: entidade,
+            in: query,
+            schema: { type: string, examples: [Adocao, Animal, Usuario] },
+          }
+        - { name: acao, in: query, schema: { type: string, examples: [ADOCAO_APROVADA] } }
         - $ref: '#/components/parameters/De'
         - $ref: '#/components/parameters/Ate'
         - $ref: '#/components/parameters/Cursor'
@@ -2001,12 +2012,19 @@ components:
         telefone: { type: string, pattern: '^[0-9]{10,11}$' }
         endereco: { $ref: '#/components/schemas/Endereco' }
     UsuarioAdmin:
-      allOf:
-        - $ref: '#/components/schemas/UsuarioPerfil'
-        - type: object
-          properties:
-            ativo: { type: boolean }
-            cpfMascarado: { type: string, examples: ['***.456.789-**'] }
+      description: Sem CPF nem data de nascimento (minimização, LGPD)
+      type: object
+      required: [id, nome, email, role, ativo, criadoEm]
+      properties:
+        id: { type: string, format: uuid }
+        nome: { type: string }
+        email: { type: string, format: email }
+        telefone: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        ativo: { type: boolean }
+        cidade: { type: string }
+        uf: { type: string }
+        criadoEm: { type: string, format: date-time }
 
     # ── Animais ──
     AnimalResumo:
@@ -2376,6 +2394,7 @@ components:
             quantidade: { type: integer }
             total: { type: string, examples: ['1250.00'] }
         adocoesPorMes:
+          description: Adoções APROVADAS nos últimos 6 meses (fuso de São Paulo), meses sem adoção com 0
           type: array
           maxItems: 6
           items:
@@ -2389,7 +2408,7 @@ components:
           items:
             type: object
             properties:
-              tipo: { type: string, enum: [ADOCAO, DOACAO_ANIMAL, VOLUNTARIO] }
+              tipo: { type: string, enum: [ADOCAO, DOACAO_ANIMAL, CANDIDATURA_VOLUNTARIO] }
               id: { type: string, format: uuid }
               titulo: { type: string }
               criadoEm: { type: string, format: date-time }
