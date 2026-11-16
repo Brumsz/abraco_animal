@@ -1,3 +1,9 @@
+# ════════════════════════════════════════════════════════════════════
+# HISTÓRICO — esboço do contrato escrito à mão na Etapa 1 (planejamento).
+# A partir da Etapa 10 o contrato OFICIAL é GERADO das rotas reais da API:
+#   packages/api-client/openapi.json   (pnpm api:gerar; o CI confere)
+# Este arquivo não é mais atualizado.
+# ════════════════════════════════════════════════════════════════════
 openapi: 3.1.0
 info:
   title: Abraço Animal API

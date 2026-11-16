@@ -43,6 +43,13 @@ jobs:
         env:
           DATABASE_URL: postgresql://build:build@localhost:5432/build
 
+      - name: Contrato OpenAPI e tipos do api-client em dia com as rotas
+        run: |
+          pnpm --filter @abraco/shared build
+          pnpm api:gerar
+          git diff --exit-code -- packages/api-client \
+            || { echo "::error::Rotas mudaram sem regenerar o contrato. Rode 'pnpm api:gerar' e commite."; exit 1; }
+
       - name: Lint, typecheck e testes unitários
         run: pnpm turbo run lint typecheck test
 

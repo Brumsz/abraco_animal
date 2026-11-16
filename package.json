@@ -21,7 +21,8 @@
     "test": "turbo run test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "pnpm format:check && turbo run lint typecheck test"
+    "verify": "pnpm format:check && turbo run lint typecheck test",
+    "api:gerar": "pnpm --filter @abraco/api openapi:gerar && pnpm --filter @abraco/api-client gerar"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

@@ -95,6 +95,8 @@ export function rotaWebsocketChat(deps: DependenciasWebsocket): FastifyPluginAsy
       '/ws/chat',
       {
         websocket: true,
+        // Fora do OpenAPI: o protocolo do WebSocket é documentado à parte (api-client).
+        schema: { hide: true },
         preValidation: async (request, reply) => {
           const origem = request.headers.origin;
           if (origem !== undefined && !deps.origensPermitidas.includes(origem)) {
