@@ -17,7 +17,7 @@ const TITULOS: readonly VarianteTexto[] = ['h1', 'h2', 'h3'];
  */
 export function Texto({
   variante = 'body1',
-  cor = cores.neutro900,
+  cor = cores.tinta,
   alinhamento,
   style,
   ...props

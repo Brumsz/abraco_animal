@@ -74,7 +74,7 @@ export function BottomSheet({
           >
             <View style={styles.alca} importantForAccessibility="no" />
             <View style={styles.cabecalho}>
-              <Texto variante="h3" cor={cores.marromTexto} style={styles.titulo}>
+              <Texto variante="h3" cor={cores.tinta} style={styles.titulo}>
                 {titulo}
               </Texto>
               <Pressable
@@ -83,7 +83,7 @@ export function BottomSheet({
                 onPress={aoFechar}
                 style={styles.fechar}
               >
-                <XIcon size={22} color={cores.neutro600} />
+                <XIcon size={22} color={cores.tintaSuave} />
               </Pressable>
             </View>
             <View style={styles.conteudo}>{children}</View>
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: cores.neutro200,
+    backgroundColor: cores.linha,
     marginTop: espaco.sm,
   },
   cabecalho: {

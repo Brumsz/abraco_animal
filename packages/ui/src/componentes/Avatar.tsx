@@ -41,8 +41,8 @@ export function Avatar({ nome, uri, tamanho = 48 }: AvatarProps) {
         />
       ) : (
         <Texto
-          cor={cores.marromTexto}
-          style={{ fontFamily: fontes.poppinsSemiBold, fontSize: tamanho * 0.38 }}
+          cor={cores.tinta}
+          style={{ fontFamily: fontes.displaySemiBold, fontSize: tamanho * 0.38 }}
           maxFontSizeMultiplier={1}
           importantForAccessibility="no"
         >
@@ -55,7 +55,7 @@ export function Avatar({ nome, uri, tamanho = 48 }: AvatarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: cores.laranjaSuave,
+    backgroundColor: cores.marcaClaraForte,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

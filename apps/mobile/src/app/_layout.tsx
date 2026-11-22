@@ -4,7 +4,11 @@ import {
   Inter_600SemiBold,
   useFonts,
 } from '@expo-google-fonts/inter';
-import { Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import {
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { cores, ToastProvider } from '@abraco/ui';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
@@ -21,8 +25,9 @@ void SplashScreen.preventAutoHideAsync();
 
 export default function LayoutRaiz() {
   const [fontesProntas, erroFontes] = useFonts({
-    Poppins_700Bold,
-    Poppins_600SemiBold,
+    PlusJakartaSans_800ExtraBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_600SemiBold,
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -46,7 +51,7 @@ export default function LayoutRaiz() {
             <Stack
               screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: cores.creme },
+                contentStyle: { backgroundColor: cores.fundo },
                 animation: 'fade',
               }}
             />

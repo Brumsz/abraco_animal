@@ -17,7 +17,7 @@
     "@abraco/shared": "workspace:*",
     "@abraco/ui": "workspace:*",
     "@expo-google-fonts/inter": "~0.4.2",
-    "@expo-google-fonts/poppins": "~0.4.1",
+    "@expo-google-fonts/plus-jakarta-sans": "~0.4.2",
     "@hookform/resolvers": "7.0.5",
     "@tanstack/react-query": "5.107.1",
     "expo": "~58.0.0",

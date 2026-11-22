@@ -1,4 +1,4 @@
-import { Button, cores, espaco, gradienteLaranja, Texto } from '@abraco/ui';
+import { Button, cores, espaco, gradienteMarca, Texto } from '@abraco/ui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -119,19 +119,19 @@ function ItemSlide({
     >
       {/* Ilustração provisória — trocar pelas fotos da ONG (proporção 4:3) */}
       <LinearGradient
-        colors={gradienteLaranja}
+        colors={gradienteMarca}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.ilustracao, { width: lado, height: lado * 0.75 }]}
       >
-        <Icone size={lado * 0.4} color={cores.creme} weight="duotone" />
+        <Icone size={lado * 0.4} color={cores.fundo} weight="duotone" />
       </LinearGradient>
 
       <View style={styles.textos}>
-        <Texto variante="h1" cor={cores.marromTexto} alinhamento="center">
+        <Texto variante="h1" cor={cores.tinta} alinhamento="center">
           {slide.titulo}
         </Texto>
-        <Texto variante="body1" cor={cores.neutro600} alinhamento="center">
+        <Texto variante="body1" cor={cores.tintaSuave} alinhamento="center">
           {slide.texto}
         </Texto>
       </View>
@@ -159,7 +159,7 @@ function Indicador({
 }
 
 const styles = StyleSheet.create({
-  tela: { flex: 1, backgroundColor: cores.creme },
+  tela: { flex: 1, backgroundColor: cores.fundo },
   barraTopo: {
     height: 52,
     paddingHorizontal: espaco.lg,
@@ -181,5 +181,5 @@ const styles = StyleSheet.create({
   textos: { gap: espaco.md },
   rodape: { paddingHorizontal: espaco.xl, paddingBottom: espaco.lg, gap: espaco.xl },
   indicadores: { flexDirection: 'row', justifyContent: 'center', gap: espaco.sm },
-  ponto: { height: 8, borderRadius: 4, backgroundColor: cores.laranjaTexto },
+  ponto: { height: 8, borderRadius: 4, backgroundColor: cores.marcaEscura },
 });

@@ -22,11 +22,11 @@ export function EmptyState({ ilustracao, titulo, subtitulo, acao }: EmptyStatePr
           {ilustracao}
         </View>
       ) : null}
-      <Texto variante="h3" cor={cores.marromTexto} alinhamento="center">
+      <Texto variante="h3" cor={cores.tinta} alinhamento="center">
         {titulo}
       </Texto>
       {subtitulo ? (
-        <Texto variante="body2" cor={cores.neutro600} alinhamento="center">
+        <Texto variante="body2" cor={cores.tintaSuave} alinhamento="center">
           {subtitulo}
         </Texto>
       ) : null}
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: cores.laranjaClaro,
+    backgroundColor: cores.marcaClara,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: espaco.md,
