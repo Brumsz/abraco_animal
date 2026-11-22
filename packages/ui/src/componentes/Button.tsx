@@ -11,11 +11,15 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { cores } from '../tokens/cores';
-import { ALVO_TOQUE_MINIMO, duracao, espaco, raio } from '../tokens/layout';
+import { ALVO_TOQUE_MINIMO, duracao, espaco, raio, sombraMarca } from '../tokens/layout';
 import { fontes } from '../tokens/tipografia';
 import { Texto } from './Texto';
 
-export type VarianteBotao = 'primario' | 'secundario' | 'ghost' | 'destrutivo';
+/**
+ * primario: laranja cheio ("Entrar") · secundario: laranja claro ("Quero adotar") ·
+ * contorno: branco com borda ("Não") · ghost: só texto · destrutivo: vermelho.
+ */
+export type VarianteBotao = 'primario' | 'secundario' | 'contorno' | 'ghost' | 'destrutivo';
 export type TamanhoBotao = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
@@ -33,27 +37,34 @@ interface Aparencia {
   readonly fundoPressionado: string;
   readonly texto: string;
   readonly borda?: string;
+  readonly sombra?: ViewStyle;
 }
 
 // Todas as combinações de texto/fundo atendem WCAG AA (ver tokens/cores.ts).
 const APARENCIAS: Record<VarianteBotao, Aparencia> = {
   primario: {
-    fundo: cores.laranjaPrimario,
-    fundoPressionado: cores.laranjaEscuro,
-    texto: cores.marromTexto,
+    fundo: cores.marcaEscura,
+    fundoPressionado: cores.marcaPressionada,
+    texto: cores.branco,
+    sombra: sombraMarca,
   },
   secundario: {
-    fundo: 'transparent',
-    fundoPressionado: cores.laranjaClaro,
-    texto: cores.laranjaTexto,
-    borda: cores.laranjaTexto,
+    fundo: cores.marcaClara,
+    fundoPressionado: cores.marcaClaraForte,
+    texto: cores.marcaEscura,
   },
-  ghost: { fundo: 'transparent', fundoPressionado: cores.laranjaClaro, texto: cores.laranjaTexto },
-  destrutivo: { fundo: cores.erroForte, fundoPressionado: '#B91C1C', texto: cores.branco },
+  contorno: {
+    fundo: cores.superficie,
+    fundoPressionado: cores.fundoSuave,
+    texto: cores.tinta,
+    borda: cores.linhaForte,
+  },
+  ghost: { fundo: 'transparent', fundoPressionado: cores.marcaClara, texto: cores.marcaEscura },
+  destrutivo: { fundo: cores.erro, fundoPressionado: '#B91C1C', texto: cores.branco },
 };
 
 const TAMANHOS: Record<TamanhoBotao, { altura: number; padding: number; fonte: number }> = {
-  sm: { altura: ALVO_TOQUE_MINIMO, padding: espaco.md, fonte: 13 },
+  sm: { altura: ALVO_TOQUE_MINIMO, padding: espaco.md, fonte: 14 },
   md: { altura: 48, padding: espaco.lg, fonte: 15 },
   lg: { altura: 56, padding: espaco.xl, fonte: 16 },
 };
@@ -74,7 +85,8 @@ export function Button({
   const aparencia = APARENCIAS[variante];
   const medidas = TAMANHOS[tamanho];
   const inativo = Boolean(disabled) || carregando;
-  const corTexto = inativo && !carregando ? cores.neutro500 : aparencia.texto;
+  const desabilitado = inativo && !carregando;
+  const corTexto = desabilitado ? cores.tintaSuave : aparencia.texto;
 
   const escala = useSharedValue(1);
   const estiloAnimado = useAnimatedStyle(() => ({ transform: [{ scale: escala.get() }] }));
@@ -102,8 +114,8 @@ export function Button({
             paddingHorizontal: medidas.padding,
             backgroundColor: pressed ? aparencia.fundoPressionado : aparencia.fundo,
           },
-          aparencia.borda ? { borderWidth: 1.5, borderColor: aparencia.borda } : null,
-          inativo && !carregando ? styles.desabilitado : null,
+          aparencia.borda ? { borderWidth: 1, borderColor: aparencia.borda } : null,
+          desabilitado ? styles.desabilitado : aparencia.sombra,
         ]}
         {...props}
       >
@@ -115,7 +127,7 @@ export function Button({
             <Texto
               variante="label"
               cor={corTexto}
-              style={{ fontSize: medidas.fonte, fontFamily: fontes.interSemiBold }}
+              style={{ fontSize: medidas.fonte, lineHeight: 20, fontFamily: fontes.displayBold }}
               numberOfLines={1}
             >
               {titulo}
@@ -129,7 +141,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: raio.md,
+    borderRadius: raio.botao,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -140,7 +152,7 @@ const styles = StyleSheet.create({
   },
   larguraTotal: { alignSelf: 'stretch' },
   desabilitado: {
-    backgroundColor: cores.neutro200,
-    borderColor: cores.neutro200,
+    backgroundColor: cores.linha,
+    borderColor: cores.linha,
   },
 });

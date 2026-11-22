@@ -1,45 +1,40 @@
 import { EyeIcon, EyeSlashIcon, WarningCircleIcon } from 'phosphor-react-native';
-import { useEffect, useState, type ComponentRef, type ReactNode, type Ref } from 'react';
+import { useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
-import Animated, {
-  interpolate,
-  interpolateColor,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 
 import { cores } from '../tokens/cores';
-import { ALVO_TOQUE_MINIMO, duracao, espaco, raio } from '../tokens/layout';
+import { ALVO_TOQUE_MINIMO, espaco, raio } from '../tokens/layout';
 import { fontes, MULTIPLICADOR_MAXIMO_FONTE } from '../tokens/tipografia';
 import { Texto } from './Texto';
 
-export interface InputProps extends Omit<TextInputProps, 'placeholder' | 'editable'> {
+export interface InputProps extends Omit<TextInputProps, 'editable'> {
+  /** Nome do campo: aparece acima (ou só para leitor de tela, com `rotuloOculto`). */
   readonly rotulo: string;
+  /** Telas de login/cadastro do protótipo: só ícone + placeholder, sem rótulo visível. */
+  readonly rotuloOculto?: boolean;
   readonly erro?: string | undefined;
   readonly ajuda?: string;
   readonly desabilitado?: boolean;
   /** Campo de senha com botão mostrar/ocultar. */
   readonly senha?: boolean;
+  /** Ícone à esquerda; recebe a cor (laranja com foco, cinza sem). */
+  readonly icone?: (cor: string) => ReactNode;
   readonly iconeDireita?: ReactNode;
   readonly ref?: Ref<ComponentRef<typeof TextInput>>;
 }
 
-const ALTURA = 56;
-const LINHA_ROTULO = 24;
-/** Posição inicial: centralizado no campo. Flutuando: centralizado sobre a borda superior. */
-const TOPO_ROTULO = (ALTURA - LINHA_ROTULO) / 2;
-
+/** Campo do protótipo: 56 px, raio 14, borda #D6CEC5; foco com borda laranja. */
 export function Input({
   rotulo,
+  rotuloOculto = false,
   erro,
   ajuda,
   desabilitado = false,
   senha = false,
+  icone,
   iconeDireita,
-  value,
-  defaultValue,
+  placeholder,
+  multiline,
   onFocus,
   onBlur,
   ref,
@@ -47,49 +42,28 @@ export function Input({
 }: InputProps) {
   const [focado, setFocado] = useState(false);
   const [senhaVisivel, setSenhaVisivel] = useState(false);
-  const reduzirMovimento = useReducedMotion();
 
-  const preenchido = Boolean(value ?? defaultValue);
-  const flutuando = useSharedValue(preenchido ? 1 : 0);
-  const foco = useSharedValue(0);
-
-  useEffect(() => {
-    const config = { duration: reduzirMovimento ? 0 : duracao.rapida };
-    flutuando.set(withTiming(focado || preenchido ? 1 : 0, config));
-    foco.set(withTiming(focado ? 1 : 0, config));
-  }, [focado, preenchido, reduzirMovimento, flutuando, foco]);
-
-  // Contraste de componentes (WCAG 1.4.11 ≥ 3:1): borda neutro500, foco laranjaTexto.
-  const corBordaBase = erro ? cores.erroForte : cores.neutro500;
-  const estiloBorda = useAnimatedStyle(() => ({
-    borderColor: erro
-      ? cores.erroForte
-      : interpolateColor(foco.get(), [0, 1], [corBordaBase, cores.laranjaTexto]),
-    borderWidth: interpolate(foco.get(), [0, 1], [1.5, 2]),
-  }));
-  const estiloRotulo = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: interpolate(flutuando.get(), [0, 1], [0, -(TOPO_ROTULO + LINHA_ROTULO / 2)]) },
-      { scale: interpolate(flutuando.get(), [0, 1], [1, 0.8]) },
-    ],
-  }));
-
-  const corRotulo = erro ? cores.erroForte : focado ? cores.laranjaTexto : cores.neutro600;
+  const corBorda = erro ? cores.erro : focado ? cores.marca : cores.linhaForte;
+  const corIcone = erro ? cores.erro : focado ? cores.marca : cores.tintaSuave;
   const mensagem = erro ?? ajuda;
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[styles.campo, desabilitado ? styles.campoDesabilitado : null, estiloBorda]}
-      >
-        <Animated.Text
-          style={[styles.rotulo, { color: corRotulo }, estiloRotulo]}
-          maxFontSizeMultiplier={1.4}
-          pointerEvents="none"
-          importantForAccessibility="no"
-        >
+      {rotuloOculto ? null : (
+        <Texto variante="label" cor={cores.tintaCorpo} importantForAccessibility="no">
           {rotulo}
-        </Animated.Text>
+        </Texto>
+      )}
+
+      <View
+        style={[
+          styles.campo,
+          multiline ? styles.campoMultilinha : null,
+          { borderColor: corBorda, borderWidth: focado || erro ? 1.5 : 1 },
+          desabilitado ? styles.campoDesabilitado : null,
+        ]}
+      >
+        {icone ? <View style={styles.iconeEsquerda}>{icone(corIcone)}</View> : null}
 
         <TextInput
           ref={ref}
@@ -97,11 +71,13 @@ export function Input({
           accessibilityHint={erro ? `Erro: ${erro}` : ajuda}
           accessibilityState={{ disabled: desabilitado }}
           editable={!desabilitado}
-          value={value}
-          defaultValue={defaultValue}
+          placeholder={placeholder ?? (rotuloOculto ? rotulo : undefined)}
+          multiline={multiline}
+          textAlignVertical={multiline ? 'top' : 'center'}
           secureTextEntry={senha && !senhaVisivel}
-          placeholderTextColor={cores.neutro500}
-          selectionColor={cores.laranjaTexto}
+          placeholderTextColor={cores.tintaSuave}
+          selectionColor={cores.marca}
+          cursorColor={cores.marca}
           maxFontSizeMultiplier={MULTIPLICADOR_MAXIMO_FONTE}
           onFocus={(e) => {
             setFocado(true);
@@ -111,7 +87,11 @@ export function Input({
             setFocado(false);
             onBlur?.(e);
           }}
-          style={[styles.input, desabilitado ? styles.textoDesabilitado : null]}
+          style={[
+            styles.input,
+            multiline ? styles.inputMultilinha : null,
+            desabilitado ? styles.textoDesabilitado : null,
+          ]}
           {...props}
         />
 
@@ -123,24 +103,24 @@ export function Input({
               setSenhaVisivel((v) => !v);
             }}
             hitSlop={espaco.sm}
-            style={styles.icone}
+            style={styles.iconeDireita}
             testID="alternar-senha"
           >
             {senhaVisivel ? (
-              <EyeSlashIcon size={22} color={cores.neutro600} />
+              <EyeSlashIcon size={20} color={cores.tintaSuave} />
             ) : (
-              <EyeIcon size={22} color={cores.neutro600} />
+              <EyeIcon size={20} color={cores.tintaSuave} />
             )}
           </Pressable>
         ) : iconeDireita ? (
-          <View style={styles.icone}>{iconeDireita}</View>
+          <View style={styles.iconeDireita}>{iconeDireita}</View>
         ) : null}
-      </Animated.View>
+      </View>
 
       {mensagem ? (
         <View style={styles.mensagem} accessibilityLiveRegion={erro ? 'polite' : 'none'}>
-          {erro ? <WarningCircleIcon size={16} color={cores.erroForte} weight="fill" /> : null}
-          <Texto variante="caption" cor={erro ? cores.erroForte : cores.neutro600}>
+          {erro ? <WarningCircleIcon size={16} color={cores.erro} weight="fill" /> : null}
+          <Texto variante="caption" cor={erro ? cores.erro : cores.tintaSuave} style={styles.flex}>
             {mensagem}
           </Texto>
         </View>
@@ -150,43 +130,35 @@ export function Input({
 }
 
 const styles = StyleSheet.create({
-  container: { gap: espaco.xs },
+  flex: { flex: 1 },
+  container: { gap: espaco.sm },
   campo: {
-    minHeight: ALTURA,
+    minHeight: 56,
     borderRadius: raio.md,
-    backgroundColor: cores.branco,
+    backgroundColor: cores.superficie,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: espaco.lg,
+    gap: espaco.md,
   },
-  campoDesabilitado: { backgroundColor: cores.neutro100 },
-  rotulo: {
-    position: 'absolute',
-    top: TOPO_ROTULO,
-    left: espaco.lg - 4,
-    paddingHorizontal: 4,
-    backgroundColor: cores.branco,
-    fontFamily: fontes.interRegular,
-    fontSize: 16,
-    lineHeight: LINHA_ROTULO,
-    transformOrigin: 'left center',
-  },
+  campoMultilinha: { minHeight: 120, alignItems: 'flex-start', paddingVertical: espaco.md },
+  campoDesabilitado: { backgroundColor: cores.fundoSuave },
+  iconeEsquerda: { width: 20, alignItems: 'center' },
   input: {
     flex: 1,
     minHeight: ALVO_TOQUE_MINIMO,
-    paddingTop: espaco.md,
-    paddingBottom: espaco.xs,
     fontFamily: fontes.interRegular,
-    fontSize: 16,
-    color: cores.neutro900,
+    fontSize: 15,
+    color: cores.tinta,
   },
-  textoDesabilitado: { color: cores.neutro500 },
-  icone: {
+  inputMultilinha: { minHeight: 96 },
+  textoDesabilitado: { color: cores.tintaSuave },
+  iconeDireita: {
     minWidth: ALVO_TOQUE_MINIMO,
     minHeight: ALVO_TOQUE_MINIMO,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: -espaco.sm,
+    marginRight: -espaco.md,
   },
   mensagem: {
     flexDirection: 'row',

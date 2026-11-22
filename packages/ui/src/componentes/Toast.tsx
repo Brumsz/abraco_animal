@@ -39,8 +39,8 @@ const Contexto = createContext<ContextoToast | null>(null);
 
 const VISUAL: Record<TipoToast, { borda: string; Icone: typeof InfoIcon }> = {
   sucesso: { borda: '#16A34A', Icone: CheckCircleIcon },
-  erro: { borda: cores.erroForte, Icone: WarningCircleIcon },
-  info: { borda: cores.laranjaTexto, Icone: InfoIcon },
+  erro: { borda: cores.erro, Icone: WarningCircleIcon },
+  info: { borda: cores.marcaEscura, Icone: InfoIcon },
 };
 
 export function ToastProvider({ children }: { readonly children: ReactNode }) {
@@ -117,7 +117,7 @@ function ItemToast({
           hitSlop={espaco.sm}
           style={styles.fechar}
         >
-          <XIcon size={18} color={cores.neutro600} />
+          <XIcon size={18} color={cores.tintaSuave} />
         </Pressable>
       </View>
     </Animated.View>

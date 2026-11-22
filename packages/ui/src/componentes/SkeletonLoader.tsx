@@ -51,5 +51,5 @@ export function SkeletonLoader({
 }
 
 const styles = StyleSheet.create({
-  bloco: { backgroundColor: cores.neutro200 },
+  bloco: { backgroundColor: cores.linha },
 });
