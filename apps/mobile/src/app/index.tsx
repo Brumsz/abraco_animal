@@ -1,30 +1,25 @@
-import { cores } from '@abraco/ui';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { onboardingConcluido } from '@/core/preferencias';
-import { iniciarSessao } from '@/core/sessao';
-import { Logo } from '@/shared/componentes/Logo';
+import { iniciarSessao, useSessao } from '@/core/sessao';
+import { SplashMarca } from '@/shared/componentes/SplashMarca';
 
 const DURACAO_SPLASH_MS = 1500;
 
-/** Splash: logo com fade-in sobre fundo laranja, depois decide o destino. */
+/** Protótipo "Splash - Início": abre o app enquanto a sessão guardada é restaurada. */
 export default function TelaSplash() {
   const router = useRouter();
-  const reduzirMovimento = useReducedMotion();
 
   useEffect(() => {
     let ativo = true;
     const espera = new Promise((resolver) => setTimeout(resolver, DURACAO_SPLASH_MS));
 
-    // A sessão guardada (refresh token) é renovada durante a splash.
     void Promise.all([onboardingConcluido(), espera, iniciarSessao()]).then(([concluido]) => {
       if (!ativo) return;
-      // As telas logadas (Home) chegam com os protótipos; até lá o destino é o login.
-      router.replace(concluido ? '/login' : '/onboarding');
+      if (!concluido) router.replace('/onboarding');
+      else if (useSessao.getState().estado === 'autenticado') router.replace('/inicio');
+      else router.replace('/login');
     });
 
     return () => {
@@ -33,24 +28,10 @@ export default function TelaSplash() {
   }, [router]);
 
   return (
-    <View style={styles.tela}>
-      <StatusBar style="dark" />
-      <Animated.View
-        entering={reduzirMovimento ? undefined : FadeIn.duration(800)}
-        style={styles.centro}
-      >
-        <Logo tema="claro" tamanho="grande" />
-      </Animated.View>
-    </View>
+    <SplashMarca
+      etapa={0}
+      titulo="Laços e abraços"
+      subtitulo="Cada animal merece cuidado, carinho e um lar."
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  tela: {
-    flex: 1,
-    backgroundColor: cores.laranjaPrimario,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centro: { alignItems: 'center' },
-});
