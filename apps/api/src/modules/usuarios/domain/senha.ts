@@ -1,24 +1,11 @@
+import { problemaSenha, SENHA_MAX, SENHA_MIN } from '@abraco/shared';
+
 import { erroValidacao } from '../../../shared/dominio/erros.js';
 
-export const SENHA_MIN = 8;
-export const SENHA_MAX = 128;
+export { SENHA_MAX, SENHA_MIN };
 
-/**
- * Política de senha (ASVS 2.1): 8–128 caracteres, com letra e número.
- * Sem regras de composição exóticas — comprimento importa mais.
- */
+/** Política de senha (ASVS 2.1; regra em @abraco/shared, a mesma do app). */
 export function validarPoliticaSenha(senha: string, campo = 'senha'): void {
-  if (senha.length < SENHA_MIN || senha.length > SENHA_MAX) {
-    throw erroValidacao(
-      'SENHA_FRACA',
-      `A senha deve ter entre ${SENHA_MIN} e ${SENHA_MAX} caracteres`,
-      campo,
-    );
-  }
-  if (!/\p{L}/u.test(senha) || !/\p{N}/u.test(senha)) {
-    throw erroValidacao('SENHA_FRACA', 'A senha deve conter letras e números', campo);
-  }
-  if (senha.trim().length === 0) {
-    throw erroValidacao('SENHA_FRACA', 'A senha não pode ser só espaços', campo);
-  }
+  const problema = problemaSenha(senha);
+  if (problema) throw erroValidacao('SENHA_FRACA', problema, campo);
 }
