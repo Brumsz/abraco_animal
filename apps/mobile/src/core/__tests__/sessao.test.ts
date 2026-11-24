@@ -140,6 +140,28 @@ describe('sessão do app', () => {
     ]);
   });
 
+  it('API sem resposta na abertura: segue logado no prazo (nunca prende na splash)', async () => {
+    await entrar(sessao(1));
+    useSessao.setState({ estado: 'carregando', accessToken: null });
+    // Responde só depois do prazo da abertura (como uma rede que descarta pacotes).
+    fetchMock.mockImplementation(
+      () =>
+        new Promise((_r, rejeitar) =>
+          setTimeout(() => {
+            rejeitar(new TypeError('Network request failed'));
+          }, 300),
+        ),
+    );
+    const inicio = Date.now();
+    await iniciarSessao(50);
+
+    expect(Date.now() - inicio).toBeLessThan(250);
+    expect(useSessao.getState().estado).toBe('autenticado');
+    expect(await lerRefresh()).toBe('refresh-1');
+    // Deixa a renovação em segundo plano terminar antes do próximo teste.
+    await new Promise((r) => setTimeout(r, 350));
+  });
+
   it('sair: revoga na API e limpa tudo do aparelho (mesmo se a API falhar)', async () => {
     await entrar(sessao(1));
     fetchMock.mockRejectedValue(new TypeError('offline'));

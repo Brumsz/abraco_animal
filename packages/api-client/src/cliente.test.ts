@@ -180,3 +180,25 @@ describe('cliente HTTP', () => {
     expect(r?.corpo).toContain('name="fotos"');
   });
 });
+
+describe('tempo limite', () => {
+  it('rede que nunca responde vira ErroRede no prazo (e a requisição é cancelada)', async () => {
+    let cancelada = false;
+    const pendurado = ((req: Request) =>
+      new Promise<Response>(() => {
+        req.signal.addEventListener('abort', () => {
+          cancelada = true;
+        });
+      })) as typeof globalThis.fetch;
+    const api = criarClienteApi({
+      baseUrl: 'https://api.teste',
+      obterToken: () => null,
+      renovar: () => Promise.resolve(null),
+      fetch: pendurado,
+      tempoLimiteMs: 50,
+    });
+
+    await expect(ok(api.GET('/v1/animais'))).rejects.toBeInstanceOf(ErroRede);
+    expect(cancelada).toBe(true);
+  });
+});

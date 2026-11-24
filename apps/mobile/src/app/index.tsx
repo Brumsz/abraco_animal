@@ -15,12 +15,17 @@ export default function TelaSplash() {
     let ativo = true;
     const espera = new Promise((resolver) => setTimeout(resolver, DURACAO_SPLASH_MS));
 
-    void Promise.all([onboardingConcluido(), espera, iniciarSessao()]).then(([concluido]) => {
-      if (!ativo) return;
-      if (!concluido) router.replace('/onboarding');
-      else if (useSessao.getState().estado === 'autenticado') router.replace('/inicio');
-      else router.replace('/login');
-    });
+    void Promise.all([onboardingConcluido(), espera, iniciarSessao()])
+      .then(([concluido]) => {
+        if (!ativo) return;
+        if (!concluido) router.replace('/onboarding');
+        else if (useSessao.getState().estado === 'autenticado') router.replace('/inicio');
+        else router.replace('/login');
+      })
+      // Qualquer falha inesperada na abertura leva ao login — nunca prende na splash.
+      .catch(() => {
+        if (ativo) router.replace('/login');
+      });
 
     return () => {
       ativo = false;
