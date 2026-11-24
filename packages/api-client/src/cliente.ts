@@ -24,7 +24,14 @@ export interface OpcoesCliente {
   renovar(): Promise<string | null>;
   aoPerderSessao?(): void;
   readonly fetch?: typeof fetch;
+  /**
+   * Tempo máximo de cada requisição (padrão 30 s). Sem isso, uma rede que
+   * descarta pacotes (firewall, Wi-Fi ruim) deixa a chamada pendurada para sempre.
+   */
+  readonly tempoLimiteMs?: number;
 }
+
+export const TEMPO_LIMITE_PADRAO_MS = 30_000;
 
 export type ClienteApi = Client<paths> & {
   /** O mesmo fetch autenticado, para uploads multipart (fora do OpenAPI). */
@@ -54,6 +61,29 @@ export function criarClienteApi(opcoes: OpcoesCliente): ClienteApi {
     return renovacao;
   };
 
+  const tempoLimite = opcoes.tempoLimiteMs ?? TEMPO_LIMITE_PADRAO_MS;
+
+  /**
+   * Envia com prazo: cancela a requisição (AbortController) e, mesmo que o fetch
+   * da plataforma ignore o cancelamento, rejeita no prazo — quem chamou nunca trava.
+   */
+  const enviar = (requisicao: Request): Promise<Response> => {
+    const controle = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const prazo = new Promise<never>((_r, rejeitar) => {
+      timer = setTimeout(() => {
+        controle.abort();
+        rejeitar(new Error(`Sem resposta em ${String(tempoLimite)} ms`));
+      }, tempoLimite);
+    });
+    return Promise.race([
+      base(new Request(requisicao, { signal: controle.signal })),
+      prazo,
+    ]).finally(() => {
+      clearTimeout(timer);
+    });
+  };
+
   const comToken = (requisicao: Request, token: string | null) => {
     const r = new Request(requisicao);
     if (token) r.headers.set('authorization', `Bearer ${token}`);
@@ -69,7 +99,7 @@ export function criarClienteApi(opcoes: OpcoesCliente): ClienteApi {
     const copia = requisicao.clone();
     let resposta: Response;
     try {
-      resposta = await base(comToken(requisicao, opcoes.obterToken()));
+      resposta = await enviar(comToken(requisicao, opcoes.obterToken()));
     } catch (erro) {
       throw new ErroRede(erro);
     }
@@ -81,7 +111,7 @@ export function criarClienteApi(opcoes: OpcoesCliente): ClienteApi {
       return resposta;
     }
     try {
-      return await base(comToken(copia, novo));
+      return await enviar(comToken(copia, novo));
     } catch (erro) {
       throw new ErroRede(erro);
     }

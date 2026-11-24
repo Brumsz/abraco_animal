@@ -94,20 +94,37 @@ export function renovarSessao(): Promise<string | null> {
 /**
  * Abertura do app: com refresh token guardado, renova (traz o usuário);
  * sem internet, entra como "autenticado sem dados" e tenta de novo depois.
+ *
+ * A abertura nunca espera mais que `prazoMs`: se a API não responder a tempo
+ * (rede que descarta pacotes, API fora do ar), segue como offline e a renovação
+ * continua em segundo plano — se ela recusar a sessão, o app volta ao login.
  */
-export async function iniciarSessao(): Promise<void> {
+export async function iniciarSessao(prazoMs = PRAZO_ABERTURA_MS): Promise<void> {
   if (!(await lerRefresh())) {
     useSessao.setState({ estado: 'anonimo', usuario: null, accessToken: null });
     return;
   }
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const prazo = new Promise<'prazo'>((resolver) => {
+    timer = setTimeout(() => {
+      resolver('prazo');
+    }, prazoMs);
+  });
+  const renovacaoInicial = renovarSessao().catch(() => 'offline' as const);
   try {
-    await renovarSessao();
-  } catch {
-    // Offline: telas que precisam de dados mostram erro de conexão; o próximo
-    // 401 dispara outra renovação.
-    useSessao.setState({ estado: 'autenticado' });
+    const r = await Promise.race([renovacaoInicial, prazo]);
+    // Offline ou sem resposta: telas que precisam de dados mostram erro de conexão;
+    // o próximo 401 dispara outra renovação.
+    if ((r === 'offline' || r === 'prazo') && useSessao.getState().estado === 'carregando') {
+      useSessao.setState({ estado: 'autenticado' });
+    }
+  } finally {
+    clearTimeout(timer);
   }
 }
+
+/** Quanto a abertura do app espera a API antes de seguir (offline). */
+export const PRAZO_ABERTURA_MS = 6000;
 
 /** Sair: revoga na API (melhor esforço) e limpa o aparelho. */
 export async function sair(): Promise<void> {

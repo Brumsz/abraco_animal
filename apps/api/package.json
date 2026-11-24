@@ -17,7 +17,9 @@
     "db:deploy": "prisma migrate deploy",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:coverage": "vitest run --coverage",
-    "openapi:gerar": "tsx src/openapi/gerar.ts"
+    "openapi:gerar": "tsx src/openapi/gerar.ts",
+    "criar-admin": "tsx --env-file-if-exists=../../.env src/scripts/criar-admin.ts",
+    "semear": "tsx --env-file-if-exists=../../.env src/scripts/semear.ts"
   },
   "dependencies": {
     "@abraco/shared": "workspace:*",
