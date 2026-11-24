@@ -26,6 +26,14 @@ const MENSAGENS: Record<string, string> = {
   JA_E_VOLUNTARIO: 'Você já é voluntário(a) da ONG. Obrigado!',
   JA_E_DA_EQUIPE: 'Você já faz parte da equipe da ONG.',
   PSP_INDISPONIVEL: 'O Pix está fora do ar agora. Tente de novo em alguns minutos.',
+  // Painel da equipe
+  ADOCAO_JA_ANALISADA: 'Outra pessoa da equipe já analisou este pedido. Atualize a tela.',
+  ADOCAO_ALTERADA: 'Este pedido mudou enquanto você analisava. Atualize a tela.',
+  DOACAO_ALTERADA: 'Esta doação mudou enquanto você analisava. Atualize a tela.',
+  TRANSICAO_DOACAO_INVALIDA: 'Esta doação já mudou de etapa. Atualize a tela.',
+  CANDIDATURA_JA_ANALISADA: 'Outra pessoa da equipe já analisou esta candidatura.',
+  AUTOAPROVACAO_PROIBIDA:
+    'Você não pode analisar o seu próprio pedido. Peça a outra pessoa da equipe.',
 };
 
 export function mensagemDeErro(erro: unknown): string {

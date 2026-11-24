@@ -17,6 +17,7 @@ export function ListaPaginada<T extends { id: string }>({
   vazio,
   rotuloCarregando,
   espacoFinal = espaco.xxl,
+  filtrar,
 }: {
   readonly consulta: UseInfiniteQueryResult<InfiniteData<{ itens: T[] }>>;
   readonly renderizar: (item: T) => ReactElement;
@@ -24,8 +25,11 @@ export function ListaPaginada<T extends { id: string }>({
   readonly vazio: ReactNode;
   readonly rotuloCarregando: string;
   readonly espacoFinal?: number;
+  /** Filtro local sobre o que já carregou (ex.: busca por nome sem rota de busca na API). */
+  readonly filtrar?: (item: T) => boolean;
 }) {
-  const itens = consulta.data?.pages.flatMap((p) => p.itens) ?? [];
+  const todos = consulta.data?.pages.flatMap((p) => p.itens) ?? [];
+  const itens = filtrar ? todos.filter(filtrar) : todos;
 
   let semItens: ReactNode;
   if (consulta.isPending) {

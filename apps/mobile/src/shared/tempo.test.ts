@@ -1,4 +1,12 @@
-import { dataCurta, horaCurta, mesmoDia, rotuloDia, tempoRelativo } from './tempo';
+import {
+  dataCurta,
+  horaCurta,
+  mesAbreviado,
+  mesmoDia,
+  quandoCurto,
+  rotuloDia,
+  tempoRelativo,
+} from './tempo';
 
 const agora = new Date('2026-11-24T15:00:00');
 const antes = (ms: number) => new Date(agora.getTime() - ms).toISOString();
@@ -45,5 +53,19 @@ describe('datas do chat e do jornal', () => {
   it('mesmoDia compara o dia local', () => {
     expect(mesmoDia(local('2026-11-24T00:01:00'), local('2026-11-24T23:59:00'))).toBe(true);
     expect(mesmoDia(local('2026-11-23T23:59:00'), local('2026-11-24T00:01:00'))).toBe(false);
+  });
+});
+
+describe('lista de conversas e gráfico', () => {
+  it('hora hoje, "Ontem" e dia/mês nos outros dias', () => {
+    expect(quandoCurto(new Date('2026-11-24T10:42:00').toISOString(), agora)).toBe('10:42');
+    expect(quandoCurto(new Date('2026-11-23T22:00:00').toISOString(), agora)).toBe('Ontem');
+    expect(quandoCurto(new Date('2026-03-11T09:00:00').toISOString(), agora)).toBe('11/03');
+  });
+
+  it('mês abreviado do gráfico', () => {
+    expect(mesAbreviado('2026-11')).toBe('nov.');
+    expect(mesAbreviado('2026-01')).toBe('jan.');
+    expect(mesAbreviado('lixo')).toBe('lixo');
   });
 });
