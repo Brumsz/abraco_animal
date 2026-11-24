@@ -41,3 +41,9 @@ export function formatarContagem(segundos: number): string {
   const s = Math.max(0, Math.floor(segundos));
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
+
+/** Valor da API ("25.00") → centavos (2500), sem passar por float. */
+export function centavosDaApi(texto: string): number {
+  const [reais = '0', cents = '0'] = texto.split('.');
+  return Number(reais) * 100 + Number(cents.padEnd(2, '0').slice(0, 2));
+}

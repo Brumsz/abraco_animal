@@ -1,6 +1,9 @@
+import { useSessao } from '@/core/sessao';
+import TelaChat from '@/features/chat/presentation/TelaChat';
 import { EmConstrucao } from '@/shared/componentes/EmConstrucao';
 
-// Tela real na próxima parte da Etapa 10 (protótipos do Paper).
+// O atendimento da equipe (lista de conversas do admin) chega com as telas de admin.
 export default function Aba() {
-  return <EmConstrucao titulo="Chat" />;
+  const ehAdmin = useSessao((s) => s.usuario?.role === 'ADMIN');
+  return ehAdmin ? <EmConstrucao titulo="Atendimento" /> : <TelaChat />;
 }

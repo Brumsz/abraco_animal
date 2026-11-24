@@ -18,6 +18,13 @@ const MENSAGENS: Record<string, string> = {
   ANIMAL_NAO_DISPONIVEL: 'Este animal não está mais disponível para adoção.',
   JA_PADRINHO: 'Você já é padrinho deste animal. Obrigado!',
   ANIMAL_NAO_APADRINHAVEL: 'Este animal não está recebendo padrinhos no momento.',
+  ULTIMO_ADMIN:
+    'Você é a única pessoa da equipe com acesso de administração. Passe o acesso a outra pessoa antes de excluir a conta.',
+  CONVERSA_ENCERRADA:
+    'Esta conversa foi encerrada pela equipe. Envie uma nova mensagem para abrir outra.',
+  CANDIDATURA_EM_ANALISE: 'Sua candidatura já está em análise. A equipe responde em breve.',
+  JA_E_VOLUNTARIO: 'Você já é voluntário(a) da ONG. Obrigado!',
+  JA_E_DA_EQUIPE: 'Você já faz parte da equipe da ONG.',
   PSP_INDISPONIVEL: 'O Pix está fora do ar agora. Tente de novo em alguns minutos.',
 };
 

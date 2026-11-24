@@ -75,6 +75,13 @@ export function useMarcarMensagensLidas(conversaId: string) {
 export const useDigitando = create<Record<string, number>>(() => ({}));
 const DIGITANDO_MS = 4000;
 
+function limparDigitando(conversaId: string): void {
+  useDigitando.setState(
+    (s) => Object.fromEntries(Object.entries(s).filter(([id]) => id !== conversaId)),
+    true,
+  );
+}
+
 function aplicarEvento(qc: ReturnType<typeof useQueryClient>, e: EventoChat) {
   const chave = chaves.mensagens(e.conversaId);
   switch (e.tipo) {
@@ -83,10 +90,7 @@ function aplicarEvento(qc: ReturnType<typeof useQueryClient>, e: EventoChat) {
         incluirMensagem(d, e.mensagem),
       );
       // Chegou a mensagem: o "digitando…" daquela conversa some.
-      useDigitando.setState(
-        (s) => Object.fromEntries(Object.entries(s).filter(([id]) => id !== e.conversaId)),
-        true,
-      );
+      limparDigitando(e.conversaId);
       void qc.invalidateQueries({ queryKey: chaves.conversas });
       break;
     case 'mensagem.lida': {
@@ -99,9 +103,15 @@ function aplicarEvento(qc: ReturnType<typeof useQueryClient>, e: EventoChat) {
     case 'conversa.encerrada':
       void qc.invalidateQueries({ queryKey: chaves.conversas });
       break;
-    case 'digitando':
-      useDigitando.setState({ [e.conversaId]: Date.now() + DIGITANDO_MS });
+    case 'digitando': {
+      const ate = Date.now() + DIGITANDO_MS;
+      useDigitando.setState({ [e.conversaId]: ate });
+      // Sem novo aviso até o prazo, o "digitando…" some (só se ninguém o renovou).
+      setTimeout(() => {
+        if (useDigitando.getState()[e.conversaId] === ate) limparDigitando(e.conversaId);
+      }, DIGITANDO_MS);
       break;
+    }
   }
 }
 
