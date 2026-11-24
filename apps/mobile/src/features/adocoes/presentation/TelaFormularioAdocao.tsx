@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Chip, cores, espaco, Texto } from '@abraco/ui';
-import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
-import { CheckCircleIcon } from 'phosphor-react-native';
+import { Button, Chip, espaco } from '@abraco/ui';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
@@ -18,7 +17,9 @@ import { useAnimal } from '@/features/animais/data/hooks';
 import { AvisoErro } from '@/shared/componentes/AvisoErro';
 import { CabecalhoTela, MARGEM_TELA } from '@/shared/componentes/CabecalhoTela';
 import { CampoForm } from '@/shared/componentes/CampoForm';
+import { GrupoEscolha, estiloChips } from '@/shared/componentes/GrupoEscolha';
 import { TelaComVoltar } from '@/shared/componentes/TelaComVoltar';
+import { TelaConcluido } from '@/shared/componentes/TelaConcluido';
 import { aplicarErrosDeCampo, mensagemDeErro } from '@/shared/erros';
 
 /** Protótipo "Adotar - Formulário" com os campos da triagem da API. */
@@ -31,7 +32,14 @@ export default function TelaFormularioAdocao() {
   if (termo !== 'aceito') {
     return <Redirect href={{ pathname: '/adocao/[animalId]', params: { animalId } }} />;
   }
-  if (enviado) return <PedidoEnviado nome={animal?.nome ?? null} />;
+  if (enviado) {
+    return (
+      <TelaConcluido
+        titulo="Pedido enviado!"
+        texto={`${animal ? `Obrigado por querer dar um lar para ${animal.nome}. ` : 'Obrigado! '}A equipe vai analisar com carinho e você recebe a resposta pelas notificações e por e-mail.`}
+      />
+    );
+  }
   return (
     <Formulario
       animalId={animalId}
@@ -113,8 +121,8 @@ function Formulario({
               control={control}
               name="tipoMoradia"
               render={({ field }) => (
-                <Grupo rotulo="Onde você mora?" erro={errors.tipoMoradia?.message}>
-                  <View style={styles.chips}>
+                <GrupoEscolha rotulo="Onde você mora?" erro={errors.tipoMoradia?.message}>
+                  <View style={estiloChips.linha}>
                     {MORADIAS.map((m) => (
                       <Chip
                         key={m.valor}
@@ -126,7 +134,7 @@ function Formulario({
                       />
                     ))}
                   </View>
-                </Grupo>
+                </GrupoEscolha>
               )}
             />
 
@@ -137,12 +145,12 @@ function Formulario({
                 // Começa sem resposta: o tipo do esquema (boolean) não mostra o undefined inicial.
                 const resposta = field.value as boolean | undefined;
                 return (
-                  <Grupo
+                  <GrupoEscolha
                     rotulo="Você tem espaço adequado para o animal?"
                     ajuda="Para cavalos e bois: pasto, baia ou propriedade rural."
                     erro={errors.possuiEspacoAdequado?.message}
                   >
-                    <View style={styles.simNao}>
+                    <View style={estiloChips.par}>
                       <Chip
                         rotulo="Sim"
                         expandir
@@ -160,7 +168,7 @@ function Formulario({
                         }}
                       />
                     </View>
-                  </Grupo>
+                  </GrupoEscolha>
                 );
               }}
             />
@@ -191,82 +199,8 @@ function Formulario({
   );
 }
 
-/** Grupo de escolha com rótulo e erro, como os campos do protótipo. */
-function Grupo({
-  rotulo,
-  ajuda,
-  erro,
-  children,
-}: {
-  readonly rotulo: string;
-  readonly ajuda?: string;
-  readonly erro: string | undefined;
-  readonly children: React.ReactNode;
-}) {
-  return (
-    <View style={styles.grupo} accessibilityRole="radiogroup" accessibilityLabel={rotulo}>
-      <Texto variante="label" cor={cores.tintaCorpo}>
-        {rotulo}
-      </Texto>
-      {ajuda ? (
-        <Texto variante="caption" cor={cores.tintaSuave}>
-          {ajuda}
-        </Texto>
-      ) : null}
-      {children}
-      {erro ? (
-        <Texto variante="caption" cor={cores.erroTexto} accessibilityRole="alert">
-          {erro}
-        </Texto>
-      ) : null}
-    </View>
-  );
-}
-
-function PedidoEnviado({ nome }: { readonly nome: string | null }) {
-  const router = useRouter();
-  return (
-    <TelaComVoltar
-      rodape={
-        <Button
-          titulo="Voltar para o início"
-          onPress={() => {
-            router.dismissTo('/inicio');
-          }}
-          larguraTotal
-        />
-      }
-    >
-      <View style={styles.enviado} accessibilityLiveRegion="polite">
-        <View style={styles.iconeSucesso}>
-          <CheckCircleIcon size={40} color={cores.sucessoTexto} weight="fill" />
-        </View>
-        <Texto variante="titulo" accessibilityRole="header">
-          Pedido enviado!
-        </Texto>
-        <Texto variante="body1" cor={cores.tintaCorpo}>
-          {nome ? `Obrigado por querer dar um lar para ${nome}. ` : 'Obrigado! '}A equipe vai
-          analisar com carinho e você recebe a resposta pelas notificações e por e-mail.
-        </Texto>
-      </View>
-    </TelaComVoltar>
-  );
-}
-
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   rolagem: { paddingBottom: espaco.xl },
   campos: { paddingHorizontal: MARGEM_TELA, paddingTop: espaco.xl, gap: 20 },
-  grupo: { gap: espaco.sm },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: espaco.sm },
-  simNao: { flexDirection: 'row', gap: espaco.md },
-  enviado: { paddingHorizontal: 28, paddingTop: 40, gap: espaco.lg },
-  iconeSucesso: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: cores.sucessoFundo,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });
