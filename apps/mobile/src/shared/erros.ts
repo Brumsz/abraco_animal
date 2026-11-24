@@ -4,6 +4,8 @@
  */
 import { ErroApi, ErroRede } from '@abraco/api-client';
 
+import { CONFIG } from '@/core/config';
+
 const MENSAGENS: Record<string, string> = {
   CREDENCIAIS_INVALIDAS: 'E-mail ou senha incorretos.',
   CONTA_DESATIVADA: 'Esta conta está desativada. Fale com a ONG pelo Instagram.',
@@ -14,7 +16,11 @@ const MENSAGENS: Record<string, string> = {
 };
 
 export function mensagemDeErro(erro: unknown): string {
-  if (erro instanceof ErroRede) return erro.message;
+  // Em desenvolvimento, diz qual endereço o app tentou: "localhost" no celular é o
+  // próprio celular, e isso é a causa mais comum (ver README, "Abrir o app no celular").
+  if (erro instanceof ErroRede) {
+    return __DEV__ ? `${erro.message} (API: ${CONFIG.apiUrl})` : erro.message;
+  }
   if (erro instanceof ErroApi) {
     if (erro.status === 429) {
       const minutos = erro.tentarEmSegundos ? Math.ceil(erro.tentarEmSegundos / 60) : null;

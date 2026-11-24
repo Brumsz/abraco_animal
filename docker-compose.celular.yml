@@ -1,0 +1,14 @@
+# Teste em celular físico (Expo Go) — SÓ PARA DESENVOLVIMENTO.
+#
+# O docker-compose.yml publica tudo em 127.0.0.1: o celular não alcança. Aqui o
+# S3 (fotos) passa a escutar na rede local, para as URLs assinadas abrirem no
+# celular. A API roda fora do Docker (pnpm dev), já escutando em 0.0.0.0.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.celular.yml up -d postgres redis s3 mailpit
+#
+# No .env: S3_ENDPOINT_PUBLICO=http://<IP do computador>:8333
+# Libere a porta 8333 no firewall SÓ para a rede local (ver README).
+services:
+  s3:
+    ports: !override
+      - '8333:8333'
