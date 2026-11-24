@@ -12,3 +12,8 @@ services:
   s3:
     ports: !override
       - '8333:8333'
+
+  # A API do Docker ocupa a porta 3333 só em 127.0.0.1 e impede o `pnpm dev` de
+  # escutar na rede. Com este arquivo ela só sobe se pedida pelo perfil.
+  api:
+    profiles: ['api-no-docker']

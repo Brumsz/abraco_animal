@@ -72,6 +72,8 @@ que o app tentou usar.
 - Se aparecer `localhost`, o terminal tem uma `EXPO_PUBLIC_API_URL` antiga, que vence o
   arquivo `.env`. Confira com `echo $env:EXPO_PUBLIC_API_URL` e abra um terminal novo (ou
   defina a variável antes do `start`).
+- Se o `pnpm dev` acusar porta 3333 em uso (`EADDRINUSE`), é a API do Docker ligada: rode
+  `docker compose stop api` e suba o `pnpm dev` de novo.
 - Se o endereço estiver certo, abra `http://<IP>:3333/health/ready` no navegador do celular.
   Se não abrir, o problema é a API parada, o firewall ou a rede (Wi-Fi de convidados isola os
   aparelhos).
