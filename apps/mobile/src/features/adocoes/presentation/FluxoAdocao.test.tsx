@@ -62,7 +62,9 @@ describe('Adotar (lista)', () => {
 
     await fireEvent.press(screen.getByRole('radio', { name: 'Caninos' }));
     expect(await screen.findByText('Pipoca')).toBeOnTheScreen();
-    expect(new URL(chamadas.at(-1)?.url ?? '').searchParams.get('tipo')).toBe('CANINO');
+    const busca = new URL(chamadas.at(-1)?.url ?? '').searchParams;
+    expect(busca.get('tipo')).toBe('CANINO');
+    expect(busca.get('status')).toBe('DISPONIVEL');
   });
 
   it('"Quero adotar" leva ao aviso; o cartão leva ao detalhe', async () => {

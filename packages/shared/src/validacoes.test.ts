@@ -5,6 +5,7 @@ import {
   idadeEmAnos,
   lerDataIso,
   maiorDeIdade,
+  problemaNome,
   problemaSenha,
   telefoneValido,
 } from './validacoes.js';
@@ -22,6 +23,13 @@ describe('validações compartilhadas (API e app)', () => {
     expect(telefoneValido('1134567890')).toBe(true);
     expect(telefoneValido('11887654321')).toBe(false);
     expect(telefoneValido('0934567890')).toBe(false);
+  });
+
+  it('nome: 3+ letras e nunca o e-mail (preenchimento automático do celular)', () => {
+    expect(problemaNome('Karina Somaggio')).toBeNull();
+    expect(problemaNome('  Jô  ')).toBe('Informe seu nome completo');
+    expect(problemaNome('12345')).toBe('Informe seu nome completo');
+    expect(problemaNome('karina@abraco.org')).toBe('Digite seu nome, não o e-mail');
   });
 
   it('senha: 8–128, com letra e número', () => {

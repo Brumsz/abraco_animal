@@ -2,7 +2,14 @@
  * Validação dos formulários de entrada (mensagens exibidas inline). As regras de
  * CPF, telefone, senha e idade vêm de @abraco/shared — as mesmas da API.
  */
-import { cpfValido, lerDataIso, maiorDeIdade, problemaSenha, telefoneValido } from '@abraco/shared';
+import {
+  cpfValido,
+  lerDataIso,
+  maiorDeIdade,
+  problemaNome,
+  problemaSenha,
+  telefoneValido,
+} from '@abraco/shared';
 import { z } from 'zod';
 
 import { dataParaIso, soDigitos } from './mascaras';
@@ -27,7 +34,14 @@ export type DadosLogin = z.infer<typeof esquemaLogin>;
 /** Cadastro, passo 1: dados pessoais (campos do protótipo). */
 export const esquemaCadastroPessoal = (hoje: Date = new Date()) =>
   z.object({
-    nome: z.string().trim().min(3, 'Informe seu nome completo').max(120, 'Nome muito longo'),
+    nome: z
+      .string()
+      .trim()
+      .max(120, 'Nome muito longo')
+      .superRefine((nome, ctx) => {
+        const problema = problemaNome(nome);
+        if (problema) ctx.addIssue({ code: 'custom', message: problema });
+      }),
     nascimento: z.string().superRefine((texto, ctx) => {
       const iso = dataParaIso(texto);
       const data = iso ? lerDataIso(iso) : null;

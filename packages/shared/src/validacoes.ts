@@ -30,6 +30,18 @@ export function telefoneValido(digitos: string): boolean {
 }
 
 /**
+ * Nome da pessoa: 3+ caracteres, com letras e SEM "@". O preenchimento
+ * automático do celular às vezes põe o e-mail no campo nome — e o app passa a
+ * saudar a pessoa pelo e-mail. Devolve a mensagem do problema ou `null`.
+ */
+export function problemaNome(nome: string): string | null {
+  const limpo = nome.trim().replace(/\s+/g, ' ');
+  if (limpo.length < 3 || !/\p{L}/u.test(limpo)) return 'Informe seu nome completo';
+  if (limpo.includes('@')) return 'Digite seu nome, não o e-mail';
+  return null;
+}
+
+/**
  * Política de senha (ASVS 2.1): 8–128 caracteres, com letra e número.
  * Devolve a mensagem do problema ou `null` se a senha é aceita.
  */

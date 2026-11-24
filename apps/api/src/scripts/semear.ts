@@ -6,7 +6,8 @@
  *   pnpm --filter @abraco/api semear
  *
  * Exige um admin (pnpm --filter @abraco/api criar-admin <e-mail>). Não roda se
- * já houver animais cadastrados — nunca mistura exemplos com dados reais.
+ * já houver animais cadastrados — nunca mistura exemplos com dados reais — a
+ * menos que se passe `--forcar` (banco de desenvolvimento com restos de testes).
  */
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -40,8 +41,13 @@ try {
   if (!admin) {
     falhar('Nenhum admin. Rode antes: pnpm --filter @abraco/api criar-admin <e-mail>');
     process.exitCode = 1;
-  } else if ((await prisma.animal.count({ where: { removidoEm: null } })) > 0) {
-    informar('Já existem animais cadastrados: nada a fazer.');
+  } else if (
+    !process.argv.includes('--forcar') &&
+    (await prisma.animal.count({ where: { removidoEm: null } })) > 0
+  ) {
+    informar(
+      'Já existem animais cadastrados: nada a fazer. Se forem só restos de testes, rode de novo com --forcar.',
+    );
   } else {
     const ator = { id: admin.publicId, role: 'ADMIN' as const };
     const imagens = new ProcessadorImagensSharp();

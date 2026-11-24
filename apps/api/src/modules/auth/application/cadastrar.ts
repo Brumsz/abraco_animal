@@ -1,3 +1,5 @@
+import { problemaNome } from '@abraco/shared';
+
 import { ErroDominio, erroValidacao } from '../../../shared/dominio/erros.js';
 import { Cpf } from '../../usuarios/domain/cpf.js';
 import { Email } from '../../usuarios/domain/email.js';
@@ -52,7 +54,8 @@ export class CadastrarUsuario {
     }
 
     const nome = entrada.nome.trim().replace(/\s+/g, ' ');
-    if (nome.length < 3) throw erroValidacao('NOME_INVALIDO', 'Informe o nome completo', 'nome');
+    const problema = problemaNome(nome);
+    if (problema) throw erroValidacao('NOME_INVALIDO', problema, 'nome');
     const email = Email.criar(entrada.email);
     const cpf = Cpf.criar(entrada.cpf);
     const telefone = Telefone.criar(entrada.telefone);

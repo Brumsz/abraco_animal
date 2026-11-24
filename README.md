@@ -64,6 +64,7 @@ pnpm --filter @abraco/mobile start --clear  # escaneie o QR code no Expo Go
 ```bash
 pnpm --filter @abraco/api criar-admin seu@email.com   # saia e entre de novo no app
 pnpm --filter @abraco/api semear                      # animais, posts e uma notícia
+# já tem animais de testes antigos? semear --forcar
 ```
 
 **"Não foi possível falar com o servidor"?** Em desenvolvimento a mensagem mostra o endereço

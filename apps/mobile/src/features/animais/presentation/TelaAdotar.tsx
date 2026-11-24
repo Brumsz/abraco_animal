@@ -28,7 +28,9 @@ export default function TelaAdotar() {
   const router = useRouter();
   const espacoBarra = useEspacoBarra();
   const [tipo, setTipo] = useState<Tipo | null>(null);
-  const consulta = useAnimais(tipo ? { tipo } : {});
+  // Só disponíveis: para o usuário a API já filtra; o admin (que vê todos os
+  // status) também precisa ver aqui só quem pode ser adotado.
+  const consulta = useAnimais(tipo ? { tipo, status: 'DISPONIVEL' } : { status: 'DISPONIVEL' });
   const animais = consulta.data?.pages.flatMap((p) => p.itens) ?? [];
 
   const abrir = (a: AnimalResumo) => {
