@@ -4255,10 +4255,89 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        senha: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         options?: never;
         head?: never;
-        patch?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        endereco?: {
+                            bairro: string;
+                            cep: string;
+                            cidade: string;
+                            complemento?: string | null;
+                            logradouro: string;
+                            numero: string;
+                            uf: string;
+                        };
+                        nome?: string;
+                        telefone?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            capaUrl: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            email: string;
+                            endereco: {
+                                bairro: string;
+                                cep: string;
+                                cidade: string;
+                                complemento: string | null;
+                                logradouro: string;
+                                numero: string;
+                                uf: string;
+                            };
+                            fotoUrl: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            nome: string;
+                            /** @enum {string} */
+                            role: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                            telefone: string;
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/v1/me/adocoes": {
@@ -4534,6 +4613,172 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/exportacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adocoes: {
+                                [key: string]: unknown;
+                            }[];
+                            apadrinhamentos: {
+                                [key: string]: unknown;
+                            }[];
+                            consentimentos: {
+                                /** Format: date-time */
+                                termosDeUsoEm: string;
+                                /** Format: date-time */
+                                tratamentoDeDadosEm: string;
+                            };
+                            doacoesAnimais: {
+                                [key: string]: unknown;
+                            }[];
+                            doacoesFinanceiras: {
+                                [key: string]: unknown;
+                            }[];
+                            /** Format: date-time */
+                            geradoEm: string;
+                            mensagensEnviadas: {
+                                [key: string]: unknown;
+                            }[];
+                            sessoes: {
+                                [key: string]: unknown;
+                            }[];
+                            titular: {
+                                cpf: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                dataNasc: string;
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                papel: string;
+                                telefone: string;
+                            };
+                            totalCurtidas: number;
+                            voluntariado: {
+                                [key: string]: unknown;
+                            } | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/resumo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adocoes: number;
+                            apadrinhados: number;
+                            doacoes: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/senha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        novaSenha: string;
+                        senhaAtual: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;

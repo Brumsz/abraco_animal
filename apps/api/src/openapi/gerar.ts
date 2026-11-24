@@ -38,6 +38,7 @@ const MODULOS = [
   'noticias',
   'admin',
   'notificacoes',
+  'conta',
 ] as const;
 
 /** Ordena as chaves para o arquivo gerado não mudar à toa (diff estável no CI). */
