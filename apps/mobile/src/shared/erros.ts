@@ -13,6 +13,12 @@ const MENSAGENS: Record<string, string> = {
   CADASTRO_DUPLICADO: 'Já existe uma conta com estes dados. Tente entrar ou recuperar a senha.',
   CODIGO_INVALIDO: 'Código incorreto ou expirado. Confira o e-mail ou peça um novo.',
   TOKEN_REDEFINICAO_INVALIDO: 'O prazo para trocar a senha acabou. Comece de novo.',
+  ADOCAO_PENDENTE_EXISTENTE:
+    'Você já tem um pedido de adoção em análise para este animal. Aguarde a resposta da equipe.',
+  ANIMAL_NAO_DISPONIVEL: 'Este animal não está mais disponível para adoção.',
+  JA_PADRINHO: 'Você já é padrinho deste animal. Obrigado!',
+  ANIMAL_NAO_APADRINHAVEL: 'Este animal não está recebendo padrinhos no momento.',
+  PSP_INDISPONIVEL: 'O Pix está fora do ar agora. Tente de novo em alguns minutos.',
 };
 
 export function mensagemDeErro(erro: unknown): string {

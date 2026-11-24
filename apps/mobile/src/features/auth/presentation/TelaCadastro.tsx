@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, CaixaSelecao, cores, espaco, Input, Texto } from '@abraco/ui';
+import { Button, CaixaSelecao, cores, espaco, Texto } from '@abraco/ui';
 import { useRouter } from 'expo-router';
 import {
   CalendarBlankIcon,
@@ -11,16 +11,11 @@ import {
   UserIcon,
 } from 'phosphor-react-native';
 import { useMemo, useState } from 'react';
-import {
-  Controller,
-  useForm,
-  type Control,
-  type FieldPath,
-  type FieldValues,
-} from 'react-hook-form';
-import { Pressable, StyleSheet, View, type TextInputProps } from 'react-native';
+import { Controller, useForm } from 'react-hook-form';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AvisoErro } from '@/shared/componentes/AvisoErro';
+import { CampoForm } from '@/shared/componentes/CampoForm';
 import { MolduraAuth } from '@/shared/componentes/MolduraAuth';
 import { aplicarErrosDeCampo, mensagemDeErro } from '@/shared/erros';
 
@@ -76,42 +71,6 @@ export default function TelaCadastro() {
       aoCorrigirPessoais={() => {
         setPasso(1);
       }}
-    />
-  );
-}
-
-function CampoForm<T extends FieldValues>({
-  control,
-  nome,
-  erro,
-  mascara,
-  ...props
-}: {
-  control: Control<T>;
-  nome: FieldPath<T>;
-  erro: string | undefined;
-  rotulo: string;
-  mascara?: (t: string) => string;
-  icone?: (cor: string) => React.ReactNode;
-  senha?: boolean;
-  rotuloOculto?: boolean;
-  ajuda?: string;
-} & Omit<TextInputProps, 'value' | 'onChangeText' | 'onBlur'>) {
-  return (
-    <Controller
-      control={control}
-      name={nome}
-      render={({ field: { onChange, onBlur, value } }) => (
-        <Input
-          {...props}
-          value={value}
-          onChangeText={(t) => {
-            onChange(mascara ? mascara(t) : t);
-          }}
-          onBlur={onBlur}
-          erro={erro}
-        />
-      )}
     />
   );
 }

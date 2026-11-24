@@ -25,6 +25,12 @@ export const ABAS: Record<string, { rotulo: string; Icone: Icon; destaque?: bool
 /** Altura ocupada pela barra (para as telas reservarem espaço no fim da rolagem). */
 export const ALTURA_BARRA = 72 + espaco.lg;
 
+/** Espaço no fim das telas com abas: a barra flutua sobre o conteúdo. */
+export function useEspacoBarra(): number {
+  const insets = useSafeAreaInsets();
+  return ALTURA_BARRA + Math.max(insets.bottom, espaco.lg) + espaco.lg;
+}
+
 /**
  * Barra inferior do protótipo: cartão branco flutuante (raio 28), item ativo com
  * pílula laranja-clara e o botão Doar elevado no centro. Abas escondidas no layout
