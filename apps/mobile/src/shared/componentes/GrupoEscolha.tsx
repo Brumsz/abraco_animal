@@ -2,20 +2,27 @@ import { cores, espaco, Texto } from '@abraco/ui';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-/** Grupo de chips (escolha única) com rótulo, ajuda e erro — como os campos do protótipo. */
+/** Grupo de chips (escolha única ou várias) com rótulo, ajuda e erro — como os campos do protótipo. */
 export function GrupoEscolha({
   rotulo,
   ajuda,
   erro,
+  multipla = false,
   children,
 }: {
   readonly rotulo: string;
   readonly ajuda?: string;
   readonly erro: string | undefined;
+  /** Várias escolhas (checkbox): o grupo não é anunciado como "radiogroup". */
+  readonly multipla?: boolean;
   readonly children: ReactNode;
 }) {
   return (
-    <View style={styles.grupo} accessibilityRole="radiogroup" accessibilityLabel={rotulo}>
+    <View
+      style={styles.grupo}
+      accessibilityRole={multipla ? undefined : 'radiogroup'}
+      accessibilityLabel={rotulo}
+    >
       <Texto variante="label" cor={cores.tintaCorpo}>
         {rotulo}
       </Texto>

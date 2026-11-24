@@ -5,6 +5,7 @@
 declare const process: {
   readonly env: {
     readonly EXPO_PUBLIC_API_URL?: string;
+    readonly EXPO_PUBLIC_INSTAGRAM_URL?: string;
   };
 };
 

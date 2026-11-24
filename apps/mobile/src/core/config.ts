@@ -13,8 +13,15 @@ if (!__DEV__ && !bruta.startsWith('https://')) {
   throw new Error('EXPO_PUBLIC_API_URL precisa ser https:// em produção');
 }
 
+/** Só aceita um perfil do Instagram (o botão abre fora do app). */
+export function urlInstagram(bruta: string | undefined): string | null {
+  const url = bruta?.trim() ?? '';
+  return /^https:\/\/(www\.)?instagram\.com\/[\w.]+\/?$/i.test(url) ? url : null;
+}
+
 export const CONFIG = {
   apiUrl: bruta,
   /** http → ws, https → wss */
   wsChatUrl: `${bruta.replace(/^http/, 'ws')}/v1/ws/chat`,
+  instagramUrl: urlInstagram(process.env.EXPO_PUBLIC_INSTAGRAM_URL),
 } as const;

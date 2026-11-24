@@ -1,4 +1,4 @@
-import { tempoRelativo } from './tempo';
+import { dataCurta, horaCurta, mesmoDia, rotuloDia, tempoRelativo } from './tempo';
 
 const agora = new Date('2026-11-24T15:00:00');
 const antes = (ms: number) => new Date(agora.getTime() - ms).toISOString();
@@ -24,5 +24,26 @@ describe('tempo relativo', () => {
     expect(tempoRelativo(new Date(agora.getTime() + HORA).toISOString(), agora)).toBe(
       'Agora há pouco',
     );
+  });
+});
+
+describe('datas do chat e do jornal', () => {
+  const local = (texto: string) => new Date(texto).toISOString();
+
+  it('dataCurta e horaCurta usam a hora local', () => {
+    expect(dataCurta(local('2024-03-06T09:05:00'))).toBe('06/03/2024');
+    expect(horaCurta(local('2026-11-24T08:07:00'))).toBe('08:07');
+  });
+
+  it('rotuloDia: Hoje, Ontem, data', () => {
+    expect(rotuloDia(local('2026-11-24T00:10:00'), agora)).toBe('Hoje');
+    expect(rotuloDia(local('2026-11-23T23:50:00'), agora)).toBe('Ontem');
+    expect(rotuloDia(local('2026-11-02T10:00:00'), agora)).toBe('2 de nov.');
+    expect(rotuloDia(local('2025-11-02T10:00:00'), agora)).toBe('2 de nov. de 2025');
+  });
+
+  it('mesmoDia compara o dia local', () => {
+    expect(mesmoDia(local('2026-11-24T00:01:00'), local('2026-11-24T23:59:00'))).toBe(true);
+    expect(mesmoDia(local('2026-11-23T23:59:00'), local('2026-11-24T00:01:00'))).toBe(false);
   });
 });

@@ -31,6 +31,7 @@ aoMudarSessao((e) => {
 /** Chaves de cache centralizadas (invalidação previsível). */
 export const chaves = {
   perfil: ['perfil'] as const,
+  resumoConta: ['perfil', 'resumo'] as const,
   animais: (filtros: object) => ['animais', 'lista', filtros] as const,
   animal: (id: string) => ['animais', 'detalhe', id] as const,
   padrinhos: (id: string) => ['animais', 'padrinhos', id] as const,

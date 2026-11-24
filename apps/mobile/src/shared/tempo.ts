@@ -29,3 +29,35 @@ export function tempoRelativo(iso: string, agora: Date = new Date()): string {
   const base = `${String(data.getDate())} de ${MESES[data.getMonth()] ?? ''}`;
   return mesmoAno ? base : `${base} de ${String(data.getFullYear())}`;
 }
+
+/** "12/03/2024" (data local) — Jornal e históricos. */
+export function dataCurta(iso: string): string {
+  const d = new Date(iso);
+  const dois = (n: number) => String(n).padStart(2, '0');
+  return `${dois(d.getDate())}/${dois(d.getMonth() + 1)}/${String(d.getFullYear())}`;
+}
+
+/** "10:42" (hora local) — mensagens do chat. */
+export function horaCurta(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+const inicioDoDia = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+/** Separador de dia do chat: "Hoje", "Ontem", "12 de nov." (ou com o ano). */
+export function rotuloDia(iso: string, agora: Date = new Date()): string {
+  const data = new Date(iso);
+  const dias = Math.round((inicioDoDia(agora) - inicioDoDia(data)) / 86_400_000);
+  if (dias === 0) return 'Hoje';
+  if (dias === 1) return 'Ontem';
+  const base = `${String(data.getDate())} de ${MESES[data.getMonth()] ?? ''}`;
+  return data.getFullYear() === agora.getFullYear()
+    ? base
+    : `${base} de ${String(data.getFullYear())}`;
+}
+
+/** Mesmo dia local? (separadores do chat) */
+export function mesmoDia(a: string, b: string): boolean {
+  return inicioDoDia(new Date(a)) === inicioDoDia(new Date(b));
+}
