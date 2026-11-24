@@ -13,3 +13,8 @@ declare module '*.png' {
   const recurso: number;
   export default recurso;
 }
+
+declare module '*.jpg' {
+  const recurso: number;
+  export default recurso;
+}

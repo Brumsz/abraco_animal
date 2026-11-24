@@ -73,7 +73,11 @@ try {
     }
     informar(`Posts: ${String(POSTS_EXEMPLO.length)}`);
 
-    const depsNoticias = { noticias: new PrismaRepositorioNoticias(prisma), armazenamento, imagens };
+    const depsNoticias = {
+      noticias: new PrismaRepositorioNoticias(prisma),
+      armazenamento,
+      imagens,
+    };
     const criarNoticia = new CriarNoticia(depsNoticias);
     const publicarNoticia = new PublicarNoticia(depsNoticias);
     for (const n of NOTICIAS_EXEMPLO) {
