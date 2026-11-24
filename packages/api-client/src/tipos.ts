@@ -22,6 +22,8 @@ export type Corpo<P extends keyof paths, M extends keyof paths[P]> = paths[P][M]
 
 export type Sessao = Resposta<'/v1/auth/login', 'post'>;
 export type UsuarioPerfil = Resposta<'/v1/me', 'get'>;
+export type ResumoConta = Resposta<'/v1/me/resumo', 'get'>;
+export type ExportacaoDados = Resposta<'/v1/me/exportacao', 'get'>;
 export type PaginaAnimais = Resposta<'/v1/animais', 'get'>;
 export type AnimalResumo = PaginaAnimais['itens'][number];
 export type AnimalDetalhe = Resposta<'/v1/animais/{id}', 'get'>;

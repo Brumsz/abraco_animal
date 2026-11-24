@@ -39,6 +39,15 @@ const SENSIVEIS = [
   'idempotencyKey',
 ];
 
+/**
+ * Única exceção, e só para CPF e nascimento: a exportação LGPD (art. 18, II)
+ * entrega à PRÓPRIA pessoa, autenticada, tudo o que a ONG guarda sobre ela.
+ * Qualquer outra rota com esses campos continua reprovando.
+ */
+const EXCECOES: Record<string, readonly string[]> = {
+  'GET /v1/me/exportacao': ['cpf', 'dataNasc'],
+};
+
 describe('OpenAPI gerado das rotas', () => {
   it('cobre todos os módulos e esconde o WebSocket (documentado à parte)', async () => {
     const doc = (await gerarOpenapi()) as Documento;
@@ -71,8 +80,9 @@ describe('OpenAPI gerado das rotas', () => {
       for (const [metodo, op] of Object.entries(metodos)) {
         for (const resposta of Object.values(op.responses ?? {})) {
           for (const nome of propriedades(resposta.content)) {
-            if (SENSIVEIS.includes(nome))
-              vazamentos.push(`${metodo.toUpperCase()} ${caminho}: ${nome}`);
+            const rota = `${metodo.toUpperCase()} ${caminho}`;
+            if (SENSIVEIS.includes(nome) && !EXCECOES[rota]?.includes(nome))
+              vazamentos.push(`${rota}: ${nome}`);
           }
         }
       }

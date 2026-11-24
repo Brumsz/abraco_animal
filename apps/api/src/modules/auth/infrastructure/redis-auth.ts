@@ -111,4 +111,13 @@ export const REGRAS = {
     maximo: 10,
     janelaSegundos: 3600,
   },
+  // Minha conta: trocar senha e excluir conta conferem a senha atual.
+  senhaContaPorUsuario: {
+    nome: 'senha-conta',
+    maximo: 5,
+    janelaSegundos: 15 * 60,
+    progressivo: true,
+  },
+  // Exportação LGPD: monta um arquivo grande; poucas por hora bastam.
+  exportacaoPorUsuario: { nome: 'exportacao', maximo: 5, janelaSegundos: 3600 },
 } as const satisfies Record<string, RegraLimite>;

@@ -26,6 +26,7 @@ import {
   comporNoticias,
   comporInstitucional,
   comporNotificacoes,
+  comporConta,
   comporPix,
   comporVoluntariado,
   verificacoesProntidao,
@@ -225,6 +226,7 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
         origensPermitidas: ['https://painel.abracoanimal.org.br'],
       }),
       notificacoes: comporNotificacoes(comOpcoes, auth.rotas.autenticacao),
+      conta: comporConta(comOpcoes, auth),
     });
     return app;
   };

@@ -115,6 +115,15 @@ import {
   SinalizarDigitando,
 } from './modules/chat/application/casos-de-uso.js';
 import type { DependenciasRotasChat } from './modules/chat/http/rotas.js';
+import {
+  AlterarSenha,
+  AtualizarPerfil,
+  ExcluirConta,
+  ExportarDados,
+  ObterResumoConta,
+} from './modules/conta/application/casos-de-uso.js';
+import type { DependenciasRotasConta } from './modules/conta/http/rotas.js';
+import { PrismaRepositorioConta } from './modules/conta/infrastructure/prisma-repositorio-conta.js';
 import type { DependenciasWebsocket } from './modules/chat/http/websocket.js';
 import type { BarramentoAssinavel } from './modules/chat/infrastructure/barramento.js';
 import { PrismaRepositorioChat } from './modules/chat/infrastructure/prisma-repositorio-chat.js';
@@ -593,6 +602,33 @@ export function comporNotificacoes(
     marcarLida: new MarcarNotificacaoLida(deps),
     marcarTodas: new MarcarTodasLidas(deps),
     autenticacao,
+  };
+}
+
+/** Minha conta: reaproveita as peças da autenticação (hasher, cifrador, revogação). */
+export function comporConta(
+  infra: Infra,
+  auth: Awaited<ReturnType<typeof comporAuth>>,
+): DependenciasRotasConta {
+  const deps = {
+    usuarios: new PrismaRepositorioUsuarios(infra.prisma),
+    conta: new PrismaRepositorioConta(infra.prisma),
+    hasher: hasherArgon2,
+    cifrador: auth.cifrador,
+    revogacao: auth.revogacao,
+    tokens: auth.tokens,
+    emails: infra.emails,
+    aleatorio: geradorCripto,
+    relogio: infra.relogio ?? relogioSistema,
+  };
+  return {
+    resumo: new ObterResumoConta(deps),
+    atualizarPerfil: new AtualizarPerfil(deps),
+    alterarSenha: new AlterarSenha(deps),
+    exportar: new ExportarDados(deps),
+    excluir: new ExcluirConta(deps),
+    limitador: new LimitadorTentativas(infra.redis),
+    autenticacao: auth.rotas.autenticacao,
   };
 }
 

@@ -9627,7 +9627,214 @@
       }
     },
     "/v1/me": {
+      "delete": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "senha": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "senha"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
       "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "capaUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "criadoEm": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "endereco": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "bairro": {
+                          "type": "string"
+                        },
+                        "cep": {
+                          "type": "string"
+                        },
+                        "cidade": {
+                          "type": "string"
+                        },
+                        "complemento": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "logradouro": {
+                          "type": "string"
+                        },
+                        "numero": {
+                          "type": "string"
+                        },
+                        "uf": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "cep",
+                        "logradouro",
+                        "numero",
+                        "complemento",
+                        "bairro",
+                        "cidade",
+                        "uf"
+                      ],
+                      "type": "object"
+                    },
+                    "fotoUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                      "type": "string"
+                    },
+                    "nome": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "enum": [
+                        "USUARIO",
+                        "VOLUNTARIO",
+                        "ADMIN"
+                      ],
+                      "type": "string"
+                    },
+                    "telefone": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nome",
+                    "email",
+                    "telefone",
+                    "endereco",
+                    "fotoUrl",
+                    "capaUrl",
+                    "role",
+                    "criadoEm"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "endereco": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "bairro": {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "cep": {
+                        "pattern": "^\\d{5}-?\\d{3}$",
+                        "type": "string"
+                      },
+                      "cidade": {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "complemento": {
+                        "anyOf": [
+                          {
+                            "maxLength": 100,
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "logradouro": {
+                        "maxLength": 200,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "numero": {
+                        "maxLength": 20,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "uf": {
+                        "pattern": "^[A-Za-z]{2}$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "cep",
+                      "logradouro",
+                      "numero",
+                      "bairro",
+                      "cidade",
+                      "uf"
+                    ],
+                    "type": "object"
+                  },
+                  "nome": {
+                    "maxLength": 120,
+                    "type": "string"
+                  },
+                  "telefone": {
+                    "maxLength": 20,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
@@ -10497,6 +10704,297 @@
                 }
               }
             },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/me/exportacao": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adocoes": {
+                      "items": {
+                        "additionalProperties": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "apadrinhamentos": {
+                      "items": {
+                        "additionalProperties": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "consentimentos": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "termosDeUsoEm": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "tratamentoDeDadosEm": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "termosDeUsoEm",
+                        "tratamentoDeDadosEm"
+                      ],
+                      "type": "object"
+                    },
+                    "doacoesAnimais": {
+                      "items": {
+                        "additionalProperties": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "doacoesFinanceiras": {
+                      "items": {
+                        "additionalProperties": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "geradoEm": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "mensagensEnviadas": {
+                      "items": {
+                        "additionalProperties": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "sessoes": {
+                      "items": {
+                        "additionalProperties": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "titular": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cpf": {
+                          "type": "string"
+                        },
+                        "criadoEm": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "dataNasc": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "endereco": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "bairro": {
+                              "type": "string"
+                            },
+                            "cep": {
+                              "type": "string"
+                            },
+                            "cidade": {
+                              "type": "string"
+                            },
+                            "complemento": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "logradouro": {
+                              "type": "string"
+                            },
+                            "numero": {
+                              "type": "string"
+                            },
+                            "uf": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "cep",
+                            "logradouro",
+                            "numero",
+                            "complemento",
+                            "bairro",
+                            "cidade",
+                            "uf"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                          "type": "string"
+                        },
+                        "nome": {
+                          "type": "string"
+                        },
+                        "papel": {
+                          "type": "string"
+                        },
+                        "telefone": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "nome",
+                        "email",
+                        "telefone",
+                        "cpf",
+                        "dataNasc",
+                        "endereco",
+                        "papel",
+                        "criadoEm"
+                      ],
+                      "type": "object"
+                    },
+                    "totalCurtidas": {
+                      "maximum": 9007199254740991,
+                      "minimum": -9007199254740991,
+                      "type": "integer"
+                    },
+                    "voluntariado": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": {},
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "geradoEm",
+                    "titular",
+                    "consentimentos",
+                    "adocoes",
+                    "doacoesAnimais",
+                    "doacoesFinanceiras",
+                    "apadrinhamentos",
+                    "voluntariado",
+                    "mensagensEnviadas",
+                    "totalCurtidas",
+                    "sessoes"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/me/resumo": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "adocoes": {
+                      "maximum": 9007199254740991,
+                      "minimum": -9007199254740991,
+                      "type": "integer"
+                    },
+                    "apadrinhados": {
+                      "maximum": 9007199254740991,
+                      "minimum": -9007199254740991,
+                      "type": "integer"
+                    },
+                    "doacoes": {
+                      "maximum": 9007199254740991,
+                      "minimum": -9007199254740991,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "adocoes",
+                    "doacoes",
+                    "apadrinhados"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/me/senha": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "novaSenha": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "senhaAtual": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "senhaAtual",
+                  "novaSenha"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
             "description": "Default Response"
           }
         }
