@@ -4,5215 +4,5136 @@
  */
 
 export interface paths {
-  '/health/live': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
+    "/health/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/health/ready': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
         };
-      };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/adocoes': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          status?: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-          animalId?: string;
-          de?: string;
-          ate?: string;
-          cursor?: string;
-          limite?: number;
+    "/health/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                analisadoEm: string | null;
-                animal: {
-                  fotoCapa: {
-                    /** Format: uuid */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/adocoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "PENDENTE" | "APROVADA" | "RECUSADA";
+                    animalId?: string;
+                    de?: string;
+                    ate?: string;
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                analisadoEm: string | null;
+                                animal: {
+                                    fotoCapa: {
+                                        /** Format: uuid */
+                                        id: string;
+                                        ordem: number;
+                                        /** Format: uri */
+                                        url: string;
+                                    } | null;
+                                    /** Format: uuid */
+                                    id: string;
+                                    idadeAprox: number;
+                                    nome: string;
+                                    /** @enum {string} */
+                                    porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                    raca: string;
+                                    /** @enum {string} */
+                                    sexo: "MACHO" | "FEMEA";
+                                    /** @enum {string} */
+                                    status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                    /** @enum {string} */
+                                    tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                                };
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                motivo: string;
+                                motivoRecusa: string | null;
+                                outrosAnimais: string | null;
+                                possuiEspacoAdequado: boolean;
+                                recusaAutomatica: boolean;
+                                /** @enum {string} */
+                                status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                                /** Format: date-time */
+                                termoAceitoEm: string;
+                                timeline: {
+                                    em: string | null;
+                                    /** @enum {string} */
+                                    etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                                }[];
+                                /** @enum {string} */
+                                tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/adocoes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
                     id: string;
-                    ordem: number;
-                    /** Format: uri */
-                    url: string;
-                  } | null;
-                  /** Format: uuid */
-                  id: string;
-                  idadeAprox: number;
-                  nome: string;
-                  /** @enum {string} */
-                  porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                  raca: string;
-                  /** @enum {string} */
-                  sexo: 'MACHO' | 'FEMEA';
-                  /** @enum {string} */
-                  status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                  /** @enum {string} */
-                  tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
                 };
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                motivo: string;
-                motivoRecusa: string | null;
-                outrosAnimais: string | null;
-                possuiEspacoAdequado: boolean;
-                recusaAutomatica: boolean;
-                /** @enum {string} */
-                status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-                /** Format: date-time */
-                termoAceitoEm: string;
-                timeline: {
-                  em: string | null;
-                  /** @enum {string} */
-                  etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-                }[];
-                /** @enum {string} */
-                tipoMoradia:
-                  'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-              }[];
-              proximoCursor: string | null;
+                cookie?: never;
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/adocoes/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              motivo: string;
-              motivoRecusa: string | null;
-              outrosAnimais: string | null;
-              possuiEspacoAdequado: boolean;
-              recusaAutomatica: boolean;
-              solicitante: {
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            motivo: string;
+                            motivoRecusa: string | null;
+                            outrosAnimais: string | null;
+                            possuiEspacoAdequado: boolean;
+                            recusaAutomatica: boolean;
+                            solicitante: {
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                            /** Format: date-time */
+                            termoAceitoEm: string;
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                        };
+                    };
                 };
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-              /** Format: date-time */
-              termoAceitoEm: string;
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipoMoradia:
-                'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
             };
-          };
         };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/adocoes/{id}/aprovar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              motivo: string;
-              motivoRecusa: string | null;
-              outrosAnimais: string | null;
-              possuiEspacoAdequado: boolean;
-              recusaAutomatica: boolean;
-              solicitante: {
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-              /** Format: date-time */
-              termoAceitoEm: string;
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipoMoradia:
-                'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/adocoes/{id}/recusar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            motivoRecusa: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              motivo: string;
-              motivoRecusa: string | null;
-              outrosAnimais: string | null;
-              possuiEspacoAdequado: boolean;
-              recusaAutomatica: boolean;
-              solicitante: {
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-              /** Format: date-time */
-              termoAceitoEm: string;
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipoMoradia:
-                'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/animais': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** @default false */
-            castrado?: boolean;
-            descricao: string;
-            historiaResgate: string;
-            idadeAprox: number;
-            nome: string;
-            /** @enum {string} */
-            porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-            raca: string;
-            /** @enum {string} */
-            sexo: 'MACHO' | 'FEMEA';
-            /** @enum {string} */
-            status?: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-            /** @enum {string} */
-            tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            /** @default false */
-            vacinado?: boolean;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              castrado: boolean;
-              descricao: string;
-              fotoCapa: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              } | null;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              historiaResgate: string;
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              nome: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              totalPadrinhos: number;
-              vacinado: boolean;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/animais/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** @default false */
-            castrado?: boolean;
-            descricao: string;
-            historiaResgate: string;
-            idadeAprox: number;
-            nome: string;
-            /** @enum {string} */
-            porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-            raca: string;
-            /** @enum {string} */
-            sexo: 'MACHO' | 'FEMEA';
-            /** @enum {string} */
-            tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            /** @default false */
-            vacinado?: boolean;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              castrado: boolean;
-              descricao: string;
-              fotoCapa: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              } | null;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              historiaResgate: string;
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              nome: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              totalPadrinhos: number;
-              vacinado: boolean;
-            };
-          };
-        };
-      };
-    };
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/animais/{id}/fotos': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            ids: string[];
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: uuid */
-              id: string;
-              ordem: number;
-              /** Format: uri */
-              url: string;
-            }[];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/animais/{id}/fotos/{fotoId}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-          fotoId: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/animais/{id}/status': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** @enum {string} */
-            status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              castrado: boolean;
-              descricao: string;
-              fotoCapa: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              } | null;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              historiaResgate: string;
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              nome: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              totalPadrinhos: number;
-              vacinado: boolean;
-            };
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  '/v1/admin/auditoria': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          adminId?: string;
-          entidade?: string;
-          acao?: string;
-          de?: string;
-          ate?: string;
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                acao: string;
-                admin: {
-                  /** Format: uuid */
-                  id: string;
-                  nome: string;
-                };
-                /** Format: date-time */
-                criadoEm: string;
-                detalhe: unknown;
-                entidade: string;
-                entidadeId: string;
-                /** Format: uuid */
-                id: string;
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/conversas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          status?: 'ABERTA' | 'ENCERRADA';
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                assunto: string | null;
-                atendente: string | null;
-                /** Format: date-time */
-                atualizadoEm: string;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                naoLidas: number;
-                /** @enum {string} */
-                status: 'ABERTA' | 'ENCERRADA';
-                ultimaMensagem: {
-                  autorEhEquipe: boolean;
-                  conteudo: string;
-                  /** Format: date-time */
-                  criadoEm: string;
-                  /** Format: uuid */
-                  id: string;
-                  lida: boolean;
-                  lidaEm: string | null;
-                } | null;
-                usuario?: {
-                  /** Format: uuid */
-                  id: string;
-                  nome: string;
-                };
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/conversas/{id}/assumir': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/conversas/{id}/encerrar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/dashboard': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              adocoesPendentes: number;
-              adocoesPorMes: {
-                mes: string;
-                total: number;
-              }[];
-              animaisDisponiveis: number;
-              doacoesAnimaisPendentes: number;
-              doacoesFinanceirasMes: {
-                quantidade: number;
-                total: string;
-              };
-              ultimasPendencias: {
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                /** @enum {string} */
-                tipo: 'ADOCAO' | 'DOACAO_ANIMAL' | 'CANDIDATURA_VOLUNTARIO';
-                titulo: string;
-              }[];
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/doacoes-animais': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          status?: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-          de?: string;
-          ate?: string;
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                analisadoEm: string | null;
-                animalCriadoId: string | null;
-                /** Format: date-time */
-                criadoEm: string;
-                descricao: string;
-                enderecoRetirada: string;
-                fotos: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                }[];
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                motivoDoacao: string;
-                motivoRecusa: string | null;
-                nomeAnimal: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                recebidoEm: string | null;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-                timeline: {
-                  em: string | null;
-                  /** @enum {string} */
-                  etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-                }[];
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/doacoes-animais/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animalCriadoId: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              descricao: string;
-              doador: {
-                email: string;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              enderecoRetirada: string;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              motivoDoacao: string;
-              motivoRecusa: string | null;
-              nomeAnimal: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              recebidoEm: string | null;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/doacoes-animais/{id}/aprovar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animalCriadoId: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              descricao: string;
-              doador: {
-                email: string;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              enderecoRetirada: string;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              motivoDoacao: string;
-              motivoRecusa: string | null;
-              nomeAnimal: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              recebidoEm: string | null;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/doacoes-animais/{id}/receber': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animalCriadoId: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              descricao: string;
-              doador: {
-                email: string;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              enderecoRetirada: string;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              motivoDoacao: string;
-              motivoRecusa: string | null;
-              nomeAnimal: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              recebidoEm: string | null;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/doacoes-animais/{id}/recusar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            motivoRecusa: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              analisadoPor: string | null;
-              animalCriadoId: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              descricao: string;
-              doador: {
-                email: string;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              } | null;
-              enderecoRetirada: string;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              motivoDoacao: string;
-              motivoRecusa: string | null;
-              nomeAnimal: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              recebidoEm: string | null;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/faq': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: uuid */
-              id: string;
-              ordem: number;
-              pergunta: string;
-              publicado: boolean;
-              resposta: string;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            pergunta: string;
-            publicado?: boolean;
-            resposta: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: uuid */
-              id: string;
-              ordem: number;
-              pergunta: string;
-              publicado: boolean;
-              resposta: string;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/faq/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            pergunta: string;
-            publicado?: boolean;
-            resposta: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: uuid */
-              id: string;
-              ordem: number;
-              pergunta: string;
-              publicado: boolean;
-              resposta: string;
-            };
-          };
-        };
-      };
-    };
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/faq/ordem': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            ids: string[];
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/noticias': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          publicado?: 'true' | 'false';
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                /** Format: date-time */
-                atualizadoEm: string;
-                conteudo?: string;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                imagem: string | null;
-                publicado: boolean;
-                resumo: string;
-                slug: string;
-                titulo: string;
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            conteudo: string;
-            resumo: string;
-            slug?: string;
-            titulo: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo?: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              imagem: string | null;
-              publicado: boolean;
-              resumo: string;
-              slug: string;
-              titulo: string;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/noticias/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo?: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              imagem: string | null;
-              publicado: boolean;
-              resumo: string;
-              slug: string;
-              titulo: string;
-            };
-          };
-        };
-      };
-    };
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            conteudo: string;
-            resumo: string;
-            slug?: string;
-            titulo: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo?: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              imagem: string | null;
-              publicado: boolean;
-              resumo: string;
-              slug: string;
-              titulo: string;
-            };
-          };
-        };
-      };
-    };
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/noticias/{id}/imagem': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo?: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              imagem: string | null;
-              publicado: boolean;
-              resumo: string;
-              slug: string;
-              titulo: string;
-            };
-          };
-        };
-      };
-    };
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo?: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              imagem: string | null;
-              publicado: boolean;
-              resumo: string;
-              slug: string;
-              titulo: string;
-            };
-          };
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/noticias/{id}/publicacao': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            publicado: boolean;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/perfil-ong': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo: string;
-              publicado: boolean;
-              /** @enum {string} */
-              secao: 'SOBRE_NOS' | 'FUNDACAO' | 'FUNDADORES';
-              titulo: string;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/perfil-ong/{secao}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          secao: 'SOBRE_NOS' | 'FUNDACAO' | 'FUNDADORES';
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            conteudo: string;
-            publicado?: boolean;
-            titulo: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo: string;
-              publicado: boolean;
-              /** @enum {string} */
-              secao: 'SOBRE_NOS' | 'FUNDACAO' | 'FUNDADORES';
-              titulo: string;
-            };
-          };
-        };
-      };
-    };
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/posts': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                /** Format: date-time */
-                criadoEm: string;
-                curtidoPorMim: boolean;
-                /** Format: uuid */
-                id: string;
-                imagens: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                }[];
-                legenda: string;
-                publicado?: boolean;
-                totalCurtidas: number;
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              criadoEm: string;
-              curtidoPorMim: boolean;
-              /** Format: uuid */
-              id: string;
-              imagens: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              legenda: string;
-              publicado?: boolean;
-              totalCurtidas: number;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/posts/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            legenda: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              criadoEm: string;
-              curtidoPorMim: boolean;
-              /** Format: uuid */
-              id: string;
-              imagens: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              legenda: string;
-              publicado?: boolean;
-              totalCurtidas: number;
-            };
-          };
-        };
-      };
-    };
-    trace?: never;
-  };
-  '/v1/admin/posts/{id}/publicacao': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            publicado: boolean;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/usuarios': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          role?: 'USUARIO' | 'VOLUNTARIO' | 'ADMIN';
-          q?: string;
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                ativo: boolean;
-                cidade: string;
-                /** Format: date-time */
-                criadoEm: string;
-                email: string;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                /** @enum {string} */
-                role: 'USUARIO' | 'VOLUNTARIO' | 'ADMIN';
-                telefone: string;
-                uf: string;
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/usuarios/{id}/ativo': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            ativo: boolean;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    trace?: never;
-  };
-  '/v1/admin/usuarios/{id}/role': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** @enum {string} */
-            role: 'USUARIO' | 'VOLUNTARIO';
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    trace?: never;
-  };
-  '/v1/admin/voluntarios': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          status?: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                analisadoEm: string | null;
-                areaInteresseOutros: string | null;
-                areasInteresse: (
-                  | 'CUIDADO_ANIMAIS'
-                  | 'EVENTOS'
-                  | 'REDES_SOCIAIS'
-                  | 'TRANSPORTE'
-                  | 'CAPTACAO_RECURSOS'
-                  | 'OUTROS'
-                )[];
-                candidato: {
-                  email: string;
-                  endereco: {
-                    bairro: string;
-                    cep: string;
-                    cidade: string;
-                    complemento: string | null;
-                    logradouro: string;
-                    numero: string;
-                    uf: string;
-                  };
-                  /** Format: uuid */
-                  id: string;
-                  nome: string;
-                  telefone: string;
-                };
-                cargo: string | null;
-                /** Format: date-time */
-                criadoEm: string;
-                disponibilidadeDias: (
-                  'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-                )[];
-                habilidades: string | null;
-                /** Format: uuid */
-                id: string;
-                motivacao: string;
-                motivoRecusa: string | null;
-                /** @enum {string} */
-                status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-                turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/voluntarios/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              areaInteresseOutros: string | null;
-              areasInteresse: (
-                | 'CUIDADO_ANIMAIS'
-                | 'EVENTOS'
-                | 'REDES_SOCIAIS'
-                | 'TRANSPORTE'
-                | 'CAPTACAO_RECURSOS'
-                | 'OUTROS'
-              )[];
-              candidato: {
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              };
-              cargo: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              disponibilidadeDias: (
-                'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-              )[];
-              habilidades: string | null;
-              /** Format: uuid */
-              id: string;
-              motivacao: string;
-              motivoRecusa: string | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-              turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/voluntarios/{id}/aprovar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            cargo?: string | null;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              areaInteresseOutros: string | null;
-              areasInteresse: (
-                | 'CUIDADO_ANIMAIS'
-                | 'EVENTOS'
-                | 'REDES_SOCIAIS'
-                | 'TRANSPORTE'
-                | 'CAPTACAO_RECURSOS'
-                | 'OUTROS'
-              )[];
-              candidato: {
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              };
-              cargo: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              disponibilidadeDias: (
-                'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-              )[];
-              habilidades: string | null;
-              /** Format: uuid */
-              id: string;
-              motivacao: string;
-              motivoRecusa: string | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-              turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/admin/voluntarios/{id}/recusar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            motivoRecusa: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              areaInteresseOutros: string | null;
-              areasInteresse: (
-                | 'CUIDADO_ANIMAIS'
-                | 'EVENTOS'
-                | 'REDES_SOCIAIS'
-                | 'TRANSPORTE'
-                | 'CAPTACAO_RECURSOS'
-                | 'OUTROS'
-              )[];
-              candidato: {
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                telefone: string;
-              };
-              cargo: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              disponibilidadeDias: (
-                'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-              )[];
-              habilidades: string | null;
-              /** Format: uuid */
-              id: string;
-              motivacao: string;
-              motivoRecusa: string | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-              turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/adocoes': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            aceitouTermo: boolean;
-            /** Format: uuid */
-            animalId: string;
-            motivo: string;
-            outrosAnimais?: string | null;
-            possuiEspacoAdequado: boolean;
-            /** @enum {string} */
-            tipoMoradia:
-              'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              motivo: string;
-              motivoRecusa: string | null;
-              outrosAnimais: string | null;
-              possuiEspacoAdequado: boolean;
-              recusaAutomatica: boolean;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-              /** Format: date-time */
-              termoAceitoEm: string;
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipoMoradia:
-                'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/adocoes/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              motivo: string;
-              motivoRecusa: string | null;
-              outrosAnimais: string | null;
-              possuiEspacoAdequado: boolean;
-              recusaAutomatica: boolean;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-              /** Format: date-time */
-              termoAceitoEm: string;
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipoMoradia:
-                'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/animais': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          q?: string;
-          tipo?: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-          porte?: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-          sexo?: 'MACHO' | 'FEMEA';
-          status?: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/animais/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              castrado: boolean;
-              descricao: string;
-              fotoCapa: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              } | null;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              historiaResgate: string;
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              nome: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              totalPadrinhos: number;
-              vacinado: boolean;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/animais/{id}/padrinhos': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              fotoUrl: string | null;
-              mensagemPadrinho: string | null;
-              nome: string;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/apadrinhamentos': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** Format: uuid */
-            animalId: string;
-            mensagemPadrinho?: string | null;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              ativo: boolean;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              mensagemPadrinho: string | null;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/apadrinhamentos/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/cadastro': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            aceitouTermos: boolean;
-            consentimentoDados: boolean;
-            cpf: string;
-            dataNasc: string;
-            deviceId: string;
-            email: string;
-            endereco: {
-              bairro: string;
-              cep: string;
-              cidade: string;
-              complemento?: string | null;
-              logradouro: string;
-              numero: string;
-              uf: string;
-            };
-            nome: string;
-            senha: string;
-            telefone: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              accessToken: string;
-              /** Format: date-time */
-              expiraEm: string;
-              refreshToken: string;
-              usuario: {
-                capaUrl: string | null;
-                /** Format: date-time */
-                criadoEm: string;
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                fotoUrl: string | null;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                /** @enum {string} */
-                role: 'USUARIO' | 'VOLUNTARIO' | 'ADMIN';
-                telefone: string;
-              };
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/login': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            deviceId: string;
-            email: string;
-            senha: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              accessToken: string;
-              /** Format: date-time */
-              expiraEm: string;
-              refreshToken: string;
-              usuario: {
-                capaUrl: string | null;
-                /** Format: date-time */
-                criadoEm: string;
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                fotoUrl: string | null;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                /** @enum {string} */
-                role: 'USUARIO' | 'VOLUNTARIO' | 'ADMIN';
-                telefone: string;
-              };
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/logout': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/recuperar-senha/redefinir': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            novaSenha: string;
-            tokenRedefinicao: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/recuperar-senha/solicitar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            email: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/recuperar-senha/verificar-codigo': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            codigo: string;
-            email: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              tokenRedefinicao: string;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/auth/refresh': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            deviceId: string;
-            refreshToken: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              accessToken: string;
-              /** Format: date-time */
-              expiraEm: string;
-              refreshToken: string;
-              usuario: {
-                capaUrl: string | null;
-                /** Format: date-time */
-                criadoEm: string;
-                email: string;
-                endereco: {
-                  bairro: string;
-                  cep: string;
-                  cidade: string;
-                  complemento: string | null;
-                  logradouro: string;
-                  numero: string;
-                  uf: string;
-                };
-                fotoUrl: string | null;
-                /** Format: uuid */
-                id: string;
-                nome: string;
-                /** @enum {string} */
-                role: 'USUARIO' | 'VOLUNTARIO' | 'ADMIN';
-                telefone: string;
-              };
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/conversas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              assunto: string | null;
-              atendente: string | null;
-              /** Format: date-time */
-              atualizadoEm: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              naoLidas: number;
-              /** @enum {string} */
-              status: 'ABERTA' | 'ENCERRADA';
-              ultimaMensagem: {
-                autorEhEquipe: boolean;
-                conteudo: string;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                lida: boolean;
-                lidaEm: string | null;
-              } | null;
-              usuario?: {
-                /** Format: uuid */
-                id: string;
-                nome: string;
-              };
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            assunto?: string | null;
-            mensagem: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              assunto: string | null;
-              atendente: string | null;
-              /** Format: date-time */
-              atualizadoEm: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              naoLidas: number;
-              /** @enum {string} */
-              status: 'ABERTA' | 'ENCERRADA';
-              ultimaMensagem: {
-                autorEhEquipe: boolean;
-                conteudo: string;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                lida: boolean;
-                lidaEm: string | null;
-              } | null;
-              usuario?: {
-                /** Format: uuid */
-                id: string;
-                nome: string;
-              };
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/conversas/{id}/lidas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** Format: uuid */
-            ateMensagemId: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/conversas/{id}/mensagens': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                autorEhEquipe: boolean;
-                conteudo: string;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                lida: boolean;
-                lidaEm: string | null;
-              }[];
-              proximoCursor: string | null;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            conteudo: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              autorEhEquipe: boolean;
-              conteudo: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              lida: boolean;
-              lidaEm: string | null;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/dev/pix/{id}/pagar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/doacoes-animais': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              animalCriadoId: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              descricao: string;
-              enderecoRetirada: string;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              motivoDoacao: string;
-              motivoRecusa: string | null;
-              nomeAnimal: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              recebidoEm: string | null;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/doacoes-animais/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              animalCriadoId: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              descricao: string;
-              enderecoRetirada: string;
-              fotos: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              /** Format: uuid */
-              id: string;
-              idadeAprox: number;
-              motivoDoacao: string;
-              motivoRecusa: string | null;
-              nomeAnimal: string;
-              /** @enum {string} */
-              porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-              raca: string;
-              recebidoEm: string | null;
-              /** @enum {string} */
-              sexo: 'MACHO' | 'FEMEA';
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-              timeline: {
-                em: string | null;
-                /** @enum {string} */
-                etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-              }[];
-              /** @enum {string} */
-              tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/doacoes-financeiras': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header: {
-          'idempotency-key': string;
-        };
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            /** @default false */
-            anonima?: boolean;
-            emailDoador?: string;
-            nomeDoador?: string;
-            valor: string;
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              anonima: boolean;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: date-time */
-              expiresAt: string;
-              /** Format: uuid */
-              id: string;
-              paidAt: string | null;
-              pixCopiaCola: string;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'CONFIRMADA' | 'EXPIRADA';
-              valor: string;
-            };
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/doacoes-financeiras/{id}/status': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: uuid */
-              id: string;
-              paidAt: string | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'CONFIRMADA' | 'EXPIRADA';
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/institucional/faq': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: uuid */
-              id: string;
-              ordem: number;
-              pergunta: string;
-              publicado: boolean;
-              resposta: string;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/institucional/perfil': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo: string;
-              publicado: boolean;
-              /** @enum {string} */
-              secao: 'SOBRE_NOS' | 'FUNDACAO' | 'FUNDADORES';
-              titulo: string;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/me': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              capaUrl: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              email: string;
-              endereco: {
-                bairro: string;
-                cep: string;
-                cidade: string;
-                complemento: string | null;
-                logradouro: string;
-                numero: string;
-                uf: string;
-              };
-              fotoUrl: string | null;
-              /** Format: uuid */
-              id: string;
-              nome: string;
-              /** @enum {string} */
-              role: 'USUARIO' | 'VOLUNTARIO' | 'ADMIN';
-              telefone: string;
-            };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/me/adocoes': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                analisadoEm: string | null;
-                animal: {
-                  fotoCapa: {
-                    /** Format: uuid */
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/adocoes/{id}/aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
                     id: string;
-                    ordem: number;
-                    /** Format: uri */
-                    url: string;
-                  } | null;
-                  /** Format: uuid */
-                  id: string;
-                  idadeAprox: number;
-                  nome: string;
-                  /** @enum {string} */
-                  porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                  raca: string;
-                  /** @enum {string} */
-                  sexo: 'MACHO' | 'FEMEA';
-                  /** @enum {string} */
-                  status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                  /** @enum {string} */
-                  tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
                 };
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                motivo: string;
-                motivoRecusa: string | null;
-                outrosAnimais: string | null;
-                possuiEspacoAdequado: boolean;
-                recusaAutomatica: boolean;
-                /** @enum {string} */
-                status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
-                /** Format: date-time */
-                termoAceitoEm: string;
-                timeline: {
-                  em: string | null;
-                  /** @enum {string} */
-                  etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECUSADA';
-                }[];
-                /** @enum {string} */
-                tipoMoradia:
-                  'CASA_COM_QUINTAL' | 'CASA_SEM_QUINTAL' | 'APARTAMENTO' | 'CHACARA' | 'FAZENDA';
-              }[];
-              proximoCursor: string | null;
+                cookie?: never;
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/me/apadrinhamentos': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              animal: {
-                fotoCapa: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                } | null;
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                nome: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'DISPONIVEL' | 'EM_TRATAMENTO' | 'ADOTADO' | 'INDISPONIVEL';
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              };
-              ativo: boolean;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              mensagemPadrinho: string | null;
-            }[];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/me/doacoes-animais': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                analisadoEm: string | null;
-                animalCriadoId: string | null;
-                /** Format: date-time */
-                criadoEm: string;
-                descricao: string;
-                enderecoRetirada: string;
-                fotos: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                }[];
-                /** Format: uuid */
-                id: string;
-                idadeAprox: number;
-                motivoDoacao: string;
-                motivoRecusa: string | null;
-                nomeAnimal: string;
-                /** @enum {string} */
-                porte: 'PEQUENO' | 'MEDIO' | 'GRANDE' | 'MUITO_GRANDE';
-                raca: string;
-                recebidoEm: string | null;
-                /** @enum {string} */
-                sexo: 'MACHO' | 'FEMEA';
-                /** @enum {string} */
-                status: 'PENDENTE' | 'APROVADA' | 'RECUSADA' | 'RECEBIDA';
-                timeline: {
-                  em: string | null;
-                  /** @enum {string} */
-                  etapa: 'ENVIADA' | 'EM_ANALISE' | 'APROVADA' | 'RECEBIDA' | 'RECUSADA';
-                }[];
-                /** @enum {string} */
-                tipo: 'EQUINO' | 'CANINO' | 'BOVINO' | 'OUTRO';
-              }[];
-              proximoCursor: string | null;
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            motivo: string;
+                            motivoRecusa: string | null;
+                            outrosAnimais: string | null;
+                            possuiEspacoAdequado: boolean;
+                            recusaAutomatica: boolean;
+                            solicitante: {
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                            /** Format: date-time */
+                            termoAceitoEm: string;
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                        };
+                    };
+                };
             };
-          };
         };
-      };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/me/doacoes-financeiras': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
+    "/v1/admin/adocoes/{id}/recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                anonima: boolean;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: date-time */
-                expiresAt: string;
-                /** Format: uuid */
-                id: string;
-                paidAt: string | null;
-                pixCopiaCola: string;
-                /** @enum {string} */
-                status: 'PENDENTE' | 'CONFIRMADA' | 'EXPIRADA';
-                valor: string;
-              }[];
-              proximoCursor: string | null;
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/me/voluntariado': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              areaInteresseOutros: string | null;
-              areasInteresse: (
-                | 'CUIDADO_ANIMAIS'
-                | 'EVENTOS'
-                | 'REDES_SOCIAIS'
-                | 'TRANSPORTE'
-                | 'CAPTACAO_RECURSOS'
-                | 'OUTROS'
-              )[];
-              cargo: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              disponibilidadeDias: (
-                'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-              )[];
-              habilidades: string | null;
-              /** Format: uuid */
-              id: string;
-              motivacao: string;
-              motivoRecusa: string | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-              turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
+            requestBody: {
+                content: {
+                    "application/json": {
+                        motivoRecusa: string;
+                    };
+                };
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/noticias': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                /** Format: date-time */
-                atualizadoEm: string;
-                conteudo?: string;
-                /** Format: date-time */
-                criadoEm: string;
-                /** Format: uuid */
-                id: string;
-                imagem: string | null;
-                publicado: boolean;
-                resumo: string;
-                slug: string;
-                titulo: string;
-              }[];
-              proximoCursor: string | null;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            motivo: string;
+                            motivoRecusa: string | null;
+                            outrosAnimais: string | null;
+                            possuiEspacoAdequado: boolean;
+                            recusaAutomatica: boolean;
+                            solicitante: {
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                            /** Format: date-time */
+                            termoAceitoEm: string;
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                        };
+                    };
+                };
             };
-          };
         };
-      };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/noticias/{slug}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          slug: string;
+    "/v1/admin/animais": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              atualizadoEm: string;
-              conteudo?: string;
-              /** Format: date-time */
-              criadoEm: string;
-              /** Format: uuid */
-              id: string;
-              imagem: string | null;
-              publicado: boolean;
-              resumo: string;
-              slug: string;
-              titulo: string;
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/notificacoes': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
-        };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                corpo: string;
-                /** Format: date-time */
-                criadoEm: string;
-                entidadeId: string | null;
-                /** Format: uuid */
-                id: string;
-                lidaEm: string | null;
-                /** @enum {string} */
-                tipo:
-                  | 'ADOCAO_APROVADA'
-                  | 'ADOCAO_RECUSADA'
-                  | 'ADOCAO_ANIMAL_ADOTADO'
-                  | 'DOACAO_ANIMAL_ATUALIZADA'
-                  | 'DOACAO_FINANCEIRA_CONFIRMADA'
-                  | 'VOLUNTARIADO_ATUALIZADO'
-                  | 'CHAT_NOVA_MENSAGEM'
-                  | 'GERAL';
-                titulo: string;
-              }[];
-              proximoCursor: string | null;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default false */
+                        castrado?: boolean;
+                        descricao: string;
+                        historiaResgate: string;
+                        idadeAprox: number;
+                        nome: string;
+                        /** @enum {string} */
+                        porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                        raca: string;
+                        /** @enum {string} */
+                        sexo: "MACHO" | "FEMEA";
+                        /** @enum {string} */
+                        status?: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                        /** @enum {string} */
+                        tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        /** @default false */
+                        vacinado?: boolean;
+                    };
+                };
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/notificacoes/{id}/lida': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/notificacoes/lidas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/notificacoes/nao-lidas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              total: number;
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            castrado: boolean;
+                            descricao: string;
+                            fotoCapa: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            } | null;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            historiaResgate: string;
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            nome: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            totalPadrinhos: number;
+                            vacinado: boolean;
+                        };
+                    };
+                };
             };
-          };
         };
-      };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/posts': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: {
-          cursor?: string;
-          limite?: number;
+    "/v1/admin/animais/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              itens: {
-                /** Format: date-time */
-                criadoEm: string;
-                curtidoPorMim: boolean;
-                /** Format: uuid */
-                id: string;
-                imagens: {
-                  /** Format: uuid */
-                  id: string;
-                  ordem: number;
-                  /** Format: uri */
-                  url: string;
-                }[];
-                legenda: string;
-                publicado?: boolean;
-                totalCurtidas: number;
-              }[];
-              proximoCursor: string | null;
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/posts/{id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              /** Format: date-time */
-              criadoEm: string;
-              curtidoPorMim: boolean;
-              /** Format: uuid */
-              id: string;
-              imagens: {
-                /** Format: uuid */
-                id: string;
-                ordem: number;
-                /** Format: uri */
-                url: string;
-              }[];
-              legenda: string;
-              publicado?: boolean;
-              totalCurtidas: number;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default false */
+                        castrado?: boolean;
+                        descricao: string;
+                        historiaResgate: string;
+                        idadeAprox: number;
+                        nome: string;
+                        /** @enum {string} */
+                        porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                        raca: string;
+                        /** @enum {string} */
+                        sexo: "MACHO" | "FEMEA";
+                        /** @enum {string} */
+                        tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        /** @default false */
+                        vacinado?: boolean;
+                    };
+                };
             };
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/posts/{id}/curtida': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
-    };
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/voluntariado/candidaturas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            areaInteresseOutros?: string | null;
-            areasInteresse: (
-              | 'CUIDADO_ANIMAIS'
-              | 'EVENTOS'
-              | 'REDES_SOCIAIS'
-              | 'TRANSPORTE'
-              | 'CAPTACAO_RECURSOS'
-              | 'OUTROS'
-            )[];
-            disponibilidadeDias: (
-              'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-            )[];
-            habilidades?: string | null;
-            motivacao: string;
-            turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
-          };
-        };
-      };
-      responses: {
-        /** @description Default Response */
-        201: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              analisadoEm: string | null;
-              areaInteresseOutros: string | null;
-              areasInteresse: (
-                | 'CUIDADO_ANIMAIS'
-                | 'EVENTOS'
-                | 'REDES_SOCIAIS'
-                | 'TRANSPORTE'
-                | 'CAPTACAO_RECURSOS'
-                | 'OUTROS'
-              )[];
-              cargo: string | null;
-              /** Format: date-time */
-              criadoEm: string;
-              disponibilidadeDias: (
-                'DOMINGO' | 'SEGUNDA' | 'TERCA' | 'QUARTA' | 'QUINTA' | 'SEXTA' | 'SABADO'
-              )[];
-              habilidades: string | null;
-              /** Format: uuid */
-              id: string;
-              motivacao: string;
-              motivoRecusa: string | null;
-              /** @enum {string} */
-              status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
-              turnos: ('MANHA' | 'TARDE' | 'NOITE')[];
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            castrado: boolean;
+                            descricao: string;
+                            fotoCapa: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            } | null;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            historiaResgate: string;
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            nome: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            totalPadrinhos: number;
+                            vacinado: boolean;
+                        };
+                    };
+                };
             };
-          };
         };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/webhooks/asaas': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': {
-            event: string;
-            id: string;
-            payment?: {
-              id: string;
-            } & {
-              [key: string]: unknown;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
             };
-          } & {
-            [key: string]: unknown;
-          };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
         };
-      };
-      responses: {
-        /** @description Default Response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-      };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/v1/admin/animais/{id}/fotos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        ids: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            ordem: number;
+                            /** Format: uri */
+                            url: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/animais/{id}/fotos/{fotoId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    fotoId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/animais/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            castrado: boolean;
+                            descricao: string;
+                            fotoCapa: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            } | null;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            historiaResgate: string;
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            nome: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            totalPadrinhos: number;
+                            vacinado: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/admin/auditoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    adminId?: string;
+                    entidade?: string;
+                    acao?: string;
+                    de?: string;
+                    ate?: string;
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                acao: string;
+                                admin: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    nome: string;
+                                };
+                                /** Format: date-time */
+                                criadoEm: string;
+                                detalhe: unknown;
+                                entidade: string;
+                                entidadeId: string;
+                                /** Format: uuid */
+                                id: string;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/conversas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "ABERTA" | "ENCERRADA";
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                assunto: string | null;
+                                atendente: string | null;
+                                /** Format: date-time */
+                                atualizadoEm: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                naoLidas: number;
+                                /** @enum {string} */
+                                status: "ABERTA" | "ENCERRADA";
+                                ultimaMensagem: {
+                                    autorEhEquipe: boolean;
+                                    conteudo: string;
+                                    /** Format: date-time */
+                                    criadoEm: string;
+                                    /** Format: uuid */
+                                    id: string;
+                                    lida: boolean;
+                                    lidaEm: string | null;
+                                } | null;
+                                usuario?: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    nome: string;
+                                };
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/conversas/{id}/assumir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/conversas/{id}/encerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adocoesPendentes: number;
+                            adocoesPorMes: {
+                                mes: string;
+                                total: number;
+                            }[];
+                            animaisDisponiveis: number;
+                            doacoesAnimaisPendentes: number;
+                            doacoesFinanceirasMes: {
+                                quantidade: number;
+                                total: string;
+                            };
+                            ultimasPendencias: {
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                /** @enum {string} */
+                                tipo: "ADOCAO" | "DOACAO_ANIMAL" | "CANDIDATURA_VOLUNTARIO";
+                                titulo: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/doacoes-animais": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                    de?: string;
+                    ate?: string;
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                analisadoEm: string | null;
+                                animalCriadoId: string | null;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                descricao: string;
+                                enderecoRetirada: string;
+                                fotos: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                }[];
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                motivoDoacao: string;
+                                motivoRecusa: string | null;
+                                nomeAnimal: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                recebidoEm: string | null;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                                timeline: {
+                                    em: string | null;
+                                    /** @enum {string} */
+                                    etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                                }[];
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/doacoes-animais/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animalCriadoId: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            descricao: string;
+                            doador: {
+                                email: string;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            enderecoRetirada: string;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            motivoDoacao: string;
+                            motivoRecusa: string | null;
+                            nomeAnimal: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            recebidoEm: string | null;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/doacoes-animais/{id}/aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animalCriadoId: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            descricao: string;
+                            doador: {
+                                email: string;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            enderecoRetirada: string;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            motivoDoacao: string;
+                            motivoRecusa: string | null;
+                            nomeAnimal: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            recebidoEm: string | null;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/doacoes-animais/{id}/receber": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animalCriadoId: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            descricao: string;
+                            doador: {
+                                email: string;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            enderecoRetirada: string;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            motivoDoacao: string;
+                            motivoRecusa: string | null;
+                            nomeAnimal: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            recebidoEm: string | null;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/doacoes-animais/{id}/recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        motivoRecusa: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            analisadoPor: string | null;
+                            animalCriadoId: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            descricao: string;
+                            doador: {
+                                email: string;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            } | null;
+                            enderecoRetirada: string;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            motivoDoacao: string;
+                            motivoRecusa: string | null;
+                            nomeAnimal: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            recebidoEm: string | null;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/faq": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            ordem: number;
+                            pergunta: string;
+                            publicado: boolean;
+                            resposta: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        pergunta: string;
+                        publicado?: boolean;
+                        resposta: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            ordem: number;
+                            pergunta: string;
+                            publicado: boolean;
+                            resposta: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/faq/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        pergunta: string;
+                        publicado?: boolean;
+                        resposta: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            ordem: number;
+                            pergunta: string;
+                            publicado: boolean;
+                            resposta: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/faq/ordem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        ids: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/noticias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    publicado?: "true" | "false";
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                /** Format: date-time */
+                                atualizadoEm: string;
+                                conteudo?: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                imagem: string | null;
+                                publicado: boolean;
+                                resumo: string;
+                                slug: string;
+                                titulo: string;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        conteudo: string;
+                        resumo: string;
+                        slug?: string;
+                        titulo: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo?: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            imagem: string | null;
+                            publicado: boolean;
+                            resumo: string;
+                            slug: string;
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/noticias/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo?: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            imagem: string | null;
+                            publicado: boolean;
+                            resumo: string;
+                            slug: string;
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        conteudo: string;
+                        resumo: string;
+                        slug?: string;
+                        titulo: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo?: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            imagem: string | null;
+                            publicado: boolean;
+                            resumo: string;
+                            slug: string;
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/noticias/{id}/imagem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo?: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            imagem: string | null;
+                            publicado: boolean;
+                            resumo: string;
+                            slug: string;
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo?: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            imagem: string | null;
+                            publicado: boolean;
+                            resumo: string;
+                            slug: string;
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/noticias/{id}/publicacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        publicado: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/perfil-ong": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo: string;
+                            publicado: boolean;
+                            /** @enum {string} */
+                            secao: "SOBRE_NOS" | "FUNDACAO" | "FUNDADORES";
+                            titulo: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/perfil-ong/{secao}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    secao: "SOBRE_NOS" | "FUNDACAO" | "FUNDADORES";
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        conteudo: string;
+                        publicado?: boolean;
+                        titulo: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo: string;
+                            publicado: boolean;
+                            /** @enum {string} */
+                            secao: "SOBRE_NOS" | "FUNDACAO" | "FUNDADORES";
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                /** Format: date-time */
+                                criadoEm: string;
+                                curtidoPorMim: boolean;
+                                /** Format: uuid */
+                                id: string;
+                                imagens: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                }[];
+                                legenda: string;
+                                publicado?: boolean;
+                                totalCurtidas: number;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            criadoEm: string;
+                            curtidoPorMim: boolean;
+                            /** Format: uuid */
+                            id: string;
+                            imagens: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            legenda: string;
+                            publicado?: boolean;
+                            totalCurtidas: number;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/posts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        legenda: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            criadoEm: string;
+                            curtidoPorMim: boolean;
+                            /** Format: uuid */
+                            id: string;
+                            imagens: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            legenda: string;
+                            publicado?: boolean;
+                            totalCurtidas: number;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/admin/posts/{id}/publicacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        publicado: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/usuarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    role?: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                    q?: string;
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                ativo: boolean;
+                                cidade: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                email: string;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                /** @enum {string} */
+                                role: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                                telefone: string;
+                                uf: string;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/usuarios/{id}/ativo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        ativo: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/admin/usuarios/{id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        role: "USUARIO" | "VOLUNTARIO";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/admin/voluntarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "PENDENTE" | "APROVADO" | "RECUSADO";
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                analisadoEm: string | null;
+                                areaInteresseOutros: string | null;
+                                areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                                candidato: {
+                                    email: string;
+                                    endereco: {
+                                        bairro: string;
+                                        cep: string;
+                                        cidade: string;
+                                        complemento: string | null;
+                                        logradouro: string;
+                                        numero: string;
+                                        uf: string;
+                                    };
+                                    /** Format: uuid */
+                                    id: string;
+                                    nome: string;
+                                    telefone: string;
+                                };
+                                cargo: string | null;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                                habilidades: string | null;
+                                /** Format: uuid */
+                                id: string;
+                                motivacao: string;
+                                motivoRecusa: string | null;
+                                /** @enum {string} */
+                                status: "PENDENTE" | "APROVADO" | "RECUSADO";
+                                turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/voluntarios/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            areaInteresseOutros: string | null;
+                            areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                            candidato: {
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            };
+                            cargo: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                            habilidades: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            motivacao: string;
+                            motivoRecusa: string | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADO" | "RECUSADO";
+                            turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/voluntarios/{id}/aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        cargo?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            areaInteresseOutros: string | null;
+                            areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                            candidato: {
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            };
+                            cargo: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                            habilidades: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            motivacao: string;
+                            motivoRecusa: string | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADO" | "RECUSADO";
+                            turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/voluntarios/{id}/recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        motivoRecusa: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            areaInteresseOutros: string | null;
+                            areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                            candidato: {
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                telefone: string;
+                            };
+                            cargo: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                            habilidades: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            motivacao: string;
+                            motivoRecusa: string | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADO" | "RECUSADO";
+                            turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/adocoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        aceitouTermo: boolean;
+                        /** Format: uuid */
+                        animalId: string;
+                        motivo: string;
+                        outrosAnimais?: string | null;
+                        possuiEspacoAdequado: boolean;
+                        /** @enum {string} */
+                        tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            motivo: string;
+                            motivoRecusa: string | null;
+                            outrosAnimais: string | null;
+                            possuiEspacoAdequado: boolean;
+                            recusaAutomatica: boolean;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                            /** Format: date-time */
+                            termoAceitoEm: string;
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/adocoes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            motivo: string;
+                            motivoRecusa: string | null;
+                            outrosAnimais: string | null;
+                            possuiEspacoAdequado: boolean;
+                            recusaAutomatica: boolean;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                            /** Format: date-time */
+                            termoAceitoEm: string;
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/animais": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                    tipo?: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                    porte?: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                    sexo?: "MACHO" | "FEMEA";
+                    status?: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/animais/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            castrado: boolean;
+                            descricao: string;
+                            fotoCapa: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            } | null;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            historiaResgate: string;
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            nome: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            totalPadrinhos: number;
+                            vacinado: boolean;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/animais/{id}/padrinhos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            fotoUrl: string | null;
+                            mensagemPadrinho: string | null;
+                            nome: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apadrinhamentos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        animalId: string;
+                        mensagemPadrinho?: string | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            ativo: boolean;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            mensagemPadrinho: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/apadrinhamentos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/cadastro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        aceitouTermos: boolean;
+                        consentimentoDados: boolean;
+                        cpf: string;
+                        dataNasc: string;
+                        deviceId: string;
+                        email: string;
+                        endereco: {
+                            bairro: string;
+                            cep: string;
+                            cidade: string;
+                            complemento?: string | null;
+                            logradouro: string;
+                            numero: string;
+                            uf: string;
+                        };
+                        nome: string;
+                        senha: string;
+                        telefone: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accessToken: string;
+                            /** Format: date-time */
+                            expiraEm: string;
+                            refreshToken: string;
+                            usuario: {
+                                capaUrl: string | null;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                fotoUrl: string | null;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                /** @enum {string} */
+                                role: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                                telefone: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        deviceId: string;
+                        email: string;
+                        senha: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accessToken: string;
+                            /** Format: date-time */
+                            expiraEm: string;
+                            refreshToken: string;
+                            usuario: {
+                                capaUrl: string | null;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                fotoUrl: string | null;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                /** @enum {string} */
+                                role: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                                telefone: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/recuperar-senha/redefinir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        novaSenha: string;
+                        tokenRedefinicao: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/recuperar-senha/solicitar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        email: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/recuperar-senha/verificar-codigo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        codigo: string;
+                        email: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            tokenRedefinicao: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        deviceId: string;
+                        refreshToken: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accessToken: string;
+                            /** Format: date-time */
+                            expiraEm: string;
+                            refreshToken: string;
+                            usuario: {
+                                capaUrl: string | null;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                email: string;
+                                endereco: {
+                                    bairro: string;
+                                    cep: string;
+                                    cidade: string;
+                                    complemento: string | null;
+                                    logradouro: string;
+                                    numero: string;
+                                    uf: string;
+                                };
+                                fotoUrl: string | null;
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                                /** @enum {string} */
+                                role: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                                telefone: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/conversas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            assunto: string | null;
+                            atendente: string | null;
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            naoLidas: number;
+                            /** @enum {string} */
+                            status: "ABERTA" | "ENCERRADA";
+                            ultimaMensagem: {
+                                autorEhEquipe: boolean;
+                                conteudo: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                lida: boolean;
+                                lidaEm: string | null;
+                            } | null;
+                            usuario?: {
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                            };
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        assunto?: string | null;
+                        mensagem: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            assunto: string | null;
+                            atendente: string | null;
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            naoLidas: number;
+                            /** @enum {string} */
+                            status: "ABERTA" | "ENCERRADA";
+                            ultimaMensagem: {
+                                autorEhEquipe: boolean;
+                                conteudo: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                lida: boolean;
+                                lidaEm: string | null;
+                            } | null;
+                            usuario?: {
+                                /** Format: uuid */
+                                id: string;
+                                nome: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/conversas/{id}/lidas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        ateMensagemId: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/conversas/{id}/mensagens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                autorEhEquipe: boolean;
+                                conteudo: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                lida: boolean;
+                                lidaEm: string | null;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        conteudo: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            autorEhEquipe: boolean;
+                            conteudo: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            lida: boolean;
+                            lidaEm: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/dev/pix/{id}/pagar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/doacoes-animais": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            animalCriadoId: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            descricao: string;
+                            enderecoRetirada: string;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            motivoDoacao: string;
+                            motivoRecusa: string | null;
+                            nomeAnimal: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            recebidoEm: string | null;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/doacoes-animais/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            animalCriadoId: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            descricao: string;
+                            enderecoRetirada: string;
+                            fotos: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            /** Format: uuid */
+                            id: string;
+                            idadeAprox: number;
+                            motivoDoacao: string;
+                            motivoRecusa: string | null;
+                            nomeAnimal: string;
+                            /** @enum {string} */
+                            porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                            raca: string;
+                            recebidoEm: string | null;
+                            /** @enum {string} */
+                            sexo: "MACHO" | "FEMEA";
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                            timeline: {
+                                em: string | null;
+                                /** @enum {string} */
+                                etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                            }[];
+                            /** @enum {string} */
+                            tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/doacoes-financeiras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    "idempotency-key": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default false */
+                        anonima?: boolean;
+                        emailDoador?: string;
+                        nomeDoador?: string;
+                        valor: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            anonima: boolean;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: date-time */
+                            expiresAt: string;
+                            /** Format: uuid */
+                            id: string;
+                            paidAt: string | null;
+                            pixCopiaCola: string;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "CONFIRMADA" | "EXPIRADA";
+                            valor: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/doacoes-financeiras/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            paidAt: string | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "CONFIRMADA" | "EXPIRADA";
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/institucional/faq": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            ordem: number;
+                            pergunta: string;
+                            publicado: boolean;
+                            resposta: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/institucional/perfil": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo: string;
+                            publicado: boolean;
+                            /** @enum {string} */
+                            secao: "SOBRE_NOS" | "FUNDACAO" | "FUNDADORES";
+                            titulo: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            capaUrl: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            email: string;
+                            endereco: {
+                                bairro: string;
+                                cep: string;
+                                cidade: string;
+                                complemento: string | null;
+                                logradouro: string;
+                                numero: string;
+                                uf: string;
+                            };
+                            fotoUrl: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            nome: string;
+                            /** @enum {string} */
+                            role: "USUARIO" | "VOLUNTARIO" | "ADMIN";
+                            telefone: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/adocoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                analisadoEm: string | null;
+                                animal: {
+                                    fotoCapa: {
+                                        /** Format: uuid */
+                                        id: string;
+                                        ordem: number;
+                                        /** Format: uri */
+                                        url: string;
+                                    } | null;
+                                    /** Format: uuid */
+                                    id: string;
+                                    idadeAprox: number;
+                                    nome: string;
+                                    /** @enum {string} */
+                                    porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                    raca: string;
+                                    /** @enum {string} */
+                                    sexo: "MACHO" | "FEMEA";
+                                    /** @enum {string} */
+                                    status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                    /** @enum {string} */
+                                    tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                                };
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                motivo: string;
+                                motivoRecusa: string | null;
+                                outrosAnimais: string | null;
+                                possuiEspacoAdequado: boolean;
+                                recusaAutomatica: boolean;
+                                /** @enum {string} */
+                                status: "PENDENTE" | "APROVADA" | "RECUSADA";
+                                /** Format: date-time */
+                                termoAceitoEm: string;
+                                timeline: {
+                                    em: string | null;
+                                    /** @enum {string} */
+                                    etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECUSADA";
+                                }[];
+                                /** @enum {string} */
+                                tipoMoradia: "CASA_COM_QUINTAL" | "CASA_SEM_QUINTAL" | "APARTAMENTO" | "CHACARA" | "FAZENDA";
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/apadrinhamentos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            animal: {
+                                fotoCapa: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                } | null;
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                nome: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "DISPONIVEL" | "EM_TRATAMENTO" | "ADOTADO" | "INDISPONIVEL";
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            };
+                            ativo: boolean;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            mensagemPadrinho: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/doacoes-animais": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                analisadoEm: string | null;
+                                animalCriadoId: string | null;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                descricao: string;
+                                enderecoRetirada: string;
+                                fotos: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                }[];
+                                /** Format: uuid */
+                                id: string;
+                                idadeAprox: number;
+                                motivoDoacao: string;
+                                motivoRecusa: string | null;
+                                nomeAnimal: string;
+                                /** @enum {string} */
+                                porte: "PEQUENO" | "MEDIO" | "GRANDE" | "MUITO_GRANDE";
+                                raca: string;
+                                recebidoEm: string | null;
+                                /** @enum {string} */
+                                sexo: "MACHO" | "FEMEA";
+                                /** @enum {string} */
+                                status: "PENDENTE" | "APROVADA" | "RECUSADA" | "RECEBIDA";
+                                timeline: {
+                                    em: string | null;
+                                    /** @enum {string} */
+                                    etapa: "ENVIADA" | "EM_ANALISE" | "APROVADA" | "RECEBIDA" | "RECUSADA";
+                                }[];
+                                /** @enum {string} */
+                                tipo: "EQUINO" | "CANINO" | "BOVINO" | "OUTRO";
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/doacoes-financeiras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                anonima: boolean;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: date-time */
+                                expiresAt: string;
+                                /** Format: uuid */
+                                id: string;
+                                paidAt: string | null;
+                                pixCopiaCola: string;
+                                /** @enum {string} */
+                                status: "PENDENTE" | "CONFIRMADA" | "EXPIRADA";
+                                valor: string;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/voluntariado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            areaInteresseOutros: string | null;
+                            areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                            cargo: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                            habilidades: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            motivacao: string;
+                            motivoRecusa: string | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADO" | "RECUSADO";
+                            turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/noticias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                /** Format: date-time */
+                                atualizadoEm: string;
+                                conteudo?: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                /** Format: uuid */
+                                id: string;
+                                imagem: string | null;
+                                publicado: boolean;
+                                resumo: string;
+                                slug: string;
+                                titulo: string;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/noticias/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            atualizadoEm: string;
+                            conteudo?: string;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            /** Format: uuid */
+                            id: string;
+                            imagem: string | null;
+                            publicado: boolean;
+                            resumo: string;
+                            slug: string;
+                            titulo: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notificacoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                corpo: string;
+                                /** Format: date-time */
+                                criadoEm: string;
+                                entidadeId: string | null;
+                                /** Format: uuid */
+                                id: string;
+                                lidaEm: string | null;
+                                /** @enum {string} */
+                                tipo: "ADOCAO_APROVADA" | "ADOCAO_RECUSADA" | "ADOCAO_ANIMAL_ADOTADO" | "DOACAO_ANIMAL_ATUALIZADA" | "DOACAO_FINANCEIRA_CONFIRMADA" | "VOLUNTARIADO_ATUALIZADO" | "CHAT_NOVA_MENSAGEM" | "GERAL";
+                                titulo: string;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notificacoes/{id}/lida": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notificacoes/lidas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notificacoes/nao-lidas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            total: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limite?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            itens: {
+                                /** Format: date-time */
+                                criadoEm: string;
+                                curtidoPorMim: boolean;
+                                /** Format: uuid */
+                                id: string;
+                                imagens: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    ordem: number;
+                                    /** Format: uri */
+                                    url: string;
+                                }[];
+                                legenda: string;
+                                publicado?: boolean;
+                                totalCurtidas: number;
+                            }[];
+                            proximoCursor: string | null;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            criadoEm: string;
+                            curtidoPorMim: boolean;
+                            /** Format: uuid */
+                            id: string;
+                            imagens: {
+                                /** Format: uuid */
+                                id: string;
+                                ordem: number;
+                                /** Format: uri */
+                                url: string;
+                            }[];
+                            legenda: string;
+                            publicado?: boolean;
+                            totalCurtidas: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/curtida": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/voluntariado/candidaturas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        areaInteresseOutros?: string | null;
+                        areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                        disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                        habilidades?: string | null;
+                        motivacao: string;
+                        turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            analisadoEm: string | null;
+                            areaInteresseOutros: string | null;
+                            areasInteresse: ("CUIDADO_ANIMAIS" | "EVENTOS" | "REDES_SOCIAIS" | "TRANSPORTE" | "CAPTACAO_RECURSOS" | "OUTROS")[];
+                            cargo: string | null;
+                            /** Format: date-time */
+                            criadoEm: string;
+                            disponibilidadeDias: ("DOMINGO" | "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA" | "SABADO")[];
+                            habilidades: string | null;
+                            /** Format: uuid */
+                            id: string;
+                            motivacao: string;
+                            motivoRecusa: string | null;
+                            /** @enum {string} */
+                            status: "PENDENTE" | "APROVADO" | "RECUSADO";
+                            turnos: ("MANHA" | "TARDE" | "NOITE")[];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/webhooks/asaas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        event: string;
+                        id: string;
+                        payment?: {
+                            id: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    } & {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: never;
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    schemas: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;
