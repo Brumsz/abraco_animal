@@ -25,6 +25,13 @@ const esquema = z.object({
   HOST: z.string().default('0.0.0.0'),
   PORT: z.coerce.number().int().positive().default(3333),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  // Proxies confiáveis na frente da API (0 = acesso direto; X-Forwarded-For ignorado).
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
+  // Observabilidade (lidas também em instrumentacao.ts, antes do resto da API).
+  SENTRY_DSN: urlOpcional,
+  SENTRY_ENVIRONMENT: textoOpcional,
+  SENTRY_RELEASE: textoOpcional,
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   CORS_ORIGINS: z
     .string()
     .default('')

@@ -35,4 +35,5 @@ COPY --from=build /out/node_modules ./node_modules
 COPY --from=build /repo/apps/api/dist ./dist
 USER nonroot
 EXPOSE 3333
-CMD ["dist/main.js"]
+# instrumentacao.js entra antes de tudo (OpenTelemetry/Sentry); sem SENTRY_DSN não faz nada.
+CMD ["--import", "./dist/instrumentacao.js", "dist/main.js"]
