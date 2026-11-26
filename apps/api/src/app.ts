@@ -20,6 +20,7 @@ import { rotasAdocoes, type DependenciasRotasAdocoes } from './modules/adocoes/h
 import { rotasAnimais, type DependenciasRotasAnimais } from './modules/animais/http/rotas.js';
 import { rotasAuth, type DependenciasRotasAuth } from './modules/auth/http/rotas.js';
 import { rotasConta, type DependenciasRotasConta } from './modules/conta/http/rotas.js';
+import { rotasPush, type DependenciasRotasPush } from './modules/push/http/rotas.js';
 import {
   rotasDoacoesAnimais,
   type DependenciasRotasDoacoesAnimais,
@@ -69,6 +70,7 @@ export interface OpcoesApp {
   readonly chat?: { rotas: DependenciasRotasChat; websocket: DependenciasWebsocket };
   readonly notificacoes?: DependenciasRotasNotificacoes;
   readonly conta?: DependenciasRotasConta;
+  readonly push?: DependenciasRotasPush;
   /**
    * Coleta as rotas para gerar o OpenAPI (script `openapi:gerar`). Desligado
    * no servidor: não há rota de documentação exposta em produção.
@@ -218,6 +220,9 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   }
   if (opcoes.notificacoes) {
     void app.register(rotasNotificacoes(opcoes.notificacoes), { prefix: '/v1' });
+  }
+  if (opcoes.push) {
+    void app.register(rotasPush(opcoes.push), { prefix: '/v1' });
   }
   if (opcoes.conta) {
     void app.register(rotasConta(opcoes.conta), { prefix: '/v1' });

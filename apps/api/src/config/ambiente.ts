@@ -88,6 +88,8 @@ const esquema = z.object({
   // Cliente da ONG no Asaas usado em todas as cobranças (o doador não informa CPF).
   ASAAS_CLIENTE_ID: textoOpcional,
   ASAAS_WEBHOOK_TOKEN: z.string().min(32, 'ASAAS_WEBHOOK_TOKEN deve ter ao menos 32 caracteres'),
+  // Push (Expo). Opcional: só exigido com "Enhanced Security for Push" na conta Expo.
+  EXPO_ACCESS_TOKEN: textoOpcional,
   PIX_EXPIRACAO_MINUTOS: z.coerce.number().int().min(5).max(60).default(15),
 });
 

@@ -27,6 +27,7 @@ import {
   comporInstitucional,
   comporNotificacoes,
   comporConta,
+  comporPush,
   comporPix,
   comporVoluntariado,
   verificacoesProntidao,
@@ -227,6 +228,7 @@ export async function iniciarAmbiente(): Promise<AmbienteIntegracao> {
       }),
       notificacoes: comporNotificacoes(comOpcoes, auth.rotas.autenticacao),
       conta: comporConta(comOpcoes, auth),
+      push: comporPush(comOpcoes, auth.rotas.autenticacao, undefined).rotas,
     });
     return app;
   };

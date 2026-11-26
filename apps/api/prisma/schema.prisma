@@ -632,13 +632,15 @@ model Notificacao {
   id       Int    @id @default(autoincrement())
   publicId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  usuarioId  Int
-  tipo       TipoNotificacao
-  titulo     String
-  corpo      String
-  entidadeId String?         @db.Uuid // publicId do recurso (adoção, doação…); o app monta a rota pelo tipo
-  lidaEm     DateTime?       @db.Timestamptz(3)
-  criadoEm   DateTime        @default(now()) @db.Timestamptz(3)
+  usuarioId     Int
+  tipo          TipoNotificacao
+  titulo        String
+  corpo         String
+  entidadeId    String?         @db.Uuid // publicId do recurso (adoção, doação…); o app monta a rota pelo tipo
+  lidaEm        DateTime?       @db.Timestamptz(3)
+  criadoEm      DateTime        @default(now()) @db.Timestamptz(3)
+  /// Quando o job de push a reservou (outbox). Pendentes: índice parcial na migração.
+  pushEnviadoEm DateTime?       @db.Timestamptz(3)
 
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 

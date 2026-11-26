@@ -200,6 +200,14 @@ import type { ProcessadorImagens } from './shared/aplicacao/imagens.js';
 import { relogioSistema, type Relogio } from './shared/aplicacao/relogio.js';
 import { ProcessadorImagensSharp } from './shared/infra/processador-imagens-sharp.js';
 import type { Prisma } from './shared/infra/prisma.js';
+import {
+  DespacharPush,
+  RegistrarAparelho,
+  RemoverAparelho,
+} from './modules/push/application/casos-de-uso.js';
+import type { DependenciasRotasPush } from './modules/push/http/rotas.js';
+import { EnviadorExpo } from './modules/push/infrastructure/expo-push.js';
+import { PrismaRepositorioPush } from './modules/push/infrastructure/prisma-repositorio-push.js';
 
 export interface Infra {
   readonly prisma: Prisma;
@@ -602,6 +610,27 @@ export function comporNotificacoes(
     marcarLida: new MarcarNotificacaoLida(deps),
     marcarTodas: new MarcarTodasLidas(deps),
     autenticacao,
+  };
+}
+
+/** Push: rotas do aparelho e o despachante do outbox (job periódico em main.ts). */
+export function comporPush(
+  infra: Infra,
+  autenticacao: Autenticacao,
+  tokenExpo: string | undefined,
+): { rotas: DependenciasRotasPush; despachar: DespacharPush } {
+  const push = new PrismaRepositorioPush(infra.prisma);
+  return {
+    rotas: {
+      registrar: new RegistrarAparelho({ push }),
+      remover: new RemoverAparelho({ push }),
+      autenticacao,
+    },
+    despachar: new DespacharPush({
+      push,
+      enviador: new EnviadorExpo(tokenExpo),
+      relogio: infra.relogio ?? relogioSistema,
+    }),
   };
 }
 
