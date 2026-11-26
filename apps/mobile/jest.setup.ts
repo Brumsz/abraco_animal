@@ -33,3 +33,18 @@ jest.mock(
 jest.mock('expo-crypto', () => ({
   randomUUID: () => jest.requireActual<{ randomUUID: () => string }>('crypto').randomUUID(),
 }));
+
+// Push e Sentry são nativos: nos testes, sem aparelho e sem permissão.
+jest.mock('expo-device', () => ({ isDevice: false }));
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve(null)),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ granted: false, status: 'undetermined' })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ granted: false, status: 'denied' })),
+  getExpoPushTokenAsync: jest.fn(() => Promise.reject(new Error('sem aparelho'))),
+  getLastNotificationResponse: jest.fn(() => null),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  AndroidImportance: { HIGH: 4 },
+}));
+jest.mock('@sentry/react-native', () => ({ init: jest.fn(), wrap: (c: unknown) => c }));

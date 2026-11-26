@@ -17,6 +17,7 @@ import { useSessao } from '@/core/sessao';
 import { useSair } from '@/features/auth/data/hooks';
 import { mascararTelefone } from '@/features/auth/domain/mascaras';
 import { CabecalhoTela, MARGEM_TELA } from '@/shared/componentes/CabecalhoTela';
+import { AvisosNoCelular } from '@/features/notificacoes/presentation/AvisosNoCelular';
 import { ListaOpcoes } from '@/shared/componentes/ListaOpcoes';
 import { TelaComVoltar } from '@/shared/componentes/TelaComVoltar';
 import { mensagemDeErro } from '@/shared/erros';
@@ -57,6 +58,7 @@ export default function TelaConfiguracoes() {
               },
             ]}
           />
+          <AvisosNoCelular />
           <ListaOpcoes
             titulo="Privacidade e suporte"
             opcoes={[

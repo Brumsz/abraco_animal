@@ -22,3 +22,25 @@ export async function marcarOnboardingConcluido(): Promise<void> {
     // Não é crítico: no pior caso o onboarding aparece novamente.
   }
 }
+
+const CHAVE_PUSH = 'push_preferencia';
+
+/** `ligado`/`desligado` = escolha da pessoa nas Configurações; `null` = ainda não perguntamos. */
+export type PreferenciaPush = 'ligado' | 'desligado' | null;
+
+export async function preferenciaPush(): Promise<PreferenciaPush> {
+  try {
+    const v = await SecureStore.getItemAsync(CHAVE_PUSH);
+    return v === 'ligado' || v === 'desligado' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function definirPreferenciaPush(valor: 'ligado' | 'desligado'): Promise<void> {
+  try {
+    await SecureStore.setItemAsync(CHAVE_PUSH, valor);
+  } catch {
+    // Não é crítico: no pior caso a pergunta aparece de novo.
+  }
+}

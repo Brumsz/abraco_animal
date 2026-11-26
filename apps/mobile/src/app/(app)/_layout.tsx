@@ -3,6 +3,7 @@ import { Redirect, Stack } from 'expo-router';
 
 import { useSessao } from '@/core/sessao';
 import { useChatAoVivo } from '@/features/chat/data/hooks';
+import { usePushNotificacoes } from '@/features/notificacoes/data/push';
 
 /**
  * Área logada: as abas (grupo "(abas)") e, por cima delas, as telas cheias
@@ -11,6 +12,7 @@ import { useChatAoVivo } from '@/features/chat/data/hooks';
 export default function LayoutApp() {
   const estado = useSessao((s) => s.estado);
   useChatAoVivo();
+  usePushNotificacoes();
 
   if (estado === 'anonimo') return <Redirect href="/login" />;
 
