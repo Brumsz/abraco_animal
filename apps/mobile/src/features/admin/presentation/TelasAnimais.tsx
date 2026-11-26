@@ -34,7 +34,7 @@ import { TelaComVoltar } from '@/shared/componentes/TelaComVoltar';
 import { mensagemDeErro } from '@/shared/erros';
 
 import { useAlterarStatusAnimal, useFotosAnimal, useRemoverAnimal } from '../data/cadastros';
-import { FILTROS_ANIMAL, moverFoto, STATUS_ANIMAL_EQUIPE, STATUS_MANUAIS } from '../domain/animais';
+import { FILTROS_ANIMAL, moverItem, STATUS_ANIMAL_EQUIPE, STATUS_MANUAIS } from '../domain/animais';
 import { Campo, FiltrosStatus, FolhaConfirmar, Secao, TelaDetalhe } from './componentes';
 
 const MAX_FOTOS = UPLOAD_IMAGENS.fotosPorAnimal;
@@ -276,7 +276,7 @@ function SecaoFotos({ animal: a }: { readonly animal: AnimalDetalhe }) {
   };
 
   const mover = (id: string, direcao: -1 | 1) => {
-    reordenar.mutate(moverFoto(ids, id, direcao), { onError: erro });
+    reordenar.mutate(moverItem(ids, id, direcao), { onError: erro });
   };
 
   return (

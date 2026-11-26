@@ -66,4 +66,9 @@ export const chaves = {
   usuariosEquipe: (role: string, q: string) => ['admin', 'usuarios', 'lista', role, q] as const,
   adminsEquipe: ['admin', 'usuarios', 'admins'] as const,
   auditoria: (adminId: string, de: string) => ['admin', 'auditoria', adminId, de] as const,
+  noticiasEquipe: (filtro: string) => ['admin', 'noticias', 'lista', filtro] as const,
+  noticiaEquipe: (id: string) => ['admin', 'noticias', 'detalhe', id] as const,
+  postsEquipe: ['admin', 'posts'] as const,
+  secoesEquipe: ['admin', 'perfil-ong'] as const,
+  faqEquipe: ['admin', 'faq'] as const,
 };

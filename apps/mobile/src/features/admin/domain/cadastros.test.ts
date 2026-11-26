@@ -1,6 +1,6 @@
 import type { AnimalDetalhe } from '@abraco/api-client';
 
-import { corpoAnimal, esquemaAnimal, moverFoto, valoresDoAnimal } from './animais';
+import { corpoAnimal, esquemaAnimal, moverItem, valoresDoAnimal } from './animais';
 import { inicioDoPeriodo, resumoDetalhe, rotuloAcao } from './auditoria';
 
 const ficha = {
@@ -49,10 +49,10 @@ describe('cadastro de animal', () => {
   });
 
   it('move fotos uma posição, sem sair dos limites', () => {
-    expect(moverFoto(['a', 'b', 'c'], 'b', -1)).toEqual(['b', 'a', 'c']);
-    expect(moverFoto(['a', 'b', 'c'], 'b', 1)).toEqual(['a', 'c', 'b']);
-    expect(moverFoto(['a', 'b'], 'a', -1)).toEqual(['a', 'b']);
-    expect(moverFoto(['a', 'b'], 'x', 1)).toEqual(['a', 'b']);
+    expect(moverItem(['a', 'b', 'c'], 'b', -1)).toEqual(['b', 'a', 'c']);
+    expect(moverItem(['a', 'b', 'c'], 'b', 1)).toEqual(['a', 'c', 'b']);
+    expect(moverItem(['a', 'b'], 'a', -1)).toEqual(['a', 'b']);
+    expect(moverItem(['a', 'b'], 'x', 1)).toEqual(['a', 'b']);
   });
 });
 
