@@ -18,12 +18,14 @@ import {
   comporInstitucional,
   comporNotificacoes,
   comporConta,
+  comporPush,
   comporPix,
   comporVoluntariado,
   verificacoesProntidao,
 } from './composicao.js';
 import { carregarAmbiente } from './config/ambiente.js';
 import { BarramentoRedis } from './modules/chat/infrastructure/barramento.js';
+import { iniciarDespachoPush } from './modules/push/infrastructure/expo-push.js';
 import { relogioSistema } from './shared/aplicacao/relogio.js';
 import { ArmazenamentoS3 } from './shared/infra/armazenamento-s3.js';
 import { FilaEmailsBullmq, iniciarWorkerEmails } from './shared/infra/emails.js';
@@ -61,6 +63,9 @@ const workerEmails = iniciarWorkerEmails(redis, {
 });
 
 const auth = await comporAuth(ambiente, infra);
+const push = comporPush(infra, auth.rotas.autenticacao, ambiente.EXPO_ACCESS_TOKEN);
+// Outbox de push: um job a cada 10 s no cluster inteiro (BullMQ).
+const despachoPush = await iniciarDespachoPush(redis, push.despachar);
 
 // Só o tipo do erro: a mensagem do Redis/BullMQ pode trazer o payload (e-mail).
 function aoFalharEmail(erro: unknown): void {
@@ -85,6 +90,7 @@ const app = construirApp({
   doacoesAnimais: comporDoacoesAnimais(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   notificacoes: comporNotificacoes(infra, auth.rotas.autenticacao),
   conta: comporConta(infra, auth),
+  push: push.rotas,
   apadrinhamentos: comporApadrinhamentos(infra, auth.rotas.autenticacao),
   voluntariado: comporVoluntariado(infra, auth.rotas.autenticacao, { aoFalharEmail }),
   institucional: comporInstitucional(infra, auth.rotas.autenticacao),
@@ -116,6 +122,11 @@ if (!ambiente.ASAAS_API_KEY) {
   app.log.warn('ASAAS_API_KEY vazia: Pix SIMULADO ativo (POST /v1/dev/pix/{id}/pagar)');
 }
 
+despachoPush.worker.on('failed', (_job, err) => {
+  // Só o tipo do erro: nada de token de aparelho no log.
+  app.log.warn({ erro: err.name }, 'falha no despacho de push');
+});
+
 workerEmails.on('failed', (job, err) => {
   // Só o tipo do e-mail vai para o log — nunca destinatário nem código.
   app.log.warn(
@@ -132,6 +143,8 @@ async function encerrar(sinal: string): Promise<void> {
   try {
     await app.close();
     await workerEmails.close();
+    await despachoPush.worker.close();
+    await despachoPush.fila.close();
     await emails.fechar();
     await prisma.$disconnect();
     // Envia o que ainda estiver na fila do Sentry (no-op se desligado).
