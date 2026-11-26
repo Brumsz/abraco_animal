@@ -2,6 +2,8 @@
  * Ponto de entrada: lê a configuração, cria as conexões e sobe o servidor.
  * A montagem dos casos de uso fica em composicao.ts.
  */
+import * as Sentry from '@sentry/node';
+
 import { CAMPOS_REDIGIDOS, construirApp } from './app.js';
 import {
   comporAdocoes,
@@ -74,6 +76,7 @@ const app = construirApp({
     redact: { paths: [...CAMPOS_REDIGIDOS], censor: '[REDIGIDO]' },
   },
   verificacoesProntidao: verificacoesProntidao(infra),
+  proxiesConfiaveis: ambiente.TRUST_PROXY_HOPS,
   corsOrigens: ambiente.CORS_ORIGINS,
   redis,
   auth: auth.rotas,
@@ -131,6 +134,8 @@ async function encerrar(sinal: string): Promise<void> {
     await workerEmails.close();
     await emails.fechar();
     await prisma.$disconnect();
+    // Envia o que ainda estiver na fila do Sentry (no-op se desligado).
+    await Sentry.close(2_000);
     armazenamento.destruir();
     redis.disconnect();
     process.exit(0);

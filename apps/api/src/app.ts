@@ -76,6 +76,12 @@ export interface OpcoesApp {
   readonly gerarOpenapi?: boolean;
   /** Limite global por IP por minuto (seção 6: 100). */
   readonly limiteGlobalPorMinuto?: number;
+  /**
+   * Quantos proxies confiáveis há na frente da API (load balancer da hospedagem).
+   * 0 = nenhum: X-Forwarded-For é ignorado (senão qualquer um forjaria o IP e
+   * escaparia do limite por IP).
+   */
+  readonly proxiesConfiaveis?: number;
 }
 
 /**
@@ -100,10 +106,11 @@ export const CAMPOS_REDIGIDOS = [
 ] as const;
 
 export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
+  const proxies = opcoes.proxiesConfiaveis ?? 0;
   const app = Fastify({
     logger: opcoes.logger ?? false,
-    // Não confiar em X-Forwarded-* até haver um proxy conhecido (configurado na Etapa 11).
-    trustProxy: false,
+    // X-Forwarded-* só vale com proxies declarados (TRUST_PROXY_HOPS).
+    trustProxy: proxies > 0 ? (_endereco: string, salto: number) => salto < proxies : false,
     // Payloads JSON grandes não são esperados; uploads usam multipart com limite próprio.
     bodyLimit: 1_048_576,
   }).withTypeProvider<ZodTypeProvider>();
@@ -111,6 +118,8 @@ export function construirApp(opcoes: OpcoesApp = {}): FastifyInstance {
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   registrarTratadorErros(app);
+  // Erros 5xx vão ao Sentry pela integração do Fastify, ligada em instrumentacao.ts
+  // (só com SENTRY_DSN). Nada a registrar aqui.
 
   if (opcoes.gerarOpenapi) {
     // Antes das rotas: o plugin coleta cada rota registrada depois dele.
