@@ -63,4 +63,7 @@ export const chaves = {
   doacaoEquipe: (id: string) => ['admin', 'doacoes-animais', 'detalhe', id] as const,
   voluntariosEquipe: (status: string) => ['admin', 'voluntarios', 'lista', status] as const,
   voluntarioEquipe: (id: string) => ['admin', 'voluntarios', 'detalhe', id] as const,
+  usuariosEquipe: (role: string, q: string) => ['admin', 'usuarios', 'lista', role, q] as const,
+  adminsEquipe: ['admin', 'usuarios', 'admins'] as const,
+  auditoria: (adminId: string, de: string) => ['admin', 'auditoria', adminId, de] as const,
 };

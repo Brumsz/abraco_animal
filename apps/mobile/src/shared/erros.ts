@@ -32,6 +32,13 @@ const MENSAGENS: Record<string, string> = {
   DOACAO_ALTERADA: 'Esta doação mudou enquanto você analisava. Atualize a tela.',
   TRANSICAO_DOACAO_INVALIDA: 'Esta doação já mudou de etapa. Atualize a tela.',
   CANDIDATURA_JA_ANALISADA: 'Outra pessoa da equipe já analisou esta candidatura.',
+  TRANSICAO_STATUS_INVALIDA: 'Adotado só pela aprovação de uma adoção. Escolha outro status.',
+  ANIMAL_COM_ADOCOES_PENDENTES:
+    'Este animal tem pedidos de adoção esperando análise. Analise os pedidos antes de remover.',
+  LIMITE_FOTOS: 'Cada animal pode ter no máximo 10 fotos. Remova alguma antes de enviar mais.',
+  IMAGEM_INVALIDA: 'Uma das fotos não é uma imagem válida (use JPG, PNG ou WebP de até 5 MB).',
+  ACAO_NA_PROPRIA_CONTA: 'Você não pode alterar a sua própria conta por aqui.',
+  ALVO_E_ADMIN: 'Contas da equipe (admin) não são alteradas pelo app.',
   AUTOAPROVACAO_PROIBIDA:
     'Você não pode analisar o seu próprio pedido. Peça a outra pessoa da equipe.',
 };

@@ -13,9 +13,12 @@ import { useRouter } from 'expo-router';
 import {
   CaretRightIcon,
   ChatCircleDotsIcon,
+  ClipboardTextIcon,
   HandHeartIcon,
   HeartIcon,
   type Icon,
+  PawPrintIcon,
+  UsersIcon,
   UsersThreeIcon,
 } from 'phosphor-react-native';
 import type { ReactNode } from 'react';
@@ -103,11 +106,35 @@ export default function TelaCentral() {
           titulo="Gestão"
           opcoes={[
             {
+              rotulo: 'Animais',
+              Icone: PawPrintIcon,
+              iconeEmCirculo: true,
+              aoPressionar: () => {
+                router.push('/admin/animais');
+              },
+            },
+            {
               rotulo: 'Voluntários',
               Icone: UsersThreeIcon,
               iconeEmCirculo: true,
               aoPressionar: () => {
                 router.push('/admin/voluntarios');
+              },
+            },
+            {
+              rotulo: 'Usuários',
+              Icone: UsersIcon,
+              iconeEmCirculo: true,
+              aoPressionar: () => {
+                router.push('/admin/usuarios');
+              },
+            },
+            {
+              rotulo: 'Auditoria',
+              Icone: ClipboardTextIcon,
+              iconeEmCirculo: true,
+              aoPressionar: () => {
+                router.push('/admin/auditoria');
               },
             },
             {
