@@ -17,6 +17,7 @@ import {
   HandHeartIcon,
   HeartIcon,
   type Icon,
+  NewspaperIcon,
   PawPrintIcon,
   UsersIcon,
   UsersThreeIcon,
@@ -111,6 +112,14 @@ export default function TelaCentral() {
               iconeEmCirculo: true,
               aoPressionar: () => {
                 router.push('/admin/animais');
+              },
+            },
+            {
+              rotulo: 'Conteúdo',
+              Icone: NewspaperIcon,
+              iconeEmCirculo: true,
+              aoPressionar: () => {
+                router.push('/admin/conteudo');
               },
             },
             {

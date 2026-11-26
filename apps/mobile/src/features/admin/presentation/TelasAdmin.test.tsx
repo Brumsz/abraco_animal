@@ -377,9 +377,18 @@ describe('Atendimento', () => {
     const lidas = chamadas.find((c) => c.url.endsWith('/lidas'));
     expect(await lidas?.json()).toEqual({ ateMensagemId: 'm1' });
 
+    const listas = () =>
+      chamadas.filter(
+        (c) => c.method === 'GET' && new URL(c.url).pathname === '/v1/admin/conversas',
+      ).length;
+    const antes = listas();
     await fireEvent.press(screen.getByRole('button', { name: 'Assumir atendimento' }));
     await waitFor(() => {
       expect(chamadas.some((c) => c.url.endsWith('/assumir'))).toBe(true);
+    });
+    // Depois de assumir a lista recarrega: espera para o teste não acabar no meio.
+    await waitFor(() => {
+      expect(listas()).toBeGreaterThan(antes);
     });
   });
 
@@ -389,11 +398,15 @@ describe('Atendimento', () => {
         itens: [conversa({ status: 'ENCERRADA' })],
         proximoCursor: null,
       }),
-      [`GET /v1/conversas/${ID}/mensagens`]: json({ itens: [], proximoCursor: null }),
+      [`GET /v1/conversas/${ID}/mensagens`]: json({
+        itens: [{ ...conversa().ultimaMensagem, lida: true }],
+        proximoCursor: null,
+      }),
     });
     await renderizar(<TelaConversaEquipe />);
 
-    expect(await screen.findByText(/Conversa encerrada\. Só dá para ler/)).toBeOnTheScreen();
+    expect(await screen.findByText('Posso visitar o Alípio sábado?')).toBeOnTheScreen();
+    expect(screen.getByText(/Conversa encerrada\. Só dá para ler/)).toBeOnTheScreen();
     expect(screen.queryByLabelText('Mensagem')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Encerrar' })).toBeNull();
   });

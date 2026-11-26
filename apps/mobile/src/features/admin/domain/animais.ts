@@ -113,8 +113,8 @@ export function corpoAnimal(f: z.output<typeof esquemaAnimal>) {
   };
 }
 
-/** Move a foto `id` uma posição (−1 = para a frente, +1 = para trás). Fora dos limites: igual. */
-export function moverFoto(ids: readonly string[], id: string, direcao: -1 | 1): string[] {
+/** Move o item `id` (foto, pergunta do FAQ) uma posição (−1 = para a frente, +1 = para trás). Fora dos limites: igual. */
+export function moverItem(ids: readonly string[], id: string, direcao: -1 | 1): string[] {
   const i = ids.indexOf(id);
   const j = i + direcao;
   if (i < 0 || j < 0 || j >= ids.length) return [...ids];

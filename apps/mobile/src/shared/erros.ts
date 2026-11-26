@@ -39,6 +39,8 @@ const MENSAGENS: Record<string, string> = {
   IMAGEM_INVALIDA: 'Uma das fotos não é uma imagem válida (use JPG, PNG ou WebP de até 5 MB).',
   ACAO_NA_PROPRIA_CONTA: 'Você não pode alterar a sua própria conta por aqui.',
   ALVO_E_ADMIN: 'Contas da equipe (admin) não são alteradas pelo app.',
+  SLUG_EM_USO: 'Já existe uma notícia com um título muito parecido. Mude o título.',
+  FOTO_OBRIGATORIA: 'Escolha ao menos uma imagem.',
   AUTOAPROVACAO_PROIBIDA:
     'Você não pode analisar o seu próprio pedido. Peça a outra pessoa da equipe.',
 };
