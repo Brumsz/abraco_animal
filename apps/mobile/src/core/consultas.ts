@@ -53,4 +53,14 @@ export const chaves = {
   naoLidas: ['notificacoes', 'nao-lidas'] as const,
   conversas: ['chat', 'conversas'] as const,
   mensagens: (conversaId: string) => ['chat', 'mensagens', conversaId] as const,
+  // Painel da equipe. As conversas ficam sob ['chat', 'conversas'] para o tempo real
+  // (useChatAoVivo) atualizar a lista do admin também.
+  conversasEquipe: (status: string) => ['chat', 'conversas', 'equipe', status] as const,
+  painel: ['admin', 'painel'] as const,
+  adocoesEquipe: (status: string) => ['admin', 'adocoes', 'lista', status] as const,
+  adocaoEquipe: (id: string) => ['admin', 'adocoes', 'detalhe', id] as const,
+  doacoesEquipe: (status: string) => ['admin', 'doacoes-animais', 'lista', status] as const,
+  doacaoEquipe: (id: string) => ['admin', 'doacoes-animais', 'detalhe', id] as const,
+  voluntariosEquipe: (status: string) => ['admin', 'voluntarios', 'lista', status] as const,
+  voluntarioEquipe: (id: string) => ['admin', 'voluntarios', 'detalhe', id] as const,
 };

@@ -1,6 +1,6 @@
 import type { Conversa, Mensagem } from '@abraco/api-client';
 
-import { conversaAtual, situacaoEnvio, ultimaDaEquipeNaoLida } from './conversa';
+import { conversaAtual, previaConversa, situacaoEnvio, ultimaDoOutroLadoNaoLida } from './conversa';
 
 const conversa = (id: string, status: 'ABERTA' | 'ENCERRADA') =>
   ({ id, status }) as unknown as Conversa;
@@ -21,9 +21,24 @@ describe('chat do usuário', () => {
   });
 
   it('marca como lida até a mensagem mais nova da equipe', () => {
-    expect(ultimaDaEquipeNaoLida([msg('3', false), msg('2', true), msg('1', true)])).toBe('2');
-    expect(ultimaDaEquipeNaoLida([msg('2', true, true), msg('1', true)])).toBeNull();
-    expect(ultimaDaEquipeNaoLida([msg('1', false)])).toBeNull();
+    const usuario = false;
+    expect(
+      ultimaDoOutroLadoNaoLida([msg('3', false), msg('2', true), msg('1', true)], usuario),
+    ).toBe('2');
+    expect(ultimaDoOutroLadoNaoLida([msg('2', true, true), msg('1', true)], usuario)).toBeNull();
+    expect(ultimaDoOutroLadoNaoLida([msg('1', false)], usuario)).toBeNull();
+  });
+
+  it('a equipe avisa "li" até a mensagem mais nova do usuário', () => {
+    const equipe = true;
+    expect(ultimaDoOutroLadoNaoLida([msg('3', true), msg('2', false)], equipe)).toBe('2');
+    expect(ultimaDoOutroLadoNaoLida([msg('2', false, true)], equipe)).toBeNull();
+  });
+
+  it('prévia da conversa na lista da equipe', () => {
+    expect(previaConversa({ ultimaMensagem: msg('Oi', false) })).toBe('Oi');
+    expect(previaConversa({ ultimaMensagem: msg('Pode vir', true) })).toBe('ONG: Pode vir');
+    expect(previaConversa({ ultimaMensagem: null })).toBe('Sem mensagens');
   });
 
   it('situação do envio', () => {

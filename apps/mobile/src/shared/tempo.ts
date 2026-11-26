@@ -61,3 +61,18 @@ export function rotuloDia(iso: string, agora: Date = new Date()): string {
 export function mesmoDia(a: string, b: string): boolean {
   return inicioDoDia(new Date(a)) === inicioDoDia(new Date(b));
 }
+
+/** Lista de conversas: "10:42" hoje, "Ontem", ou "11/03". */
+export function quandoCurto(iso: string, agora: Date = new Date()): string {
+  const data = new Date(iso);
+  const dias = Math.round((inicioDoDia(agora) - inicioDoDia(data)) / 86_400_000);
+  if (dias === 0) return horaCurta(iso);
+  if (dias === 1) return 'Ontem';
+  return dataCurta(iso).slice(0, 5);
+}
+
+/** Rótulo do mês do gráfico ("2026-11" → "nov."). */
+export function mesAbreviado(anoMes: string): string {
+  const mes = Number(anoMes.slice(5, 7));
+  return MESES[mes - 1] ?? anoMes;
+}
