@@ -19,9 +19,16 @@ export function urlInstagram(bruta: string | undefined): string | null {
   return /^https:\/\/(www\.)?instagram\.com\/[\w.]+\/?$/i.test(url) ? url : null;
 }
 
+/** Vazia ou só espaços = ausente. */
+const preenchida = (v: string | undefined) => (v?.trim() ? v.trim() : undefined);
+
 export const CONFIG = {
   apiUrl: bruta,
   /** http → ws, https → wss */
   wsChatUrl: `${bruta.replace(/^http/, 'ws')}/v1/ws/chat`,
   instagramUrl: urlInstagram(process.env.EXPO_PUBLIC_INSTAGRAM_URL),
+  /** Vazio = Sentry desligado. O DSN não é segredo (só permite enviar eventos). */
+  sentryDsn: preenchida(process.env.EXPO_PUBLIC_SENTRY_DSN),
+  /** development | preview | production (canal do EAS). */
+  ambiente: preenchida(process.env.EXPO_PUBLIC_AMBIENTE) ?? 'development',
 } as const;

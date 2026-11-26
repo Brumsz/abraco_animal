@@ -40,10 +40,20 @@
           "imageWidth": 160,
           "backgroundColor": "#D9480F"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#D9480F",
+          "defaultChannel": "padrao"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

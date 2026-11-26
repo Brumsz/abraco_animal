@@ -18,7 +18,12 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { CONFIG } from '@/core/config';
 import { queryClient } from '@/core/consultas';
+import { iniciarSentry } from '@/core/sentry';
+
+// Erros em produção vão ao Sentry (sem DSN ou em desenvolvimento: desligado).
+iniciarSentry(CONFIG.sentryDsn, CONFIG.ambiente);
 
 // Mantém a splash nativa (fundo laranja) até as fontes carregarem.
 void SplashScreen.preventAutoHideAsync();
