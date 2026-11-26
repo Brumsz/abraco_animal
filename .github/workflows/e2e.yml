@@ -1,0 +1,131 @@
+name: E2E (Maestro)
+
+# Testes ponta a ponta (seção 10, item 8): app Android num emulador falando com a
+# API real (Postgres, Redis, S3 e e-mail do docker-compose) e dados de exemplo.
+# Demora (~30 min: build nativo + emulador), por isso roda à mão e toda semana,
+# não em cada PR. Tudo gratuito: Maestro é aberto e o repositório é público.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '40 7 * * 2'
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-android:
+    name: Fluxos do app no emulador Android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      E2E_EMAIL: equipe.e2e@exemplo.org
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - run: pnpm install --frozen-lockfile
+
+      # Segredos descartáveis, gerados só para esta execução (nada vem do repositório).
+      - name: Gerar .env de teste
+        run: |
+          set -euo pipefail
+          openssl genpkey -algorithm ed25519 -out /tmp/jwt.pem
+          openssl pkey -in /tmp/jwt.pem -pubout -out /tmp/jwt.pub.pem
+          PG=$(openssl rand -hex 16); RD=$(openssl rand -hex 16)
+          E2E_SENHA="E2e-$(openssl rand -hex 8)"
+          echo "::add-mask::$E2E_SENHA"
+          echo "E2E_SENHA=$E2E_SENHA" >> "$GITHUB_ENV"
+          cp .env.example .env
+          definir() { sed -i "s|^$1=.*|$1=$2|" .env; }
+          definir POSTGRES_PASSWORD "$PG"
+          definir DATABASE_URL "postgresql://abraco:$PG@localhost:5433/abraco?schema=public"
+          definir REDIS_PASSWORD "$RD"
+          definir REDIS_URL "redis://:$RD@localhost:6379"
+          definir JWT_PRIVATE_KEY_B64 "$(base64 -w0 /tmp/jwt.pem)"
+          definir JWT_PUBLIC_KEY_B64 "$(base64 -w0 /tmp/jwt.pub.pem)"
+          definir DADOS_CRYPTO_KEY_B64 "$(openssl rand -base64 32)"
+          definir CPF_HMAC_KEY_B64 "$(openssl rand -base64 32)"
+          definir CODIGOS_HMAC_KEY_B64 "$(openssl rand -base64 32)"
+          definir S3_ACCESS_KEY_ID "$(openssl rand -hex 16)"
+          definir S3_SECRET_ACCESS_KEY "$(openssl rand -hex 32)"
+          definir ASAAS_WEBHOOK_TOKEN "$(openssl rand -hex 32)"
+          # O emulador chega ao computador por 10.0.2.2.
+          definir S3_ENDPOINT_PUBLICO "http://10.0.2.2:8333"
+
+      - name: Subir Postgres, Redis, S3 e e-mail
+        run: docker compose up -d --wait postgres redis s3 mailpit
+
+      - name: Migrações, API e dados de exemplo
+        run: |
+          set -euo pipefail
+          DATABASE_URL=postgresql://build:build@localhost:5432/build pnpm --filter @abraco/api prisma:generate
+          pnpm --filter @abraco/shared build
+          set -a; source .env; set +a
+          pnpm --filter @abraco/api db:deploy
+          pnpm --filter @abraco/api build
+          (cd apps/api && nohup node --import ./dist/instrumentacao.js dist/main.js > /tmp/api.log 2>&1 &)
+          for i in $(seq 1 30); do curl -fsS http://localhost:3333/health/ready && break; sleep 2; done
+          # Conta da equipe: cadastro pela API + promoção a admin; depois os exemplos.
+          curl -fsS -X POST http://localhost:3333/v1/auth/cadastro -H 'content-type: application/json' -d "{
+            \"nome\": \"Equipe E2E\", \"dataNasc\": \"1990-05-20\", \"cpf\": \"52998224725\",
+            \"telefone\": \"11987654321\", \"email\": \"$E2E_EMAIL\", \"senha\": \"$E2E_SENHA\",
+            \"endereco\": {\"cep\": \"01001000\", \"logradouro\": \"Praça da Sé\", \"numero\": \"1\",
+              \"bairro\": \"Sé\", \"cidade\": \"São Paulo\", \"uf\": \"SP\"},
+            \"aceitouTermos\": true, \"consentimentoDados\": true, \"deviceId\": \"e2e-ci\"}" > /dev/null
+          pnpm --filter @abraco/api criar-admin "$E2E_EMAIL"
+          pnpm --filter @abraco/api semear
+
+      # Build só para o teste: HTTP liberado para falar com a API local (nunca publicado).
+      - name: Build do app Android (release, com bundle embutido)
+        working-directory: apps/mobile
+        env:
+          EXPO_PUBLIC_API_URL: http://10.0.2.2:3333
+        run: |
+          set -euo pipefail
+          pnpm exec expo prebuild --platform android --no-install
+          sed -i 's|<application |<application android:usesCleartextTraffic="true" |' android/app/src/main/AndroidManifest.xml
+          (cd android && ./gradlew assembleRelease --no-daemon -q)
+
+      - name: Instalar o Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Habilitar KVM (emulador acelerado)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+
+      - name: Emulador + fluxos Maestro
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          disable-animations: true
+          script: |
+            adb install -r apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+            maestro test apps/mobile/.maestro --format junit --output /tmp/maestro.xml -e E2E_EMAIL="$E2E_EMAIL" -e E2E_SENHA="$E2E_SENHA"
+
+      - name: Resultados e log da API
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-resultados
+          path: |
+            /tmp/maestro.xml
+            /tmp/api.log
+            ~/.maestro/tests
+          if-no-files-found: ignore

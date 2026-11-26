@@ -1,0 +1,25 @@
+# Usuário entra e chega até a ficha de um animal disponível.
+appId: org.abracoanimal.app
+name: Entrar e ver um animal para adoção
+env:
+  EMAIL: ${E2E_EMAIL}
+  SENHA: ${E2E_SENHA}
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Pular'
+- tapOn: 'E-mail'
+- inputText: ${EMAIL}
+- tapOn: 'Senha'
+- inputText: ${SENHA}
+- hideKeyboard
+- tapOn: 'Entrar'
+- extendedWaitUntil:
+    visible: 'Olá, .*'
+    timeout: 20000
+- tapOn: 'Adotar'
+- extendedWaitUntil:
+    visible: 'Alípio'
+    timeout: 15000
+- tapOn: 'Alípio'
+- assertVisible: 'Quero adotar'

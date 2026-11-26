@@ -1,0 +1,57 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits", "helpers:pinGitHubActionDigestsToSemver"],
+  "timezone": "America/Sao_Paulo",
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencias"],
+  "minimumReleaseAge": "14 days",
+  "prConcurrentLimit": 5,
+  "rangeStrategy": "pin",
+  "vulnerabilityAlerts": {
+    "labels": ["seguranca"],
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on the first day of the month"]
+  },
+  "packageRules": [
+    {
+      "description": "Expo fixa as versões das bibliotecas nativas: atualizar só com o SDK (npx expo install --fix)",
+      "matchFileNames": ["apps/mobile/package.json"],
+      "matchPackageNames": [
+        "expo",
+        "/^expo-/",
+        "/^@expo//",
+        "react",
+        "react-native",
+        "/^react-native-/",
+        "/^@react-native/"
+      ],
+      "groupName": "Expo SDK",
+      "enabled": false
+    },
+    {
+      "description": "Prisma: CLI, client, adapter e instrumentação andam juntos",
+      "matchPackageNames": ["prisma", "/^@prisma//"],
+      "groupName": "Prisma"
+    },
+    {
+      "description": "Sentry: pacotes da mesma família juntos",
+      "matchPackageNames": ["/^@sentry//"],
+      "groupName": "Sentry"
+    },
+    {
+      "description": "Ferramentas de desenvolvimento sem mudança de versão principal: um PR por semana",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "ferramentas de desenvolvimento"
+    },
+    {
+      "description": "Imagens Docker (postgres, redis, node, distroless): revisão manual",
+      "matchDatasources": ["docker"],
+      "groupName": "imagens Docker"
+    }
+  ]
+}

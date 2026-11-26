@@ -1,0 +1,27 @@
+# A conta da equipe (admin) vê a Central e abre a gestão de animais.
+appId: org.abracoanimal.app
+name: Central da equipe
+env:
+  EMAIL: ${E2E_EMAIL}
+  SENHA: ${E2E_SENHA}
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Pular'
+- tapOn: 'E-mail'
+- inputText: ${EMAIL}
+- tapOn: 'Senha'
+- inputText: ${SENHA}
+- hideKeyboard
+- tapOn: 'Entrar'
+- extendedWaitUntil:
+    visible: 'Olá, .*'
+    timeout: 20000
+- tapOn: 'Central'
+- extendedWaitUntil:
+    visible: 'Solicitações de adoção'
+    timeout: 15000
+- scrollUntilVisible:
+    element: 'Animais'
+- tapOn: 'Animais'
+- assertVisible: 'Cadastrar animal'

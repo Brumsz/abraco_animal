@@ -1,0 +1,7 @@
+# Testes E2E (seção 10, item 8). Rodam no emulador Android do workflow e2e.yml,
+# contra a API real com dados de exemplo (pnpm semear). Localmente:
+#   maestro test apps/mobile/.maestro
+flows:
+  - '*.yaml'
+excludeTags:
+  - rascunho

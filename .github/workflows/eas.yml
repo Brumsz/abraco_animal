@@ -1,0 +1,69 @@
+name: App (EAS Update / Build)
+
+# Mobile CI (seção 10): EAS Update com canais development, preview e production.
+# Desligado até existir o segredo EXPO_TOKEN (conta Expo gratuita + `eas init`).
+#  - push na main → atualização OTA no canal "preview" (só JS, sem nova build)
+#  - manual → build nativa (APK de preview ou produção)
+on:
+  push:
+    branches: [main]
+    paths: ['apps/mobile/**', 'packages/**']
+  workflow_dispatch:
+    inputs:
+      perfil:
+        description: 'Perfil do eas.json'
+        type: choice
+        options: [preview, development, production]
+        default: preview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eas-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  eas:
+    name: EAS (${{ github.event_name == 'push' && 'update preview' || inputs.perfil }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      TEM_TOKEN: ${{ secrets.EXPO_TOKEN != '' }}
+    steps:
+      - name: Sem EXPO_TOKEN — nada a fazer
+        if: env.TEM_TOKEN != 'true'
+        run: echo "::notice::Defina o segredo EXPO_TOKEN para publicar o app (ver docs/etapa-11/decisoes-11b.md)."
+
+      - uses: actions/checkout@v4
+        if: env.TEM_TOKEN == 'true'
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+        if: env.TEM_TOKEN == 'true'
+
+      - uses: actions/setup-node@v4
+        if: env.TEM_TOKEN == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - uses: expo/expo-github-action@v9
+        if: env.TEM_TOKEN == 'true'
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - if: env.TEM_TOKEN == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Atualização OTA (canal preview)
+        if: env.TEM_TOKEN == 'true' && github.event_name == 'push'
+        working-directory: apps/mobile
+        run: eas update --channel preview --message "${{ github.sha }}" --non-interactive
+
+      - name: Build nativa
+        if: env.TEM_TOKEN == 'true' && github.event_name == 'workflow_dispatch'
+        working-directory: apps/mobile
+        run: eas build --profile "${{ inputs.perfil }}" --platform android --non-interactive --no-wait
