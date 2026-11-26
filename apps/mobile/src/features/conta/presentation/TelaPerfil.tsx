@@ -79,16 +79,15 @@ export default function TelaPerfil() {
           ) : (
             <FundoMarca style={styles.capa} />
           )}
-          <View style={styles.identidade}>
-            <View style={styles.moldura}>
-              <Avatar nome={usuario?.nome ?? ''} uri={usuario?.fotoUrl} tamanho={76} />
-            </View>
-            <View style={styles.nome}>
-              <Texto variante="h2" numberOfLines={1}>
-                {usuario?.nome ?? ''}
-              </Texto>
-              {papel ? <Badge status="DESTAQUE" texto={papel} /> : null}
-            </View>
+          {/* Só a foto sobe sobre a capa; o nome fica abaixo, no fundo claro (legível). */}
+          <View style={styles.moldura}>
+            <Avatar nome={usuario?.nome ?? ''} uri={usuario?.fotoUrl} tamanho={76} />
+          </View>
+          <View style={styles.nome}>
+            <Texto variante="h2" numberOfLines={2} accessibilityRole="header">
+              {usuario?.nome ?? ''}
+            </Texto>
+            {papel ? <Badge status="DESTAQUE" texto={papel} /> : null}
           </View>
         </View>
 
@@ -143,15 +142,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   capa: { height: 112, borderRadius: raio.lg, overflow: 'hidden' },
-  identidade: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: espaco.md,
-    marginTop: -40,
-    paddingLeft: espaco.lg,
+  moldura: {
+    alignSelf: 'flex-start',
+    marginTop: -42,
+    marginLeft: espaco.lg,
+    borderRadius: 42,
+    borderWidth: 4,
+    borderColor: cores.fundo,
   },
-  moldura: { borderRadius: 42, borderWidth: 4, borderColor: cores.fundo },
-  nome: { flex: 1, gap: espaco.xs, alignItems: 'flex-start', paddingBottom: espaco.xs },
+  nome: {
+    gap: espaco.sm,
+    alignItems: 'flex-start',
+    paddingTop: espaco.md,
+    paddingHorizontal: espaco.lg,
+  },
   numeros: { flexDirection: 'row', gap: espaco.sm },
   numero: {
     flex: 1,
